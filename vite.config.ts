@@ -15,7 +15,11 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       external: []
-    }
+    },
+    emptyOutDir: true
   },
-  root: '.'
+  root: '.',
+  server: {
+    port: 3000
+  }
 });
