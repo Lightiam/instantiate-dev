@@ -318,7 +318,7 @@ export function AzureDocker() {
                   <Input
                     id="name"
                     value={containerConfig.name}
-                    onChange={(e) => setContainerConfig(prev => ({ ...prev, name: e.target.value }))}
+                    onChange={(e: any) => setContainerConfig(prev => ({ ...prev, name: e.target.value }))}
                     placeholder="my-app-container"
                     className="bg-slate-800 border-slate-600 text-white"
                   />
@@ -328,7 +328,7 @@ export function AzureDocker() {
                   <Label htmlFor="image" className="text-slate-300">Docker Image</Label>
                   <Select 
                     value={containerConfig.image} 
-                    onValueChange={(value) => setContainerConfig(prev => ({ ...prev, image: value }))}
+                    onValueChange={(value: any) => setContainerConfig(prev => ({ ...prev, image: value }))}
                   >
                     <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
                       <SelectValue placeholder="Select or enter image" />
@@ -348,7 +348,7 @@ export function AzureDocker() {
                   <Input
                     id="resourceGroup"
                     value={containerConfig.resourceGroup}
-                    onChange={(e) => setContainerConfig(prev => ({ ...prev, resourceGroup: e.target.value }))}
+                    onChange={(e: any) => setContainerConfig(prev => ({ ...prev, resourceGroup: e.target.value }))}
                     className="bg-slate-800 border-slate-600 text-white"
                   />
                 </div>
@@ -357,7 +357,7 @@ export function AzureDocker() {
                   <Label htmlFor="location" className="text-slate-300">Location</Label>
                   <Select 
                     value={containerConfig.location} 
-                    onValueChange={(value) => setContainerConfig(prev => ({ ...prev, location: value }))}
+                    onValueChange={(value: any) => setContainerConfig(prev => ({ ...prev, location: value }))}
                   >
                     <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
                       <SelectValue />
@@ -376,7 +376,7 @@ export function AzureDocker() {
                   <Label htmlFor="cpu" className="text-slate-300">CPU Cores</Label>
                   <Select 
                     value={containerConfig.cpu.toString()} 
-                    onValueChange={(value) => setContainerConfig(prev => ({ ...prev, cpu: parseInt(value) }))}
+                    onValueChange={(value: any) => setContainerConfig(prev => ({ ...prev, cpu: parseInt(value: any) }))}
                   >
                     <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
                       <SelectValue />
@@ -394,7 +394,7 @@ export function AzureDocker() {
                   <Label htmlFor="memory" className="text-slate-300">Memory (GB)</Label>
                   <Select 
                     value={containerConfig.memory.toString()} 
-                    onValueChange={(value) => setContainerConfig(prev => ({ ...prev, memory: parseInt(value) }))}
+                    onValueChange={(value: any) => setContainerConfig(prev => ({ ...prev, memory: parseInt(value: any) }))}
                   >
                     <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
                       <SelectValue />
@@ -415,8 +415,8 @@ export function AzureDocker() {
                 <Input
                   id="ports"
                   value={containerConfig.ports.join(', ')}
-                  onChange={(e) => {
-                    const ports = e.target.value.split(',').map(p => parseInt(p.trim())).filter(p => !isNaN(p));
+                  onChange={(e: any) => {
+                    const ports = e.target.value.split(',').map(p => parseInt(p.trim())).filter(p => !isNaN(p: any));
                     setContainerConfig(prev => ({ ...prev, ports }));
                   }}
                   placeholder="80, 443, 8080"
