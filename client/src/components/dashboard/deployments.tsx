@@ -71,7 +71,7 @@ export function Deployments() {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {deployments??.map?.((deployment: any) => (
+          {deployments?.map?.((deployment: any) => (
             <Card key={deployment.id} className="bg-slate-950 border-slate-700">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
