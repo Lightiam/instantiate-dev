@@ -12,7 +12,10 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true
+    sourcemap: false,
+    rollupOptions: {
+      external: []
+    }
   },
-  root: './client'
+  root: '.'
 });
