@@ -10,12 +10,14 @@ import { Settings } from "@/components/dashboard/settings";
 import { AzureDocker } from "@/components/dashboard/azure-docker";
 import { MultiCloudOverview } from "@/components/dashboard/multi-cloud-overview";
 import { CloudInsightsDashboard } from "@/components/dashboard/cloud-insights-dashboard";
+import { InfrastructureImporter } from "@/components/infrastructure/infrastructure-importer";
+import { ImportWizard } from "@/components/infrastructure/import-wizard";
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/layout/footer";
 import { Plus } from "lucide-react";
 
-type Section = "overview" | "projects" | "deployments" | "azure-docker" | "multi-cloud" | "infrastructure" | "monitoring" | "settings";
+type Section = "overview" | "projects" | "deployments" | "azure-docker" | "multi-cloud" | "infrastructure" | "import-wizard" | "monitoring" | "settings";
 
 const sectionTitles: Record<Section, { title: string; subtitle: string }> = {
   overview: { title: "Overview", subtitle: "Monitor your deployments and infrastructure" },
@@ -23,7 +25,8 @@ const sectionTitles: Record<Section, { title: string; subtitle: string }> = {
   deployments: { title: "Deployments", subtitle: "Multi-cloud deployment management" },
   "azure-docker": { title: "Azure Docker", subtitle: "Deploy and manage Docker containers on Azure" },
   "multi-cloud": { title: "Multi-Cloud", subtitle: "Unified dashboard for all cloud providers" },
-  infrastructure: { title: "Infrastructure", subtitle: "Monitor and manage your resources" },
+  infrastructure: { title: "Infrastructure", subtitle: "Import existing infrastructure from any cloud provider" },
+  "import-wizard": { title: "Import Wizard", subtitle: "Step-by-step infrastructure import and conversion" },
   monitoring: { title: "Monitoring", subtitle: "Real-time metrics and alerts" },
   settings: { title: "Settings", subtitle: "Configure environment variables and cloud credentials" },
 };
@@ -40,7 +43,9 @@ export default function Dashboard() {
       case "deployments":
         return <Deployments />;
       case "infrastructure":
-        return <Infrastructure />;
+        return <InfrastructureImporter />;
+      case "import-wizard":
+        return <ImportWizard />;
       case "monitoring":
         return <Monitoring />;
       case "azure-docker":
