@@ -22,7 +22,7 @@
   node_bundler = "esbuild"
 
 [functions."api"]
-  external_node_modules = ["express", "ws", "uuid"]
+  external_node_modules = ["express", "ws", "uuid", "./server/routes.js"]
 
 [[headers]]
   for = "/*"
