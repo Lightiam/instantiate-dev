@@ -4,10 +4,18 @@ import express from 'express';
 
 const app = express();
 
-// Register all routes
-await registerRoutes(app);
+let routesInitialized = false;
+
+async function initializeRoutes() {
+  if (!routesInitialized) {
+    await registerRoutes(app);
+    routesInitialized = true;
+  }
+}
 
 export const handler: Handler = async (event, context) => {
+  await initializeRoutes();
+  
   // Handle API requests through Express app
   return new Promise((resolve, reject) => {
     const req = {

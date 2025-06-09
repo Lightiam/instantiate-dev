@@ -18,6 +18,10 @@
 
 [functions]
   directory = "functions"
+  node_bundler = "esbuild"
+
+[functions."api"]
+  external_node_modules = ["express", "ws", "uuid"]
 
 [[headers]]
   for = "/*"
