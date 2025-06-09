@@ -22,10 +22,10 @@
   directory = "functions"
   node_bundler = "esbuild"
   external_node_modules = ["express", "ws", "uuid"]
+  included_files = ["server/**/*"]
 
 [functions."api"]
   external_node_modules = ["express", "ws", "uuid"]
-  included_files = ["server/**/*"]
 
 [[headers]]
   for = "/*"
