@@ -133,14 +133,14 @@ export function CloudArchitectureDiagram() {
           </circle>
           <text y="5" className="text label">AI Orchestrator</text>
           <text y="20" className="text label" fontSize="10">
-            {providerStatuses?.filter((p: ProviderStatus) => p.status === 'connected').length || 0}/11 Active
+            {providerStatuses??.filter?.((p: ProviderStatus) => p.status === 'connected').length || 0}/11 Active
           </text>
         </g>
 
         {/* Cloud Providers in Circle */}
         {providers.map((provider, index) => {
           const position = getProviderPosition(index, providers.length);
-          const providerStatus = providerStatuses?.find(
+          const providerStatus = providerStatuses??.find?.(
             (p: ProviderStatus) => p.provider.toLowerCase() === provider.name.toLowerCase()
           );
           const statusColor = getStatusColor(providerStatus?.status || 'unknown');
@@ -277,7 +277,7 @@ export function CloudArchitectureDiagram() {
         </g>
 
         {/* Real-time Activity Indicators */}
-        {providerStatuses?.some((p: ProviderStatus) => p.status === 'deploying') && (
+        {providerStatuses??.some?.((p: ProviderStatus) => p.status === 'deploying') && (
           <g>
             <circle cx="500" cy="350" r="80" fill="none" stroke="#f59e0b" strokeWidth="1" opacity="0.5">
               <animate attributeName="r" values="80;120;80" dur="2s" repeatCount="indefinite"/>
@@ -294,13 +294,13 @@ export function CloudArchitectureDiagram() {
           <rect width="150" height="80" rx="5" fill="#1e1e1e" stroke="#06b6d4" strokeWidth="1"/>
           <text x="75" y="20" className="text label" fontSize="10">System Status</text>
           <text x="10" y="40" className="text" fontSize="9">
-            Active Providers: {providerStatuses?.filter((p: ProviderStatus) => p.status === 'connected').length || 0}/11
+            Active Providers: {providerStatuses??.filter?.((p: ProviderStatus) => p.status === 'connected').length || 0}/11
           </text>
           <text x="10" y="55" className="text" fontSize="9">
-            Total Resources: {providerStatuses?.reduce((sum: number, p: ProviderStatus) => sum + p.resourceCount, 0) || 0}
+            Total Resources: {providerStatuses??.reduce?.((sum: number, p: ProviderStatus) => sum + p.resourceCount, 0) || 0}
           </text>
           <text x="10" y="70" className="text" fontSize="9">
-            Health: {((providerStatuses?.filter((p: ProviderStatus) => p.status === 'connected').length || 0) / 11 * 100).toFixed(0)}%
+            Health: {((providerStatuses??.filter?.((p: ProviderStatus) => p.status === 'connected').length || 0) / 11 * 100).toFixed(0)}%
           </text>
         </g>
       </svg>
