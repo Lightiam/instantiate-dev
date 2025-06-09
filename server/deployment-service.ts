@@ -2,7 +2,7 @@ import { exec } from 'child_process';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { getAzureService } from './azure-service';
+import {  getAzureService  } from "./azure-service.js";
 
 interface DeploymentRequest {
   code: string;
@@ -401,4 +401,5 @@ subscription_id = "${azureConfig.subscriptionId}"`;
   }
 }
 
-export const deploymentService = new DeploymentService();
+const deploymentService = new DeploymentService();
+export { deploymentService };
