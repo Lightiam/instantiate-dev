@@ -16,6 +16,7 @@ export function Sidebar({ currentSection, onSectionChange }: SidebarProps) {
     { id: "multi-cloud", label: "Multi-Cloud", icon: Globe, badge: "11" },
     { id: "infrastructure", label: "Import Infrastructure", icon: Server },
     { id: "import-wizard", label: "Import Wizard", icon: Activity },
+    { id: "domains", label: "Domain Manager", icon: Globe },
     { id: "monitoring", label: "Monitoring", icon: BarChart3 },
   ];
 
