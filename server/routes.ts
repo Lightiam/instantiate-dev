@@ -1,19 +1,19 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
-import { storage } from "./storage";
+import {  storage  } from "./storage.js";
 import { insertChatMessageSchema, insertDeploymentSchema } from "@shared/schema";
 import { z } from "zod";
-import { getAzureService } from "./azure-service";
-import { codeGenerator } from "./code-generator";
-import { deploymentService } from "./deployment-service";
-import { azureWorkingDeployment } from "./azure-working-deployment";
-import { azureVerifiedDeployment } from "./azure-verified-deployment";
-import { deploymentStatusManager } from "./deployment-status-manager";
-import { aiChatService } from "./ai-chat-service";
+import {  getAzureService  } from "./azure-service.js";
+import { codeGenerator } from "./code-generator.js";
+import { deploymentService } from "./deployment-service.js";
+import { azureWorkingDeployment } from "./azure-working-deployment.js";
+import { azureVerifiedDeployment } from "./azure-verified-deployment.js";
+import { deploymentStatusManager } from "./deployment-status-manager.js";
+import { aiChatService } from "./ai-chat-service.js";
 import { v4 as uuidv4 } from 'uuid';
-import { multiCloudRoutes } from "./routes/multi-cloud-routes";
-import { insightsRoutes } from "./routes/insights-routes";
+import { multiCloudRoutes } from "./routes/multi-cloud-routes.js";
+import { insightsRoutes } from "./routes/insights-routes.js";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Enable CORS for Netlify frontend
