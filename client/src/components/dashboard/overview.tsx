@@ -29,7 +29,7 @@ export function Overview() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "running":
-        return <Badge className="bg-primary/10 text-primary">Running</Badge>;
+        return <Badge className="bg-cyan-500/10 text-cyan-400">Running</Badge>;
       case "deploying":
         return <Badge className="bg-amber-500/10 text-amber-500">Deploying</Badge>;
       case "failed":
@@ -43,11 +43,11 @@ export function Overview() {
     <div className="space-y-8">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="bg-slate-900 border-slate-700">
+        <Card className="bg-blue-950 border-blue-800">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-400">Active Deployments</p>
+                <p className="text-sm text-cyan-400">Active Deployments</p>
                 <p className="text-2xl font-bold text-primary">{stats?.deployments || 0}</p>
               </div>
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
@@ -57,39 +57,39 @@ export function Overview() {
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900 border-slate-700">
+        <Card className="bg-blue-950 border-blue-800">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-400">Cloud Providers</p>
+                <p className="text-sm text-cyan-400">Cloud Providers</p>
                 <p className="text-2xl font-bold text-white">{stats?.providers || 0}</p>
               </div>
-              <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center">
-                <Cloud className="text-blue-500" />
+              <div className="w-12 h-12 bg-cyan-500/10 rounded-lg flex items-center justify-center">
+                <Cloud className="text-cyan-400" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900 border-slate-700">
+        <Card className="bg-blue-950 border-blue-800">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-400">Monthly Cost</p>
+                <p className="text-sm text-cyan-400">Monthly Cost</p>
                 <p className="text-2xl font-bold text-white">${stats?.cost || 0}</p>
               </div>
-              <div className="w-12 h-12 bg-amber-500/10 rounded-lg flex items-center justify-center">
-                <DollarSign className="text-amber-500" />
+              <div className="w-12 h-12 bg-cyan-500/10 rounded-lg flex items-center justify-center">
+                <DollarSign className="text-cyan-400" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900 border-slate-700">
+        <Card className="bg-blue-950 border-blue-800">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-400">Uptime</p>
+                <p className="text-sm text-cyan-400">Uptime</p>
                 <p className="text-2xl font-bold text-primary">{stats?.uptime || 0}%</p>
               </div>
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
@@ -101,21 +101,21 @@ export function Overview() {
       </div>
 
       {/* Recent Deployments */}
-      <Card className="bg-slate-900 border-slate-700">
+      <Card className="bg-blue-950 border-blue-800">
         <CardHeader>
-          <CardTitle className="text-white">Recent Deployments</CardTitle>
+          <CardTitle className="text-cyan-400">Recent Deployments</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {deployments?.map((deployment: any) => (
-              <div key={deployment.id} className="flex items-center justify-between p-4 bg-slate-950 rounded-lg border border-slate-700">
+              <div key={deployment.id} className="flex items-center justify-between p-4 bg-blue-900 rounded-lg border border-blue-700">
                 <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-blue-800 rounded-lg flex items-center justify-center">
                     {getProviderIcon(deployment.provider)}
                   </div>
                   <div>
                     <h3 className="font-medium text-white">{deployment.name}</h3>
-                    <p className="text-sm text-slate-400">
+                    <p className="text-sm text-cyan-300">
                       {deployment.provider.toUpperCase()} • {deployment.region}
                     </p>
                   </div>
