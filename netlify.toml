@@ -2,6 +2,7 @@
   base = "."
   command = "npm run build"
   publish = "dist"
+  functions = "functions"
 
 [build.environment]
   NODE_VERSION = "18.19.1"
@@ -20,9 +21,11 @@
 [functions]
   directory = "functions"
   node_bundler = "esbuild"
+  external_node_modules = ["express", "ws", "uuid"]
 
 [functions."api"]
-  external_node_modules = ["express", "ws", "uuid", "./server/routes.js"]
+  external_node_modules = ["express", "ws", "uuid"]
+  included_files = ["server/**/*"]
 
 [[headers]]
   for = "/*"
