@@ -231,4 +231,5 @@ Response format:
   }
 }
 
-export const aiChatService = new AIChatService();
+const aiChatService = new AIChatService();
+export { aiChatService };
