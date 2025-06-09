@@ -1,6 +1,6 @@
 [build]
   base = "."
-  command = "npm install vite && npm install && npm run build"
+  command = "npm install && npm install vite --save-dev && npx vite build"
   publish = "dist"
   functions = "functions"
 
