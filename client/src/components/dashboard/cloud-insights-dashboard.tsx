@@ -97,7 +97,7 @@ export function CloudInsightsDashboard() {
       case 'healthy':
       case 'running':
       case 'active':
-        return 'text-green-500';
+        return 'text-cyan-400';
       case 'warning':
       case 'degraded':
         return 'text-yellow-500';
@@ -106,7 +106,7 @@ export function CloudInsightsDashboard() {
       case 'critical':
         return 'text-red-500';
       default:
-        return 'text-gray-500';
+        return 'text-slate-500';
     }
   };
 
@@ -162,10 +162,10 @@ export function CloudInsightsDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {(providerMetrics as any)?.totalResources || 0}
+              {providerMetrics?.totalResources || 0}
             </div>
             <p className="text-xs text-muted-foreground">
-              +{(providerMetrics as any)?.resourcesGrowth || 0}% from last period
+              +{providerMetrics?.resourcesGrowth || 0}% from last period
             </p>
           </CardContent>
         </Card>
@@ -177,10 +177,10 @@ export function CloudInsightsDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${(costAnalysis as any)?.totalCost?.toFixed(2) || '0.00'}
+              ${costAnalysis?.totalCost?.toFixed(2) || '0.00'}
             </div>
             <p className="text-xs text-muted-foreground">
-              {(costAnalysis as any)?.trend === 'up' ? '+' : '-'}{(costAnalysis as any)?.change || 0}% from last month
+              {costAnalysis?.trend === 'up' ? '+' : '-'}{costAnalysis?.change || 0}% from last month
             </p>
           </CardContent>
         </Card>
@@ -192,7 +192,7 @@ export function CloudInsightsDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {(providerMetrics as any)?.averageUptime?.toFixed(1) || '99.9'}%
+              {providerMetrics?.averageUptime?.toFixed(1) || '99.9'}%
             </div>
             <p className="text-xs text-muted-foreground">
               Across all providers
@@ -207,10 +207,10 @@ export function CloudInsightsDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {(securityReport as any)?.overallScore || 95}/100
+              {securityReport?.overallScore || 95}/100
             </div>
             <p className="text-xs text-muted-foreground">
-              {(securityReport as any)?.vulnerabilities || 0} vulnerabilities found
+              {securityReport?.vulnerabilities || 0} vulnerabilities found
             </p>
           </CardContent>
         </Card>
@@ -227,7 +227,7 @@ export function CloudInsightsDashboard() {
 
         <TabsContent value="providers" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {(providerMetrics as any)?.providers?.map((provider: CloudMetrics) => (
+            {providerMetrics?.providers?.map((provider: CloudMetrics) => (
               <Card key={provider.provider} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -297,7 +297,7 @@ export function CloudInsightsDashboard() {
 
         <TabsContent value="deployments" className="space-y-4">
           <div className="space-y-4">
-            {(deploymentInsights as any)?.map((deployment: DeploymentInsight) => (
+            {deploymentInsights?.map((deployment: DeploymentInsight) => (
               <Card key={deployment.deploymentId}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -372,7 +372,7 @@ export function CloudInsightsDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {(providerMetrics as any)?.providers?.map((provider: CloudMetrics) => (
+                  {providerMetrics?.providers?.map((provider: CloudMetrics) => (
                     <div key={provider.provider} className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="capitalize">{provider.provider}</span>
@@ -392,7 +392,7 @@ export function CloudInsightsDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {(providerMetrics as any)?.providers?.map((provider: CloudMetrics) => (
+                  {providerMetrics?.providers?.map((provider: CloudMetrics) => (
                     <div key={provider.provider} className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="capitalize">{provider.provider}</span>
@@ -409,7 +409,7 @@ export function CloudInsightsDashboard() {
 
         <TabsContent value="costs" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {(providerMetrics as any)?.providers?.map((provider: CloudMetrics) => (
+            {providerMetrics?.providers?.map((provider: CloudMetrics) => (
               <Card key={provider.provider}>
                 <CardHeader>
                   <CardTitle className="capitalize">{provider.provider}</CardTitle>
@@ -445,15 +445,15 @@ export function CloudInsightsDashboard() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <div className="text-3xl font-bold">{(securityReport as any)?.overallScore || 95}/100</div>
+                  <div className="text-3xl font-bold">{securityReport?.overallScore || 95}/100</div>
                   <div className="text-sm text-muted-foreground">Security Score</div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span>Compliant Resources</span>
-                    <span>{(securityReport as any)?.compliantResources || 0}%</span>
+                    <span>{securityReport?.compliantResources || 0}%</span>
                   </div>
-                  <Progress value={(securityReport as any)?.compliantResources || 95} />
+                  <Progress value={securityReport?.compliantResources || 95} />
                 </div>
               </CardContent>
             </Card>
@@ -466,15 +466,15 @@ export function CloudInsightsDashboard() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-red-500">{(securityReport as any)?.critical || 0}</div>
+                    <div className="text-2xl font-bold text-red-500">{securityReport?.critical || 0}</div>
                     <div className="text-xs text-muted-foreground">Critical</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-yellow-500">{(securityReport as any)?.high || 0}</div>
+                    <div className="text-2xl font-bold text-yellow-500">{securityReport?.high || 0}</div>
                     <div className="text-xs text-muted-foreground">High</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-blue-500">{(securityReport as any)?.medium || 0}</div>
+                    <div className="text-2xl font-bold text-blue-500">{securityReport?.medium || 0}</div>
                     <div className="text-xs text-muted-foreground">Medium</div>
                   </div>
                 </div>
