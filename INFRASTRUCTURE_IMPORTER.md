@@ -69,4 +69,4 @@ Comprehensive infrastructure importing capabilities supporting all major cloud p
 - `GET /api/infrastructure/import/status/:id` - Check import status
 - `GET /api/infrastructure/templates` - List available templates
 
-Generated: 2025-06-09T22:17:52.663Z
+Generated: 2025-06-09T22:20:44.760Z
