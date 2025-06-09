@@ -71,7 +71,7 @@ export function Deployments() {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {deployments?.map((deployment: any) => (
+          {deployments??.map?.((deployment: any) => (
             <Card key={deployment.id} className="bg-slate-950 border-slate-700">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -88,7 +88,7 @@ export function Deployments() {
                 </div>
                 
                 <div className="space-y-3">
-                  {deployment.configuration && Object.entries(deployment.configuration).map(([key, value]) => (
+                  {deployment.configuration && Object.entries(deployment.configuration)?.map?.(([key, value]) => (
                     <div key={key} className="flex justify-between text-sm">
                       <span className="text-slate-400 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
                       <span className="text-white">{value as string}</span>
