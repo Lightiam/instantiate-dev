@@ -376,7 +376,7 @@ export function AzureDocker() {
                   <Label htmlFor="cpu" className="text-slate-300">CPU Cores</Label>
                   <Select 
                     value={containerConfig.cpu.toString()} 
-                    onValueChange={(value: any) => setContainerConfig(prev => ({ ...prev, cpu: parseInt(value: any) }))}
+                    onValueChange={(value: any) => setContainerConfig(prev => ({ ...prev, cpu: parseInt(value) }))}
                   >
                     <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
                       <SelectValue />
@@ -394,7 +394,7 @@ export function AzureDocker() {
                   <Label htmlFor="memory" className="text-slate-300">Memory (GB)</Label>
                   <Select 
                     value={containerConfig.memory.toString()} 
-                    onValueChange={(value: any) => setContainerConfig(prev => ({ ...prev, memory: parseInt(value: any) }))}
+                    onValueChange={(value: any) => setContainerConfig(prev => ({ ...prev, memory: parseInt(value) }))}
                   >
                     <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
                       <SelectValue />
