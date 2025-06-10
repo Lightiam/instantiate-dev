@@ -1,0 +1,2046 @@
+{
+  "total_files": 507,
+  "deployment_ready": true,
+  "hosting_platform": "namecheap",
+  "domain": "instantiate.dev",
+  "files": [
+    {
+      "path": ".cache/replit/env/latest",
+      "type": "cache/replit/env/latest"
+    },
+    {
+      "path": ".cache/replit/env/latest.json",
+      "type": "json"
+    },
+    {
+      "path": ".cache/replit/modules/nodejs-20",
+      "type": "cache/replit/modules/nodejs-20"
+    },
+    {
+      "path": ".cache/replit/modules/nodejs-20.res",
+      "type": "res"
+    },
+    {
+      "path": ".cache/replit/modules/postgresql-16",
+      "type": "cache/replit/modules/postgresql-16"
+    },
+    {
+      "path": ".cache/replit/modules/postgresql-16.res",
+      "type": "res"
+    },
+    {
+      "path": ".cache/replit/modules/replit",
+      "type": "cache/replit/modules/replit"
+    },
+    {
+      "path": ".cache/replit/modules/replit.res",
+      "type": "res"
+    },
+    {
+      "path": ".cache/replit/modules/web",
+      "type": "cache/replit/modules/web"
+    },
+    {
+      "path": ".cache/replit/modules/web.res",
+      "type": "res"
+    },
+    {
+      "path": ".cache/replit/modules.stamp",
+      "type": "stamp"
+    },
+    {
+      "path": ".cache/replit/nix/dotreplitenv.json",
+      "type": "json"
+    },
+    {
+      "path": ".cache/replit/toolchain.json",
+      "type": "json"
+    },
+    {
+      "path": ".cache/typescript/5.6/package-lock.json",
+      "type": "json"
+    },
+    {
+      "path": ".cache/typescript/5.6/package.json",
+      "type": "json"
+    },
+    {
+      "path": ".env",
+      "type": "env"
+    },
+    {
+      "path": ".env.azure",
+      "type": "azure"
+    },
+    {
+      "path": ".env.example",
+      "type": "example"
+    },
+    {
+      "path": ".env.netlify",
+      "type": "netlify"
+    },
+    {
+      "path": ".env.production",
+      "type": "production"
+    },
+    {
+      "path": ".gitignore",
+      "type": "gitignore"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_000ccacd372eb3ab58820c51a01630d3f1cc282a.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_0503c385f9f755147e12fc7b6ff83112cfb6d341.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_0688083b863b3c1a94631513117077a2903e8580.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_0855a1f17b03b57425c7c086a88fcf3c5a4b4c12.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_08cdd5d329c640231ad8d1e98e245c4a4f0b230c.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_098b0711dfe9a050e9638dedea2bb78565edf1d1.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_0a1a308873fad46df47dfef92dda4f2d705fe811.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_0ab0ce25b454567bbc1cba0b5efd913f3e246d57.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_0b0d2cb93fee05f3a18b077c6ff582b341ca3abc.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_0b1e0594513608755024c127d3ca25d53cb5b082.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_0e805d155da9e7d4d7ec7900b5034a1f10ed24e8.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_117771db780e564a26ba5c1b5c7a02ef7c9a30e4.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_13ca632e3718e6823482bd3a1d1d1b113367488d.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_15a3021b8d9efd5747529df71d26bbf34daa48d8.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_16b4ae190d8ab2d7a557e97fddb9db96da9d100b.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_16ba351c4d684c3da52f01da765875d2558a74c7.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_1752f8e8f27f85df7dbde3278be7179f39ca2e72.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_18c72708bbe960dfe7770c2de424daa6865e571d.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_1a48ecd79daa948c40822c7239adabf592181821.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_1c60a9d77001c027d018a20a5eb9c6f15d1db304.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_1c9363fbd513dd5631b3f90d7ad9a9c1866400aa.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_1c9f36dd58eaf22f7611308549cf72aa308b3f81.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_1ccdfb2b480ae913567881f0358adaa5ea6176a9.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_1cf4a4ee1786f0f7e1b5cb800ec20fd09954b782.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_210472f51e3c9f6d10fc439e656ea0bd06960fab.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_226d87d2e2b8b1bc228294b4b095084e11dfe00d.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_22daf7a9cca708b3b33fc401ba2648fd2d28df7a.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_235045bb9272a25f30afd027065871239c5feb5d.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_242a0110bec0a6cb4b5a699c10a543740a0dc966.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_2648d85456e33fb2b2c67310825944f9f9c41485.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_2801e14f20d32d57e5ee427e6ac79f62ae02b74b.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_299b2967a1d6bc108fa7a1b63f73d6d7e172f483.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_2b9821f0a585afd53bddd6d5f61b790864e1535b.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_2c94b61ea08d9044e1df2c8d5826550e29271b6e.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_2d7b00fc11a46c8426db91046a8681aadc6206e1.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_2dcfb6f0cc291d4f0f0ede2448a1f381fc371c47.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_2e4339952d926535227a3607bba0b9281b72a1e8.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_2f2c5306ff4060c86c6fe97d8a1bc6967f832140.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_2f70a60963151808ccd504b7d2d0f55cd0f5ea01.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_2fe149ffcbf49b4fbae3c780a2651168fe4294d6.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_3136ed95f6966064b32d714078eb058bc01fd33d.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_33d889581b4daea46a4d883f69dad5df9b673c4b.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_356b6edb0b88ee38df5e88ef6c9393d1cd902559.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_35bb02b6667a83cfbd02d07e978b7b1b152a53ff.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_35ddf24b90008c953ff010bf31161e7bf02bb9b7.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_38227e9d999158c54f97dbc417d76a1963bb0a41.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_3836b81e73059dcf9e5243d64423094caa24f3bb.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_38606d533db8695e9ff8bf94ea184298085c04e9.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_3940358b088fdb898900ca25e9bff80d297a161d.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_39657700e0a5209f148080f3c6db738c7bf05c01.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_39b4784fdc423eadb7e889bcbc5eb1cb3785314e.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_41239c17c5257ab3aa9906c5df8b869a8a43ce7c.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_4537124ee9b934c86a891a519bf1f08b89413509.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_491f37cdd2cf2c93258964f43f5894ac22767b40.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_49645b4c0dad8e2e3ede96cd9cb9874fdfe3444c.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_4ae93b2c0a300a4bb0cf64f83b68d60ad0409c3f.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_4aebf4d741c19809b4337b51885a02d39c9e0f1d.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_4aefc6fafcbcfb310a10231af8c8b48520c5ae9b.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_4b500c30aef31552b7f17dbee5421515b4bb8bb4.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_4b500d02b741bf9b65c4a35afc1a9e6772eb3cf0.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_4b85df2b6e6453be06f80e092c7f7aa80a2d907e.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_4cddb6be5899c388abe38c76e01bf5e9378c8e30.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_4d6bce961a87bf8d7aa81b8d93412ae0ec858812.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_4eba2c5d837ea7c40cb5d7b8bafbf78b3d05ea1d.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_4f19d1b79a2685036a4833d32a5f1727d7b2f8cd.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_4fb9925ef6c92e2c370123a40e07fe313e175bdc.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_51646a84cc750c73234b09a04c2a29784beec1a7.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_52afaf7b3b58d54cd029495deeb0c44294a201e8.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_5395c42a9cfc7746ef86e90d1bb18fee53b3469c.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_53a0638fcc557f4c92d6638673a9e5ba5691fe31.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_555384906325383d4a30edb1598f2fcc4c4cc2bc.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_5614d3bbbd27fc11b655321b3e42ce7b57c71096.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_5676fba865ac72dd71ee46b193d88b890fcfdd46.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_585926638c113d4d1e5605badcf52accb4ff039d.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_589729646a094c970c69e2476b2e6838dec26029.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_5ad242f6f9ced4f825356187a41dbed209217b1f.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_5d8256ec6d57e4d64819ad980f49be3f3a84f182.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_5e270c5bedfee5ceeebff876daa1a07fca56ef0c.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_5f3fee21d0f385c57c6a949ad95dc573cd6f73ef.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_609f9d37d6871b3ebe8eea080c4dc76e9ec3f98a.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_615a434c15e7ab17b71d67378d1258402d287967.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_6488125bd9ca3b00f5ebe63bcdcd91e07aee0627.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_6588d041af2df1289a35e2a9af41cb856f5dfbdf.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_6741901ccded433630a9ca59a2ce4e3a47f033a3.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_68f89e2276fbb127734b4c3e35737f0f9cd40fb8.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_693032d921b148e55813f18b0bca4b9586adbf94.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_6bf2bf5fb503d56f30274cbb3443b9e9fd051177.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_6c7636a1a1c8a79c1db784a30c39ef8be078579b.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_6d6612388cadc287548ee9f196b36259209850ee.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_6db595edcbca2977ebd370fe50dc49e41f5e00a1.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_7405cfa39a4e55cce1b9c015c316634799fd6d78.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_75d1a5c4e8876ad131b080bd42ba36313131ef6e.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_761024e7a8c7633694ae28e4b6f04d0ba3b1c489.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_76e3f833c430407bb066d8a9c50bd88428cede99.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_76f52e2aa15846d97481d4658122d35e13821757.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_7812737529f02ccb5c7595c18fc07f9f92dda528.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_78b8c37d7b133ce19dd0463d6c526aeb04bf3a86.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_7aef673c8622cd04ae2dbedd2c2886e3c03f1bef.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_7d24ba09bc55bf9fef0b0229b9f401b3e6f592ac.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_7d5f046f164bb6398d16e361062ad9257790abc8.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_7e4de2310b1d35a6b7020b9c33466ae4d628f876.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_7f3a8a1aaf605aeb54c0ea59ffc7accc707d86f6.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_80019e5221bc29ea168162ea3fb35421c1124a12.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_812834705d870f8fae3443ec18d2b1a23408ad08.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_868d81b89203c7f7ce9a4797c7de5c17a0058c01.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_87be286348539be1a38f872413380ecded41b49e.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_8821906464bd3d5dfd54f69f09e32c971aa0805e.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_894e1c8986d5cab756b7e330fb6ce5c0c41cbcc9.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_8a6d0c8df515a5d9bbc540ffcc52a86acc889587.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_8ad6ffa43878f99e5c6b828be51665f00553a336.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_8b3e510893bf0b042f2b6e2bfa886b6ccc92db78.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_8b7c881f9cb4fe522a5e77f4c9e842519cd30b22.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_8c7e06553ac924671ce665be7d2f683fc047887c.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_8cfe06de4e6d51f95f17f229c5bf841b70b56738.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_8de38a36831fdc1294630bca10523a9786675056.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_8e15c7ae3a38a665251d3e3118a01a930cdcd327.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_8f140ffbfdaabae422d5cf60f34a6f4a3baa923a.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_9243b1712aa4649e275d8fddd06a8a0e6963d5b4.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_935d6a46a6bd0ea6e9ae0bdea2a135afbdd3f5d7.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_9405a3bdce8f5da2a1d143948a48d59a12641b93.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_94107534eff5bdd38233eb28e60b85fdb1b1445a.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_941f178133018c69720076e2b628b1f26a218ecc.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_9449ed2fb8651229951bc4f6b95223e2c2e094ab.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_96e572c47ac3ed570e3acf11cfe930827c9ec1e8.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_9909d8919e1c23b2819b333c9b7e293bbb3f9545.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_99a53a4767081fddbbe64e840100ba10d65f550d.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_99d50c36c0d84236f336f252084178e38c65deab.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_99da21ad115905b93626e30ea06e5fc135d8f859.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_99fc494e4829b5ff0fc00035783a775ba1caa3da.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_9a00fd76da55f9577166bba41dc9ca6ade990075.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_9b97a58b3310200f72119eabb36151e231d6d830.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_9c33ef03d55c6674d5527070360d6d580d20d962.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_9e7bff496d18af3b308ee34e17e7bb8d319fd319.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_a040c9faf1a7286ebfb51a08eb7b96c3be32bc8d.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_a0c646c2197f0f6d18f9720797d16bebd1822e92.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_a1ddc414b20b77339fcdc9024957ce6aa9de7e3f.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_a3636405af7a077b703a72aea2feb5b464d42670.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_a3dd69277411cb1c4ddfe5cc1ca9667ead090353.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_a554df20eb5a4c2618cb2831316ae5889566f558.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_a5fbfb31ef64094e0fbfa4514b8ce0e28b30ee89.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_a742a42b489f17cb81c548f8e15c9db063642c18.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_a8a1d494a707f465fa31224d38ca5ae088d1f145.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_a8bf600217b0f0a61cabcc906aabb1de09dce02a.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_ae8514845ec7186254538abe23dc4aebca5ffcdb.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_aed45920cff14a3602e4e9e3313eac009aec3c1d.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_b03f833383a1dbb24876b6017021ad6e428d48d2.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_b13c7dc9d3ea4d8cd2b4489577083edae3a15218.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_b29f82d778d3c5a3e027f94f8adeeb1a7d558a5c.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_b2fa6e630fc6e3c102a5250324cb09930b6bf20b.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_b42837e4a4811341f73d53eaf1a4cc811ae262c6.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_b5fee640f26c7a10067fbdeb39c22e18e7ace06d.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_b62c2076a18162c023b0b53d6e196b7d5f18f077.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_b71896d5bcadc5b7ed39ba47e6700601cc3bc97a.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_ba33b26b3fa3217bfbc4b4c02eb54d8c0972da46.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_bb7726701fd17580fd1988da74644078c92722a5.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_bca87d906a50df27589654cf5d0cfab90d98e43c.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_bfd051bb531743aef19f2a279709d0565f54f68b.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_c0763241c82080e90c2892f0066f711193c0276b.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_c17ade3a86cee1ca3bb45233a26909898fb72544.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_c2411eba387044b2899fcfc78ded8cc0198c3b8c.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_c273a78fc9123303380570aae5d14009523d03b5.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_c3883749805065d094d1cad90a917aa24dc18149.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_c62c40f0701f4bb8aa3954b4d9057e07899d4e60.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_c7ff1c52b6f455197b3e786e6f9751ac931ec143.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_ca6708bbe40481f9df1f9feb3c21d977a161915f.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_cc4249f5d6ebed826b1154c45d9a7850ea61fe02.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_cd1d51710396f2e5ee85988acf53c4b84a06e1eb.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_cd3c26f85362f257d7d44d7667f7eb42f462222a.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_cd81655a9c4bc459521a54b7cecde78c6d9a5afd.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_ce3dbda0bd6c125b73ee4c6ab1dceb53dc9d8f2a.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_ce6c4b547a09da2acd16bd39795060772bffee68.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_d01e7f611cf267810e678a6690f9b604ed9828a4.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_d0497790bd916e48e58acea84cd29605dc1807b7.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_d0f178992bacb530ecc389c529cd50ef4b144dc7.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_d26d85e84965d962c4757852716dd6ab012064e7.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_d34c2999cedb8d7e1af0a295b64ac668ed079a8a.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_d36fcd1a3d3d4d78f24d8011e3a49de8a930110e.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_d59b0e9eb7d5881cfa958c69c2dfad1e5081d4d0.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_d5bc5bd9fba8fa7de1b56ac22fad0c458412cfa1.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_d5d39306d5e17a8e5dce8d69525ab477ae4ed3e4.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_d6f6d202881afece9481ea7938c75f65aefa4e21.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_d71789252500daa1798065201d68c8347abf2c8b.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_d76d0bf0069f7ec3af8c9993550942ddbdfe5126.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_d912cbc313c2a1fcbd6ed14627dbb792066b34f1.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_d9b615002ad96dec32562c4c74ed9c2e6de86aec.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_dbd30d24db3c6026a3c2541437eee2f2a4eeb865.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_dc796115e8965564ebcc51565f2790b233b150d2.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_dca9525a80386131c86680c0cce55379ea954a61.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_dd6d608d24a3b5cb2da3cabe424bdcd6c35bcd7b.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_de4c90fa7ee0ec988899f3cfb45e1d7325a5492c.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_dff4059ef29cec76227c9386fc6ef2e50d6508e1.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_e100d855320e198f40aebc5205a5ed000afbc9ab.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_e15fc0bdfed65df04f10add5023b911804d028e8.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_e273bd29ef7c69a02a210185cdc3ca07915c475c.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_e2a19634cffcc70f77b005ea4f412afecae9d67f.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_e3bc5ce27f27513d04a9bbe1bb84f3119566979a.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_e6406eeb5727093b557553cb8c3063abfd3340f0.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_e66651a940c5a3458a604fbd157aee9ef085ff17.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_e66b8a715103efc5ce09c7ec1c736b2ee1d75ca7.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_e7b0909d2db65564270d1fae3d124782898d94bc.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_e7ec28f3b47b9744c9bf8eeccd71324aebe0659d.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_e8b88e299af275aa860e6797c144c86e392b1be0.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_e9c788f8b93aa9c414de10411a256242f72394f6.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_eb3b908ab2b54d8a7e6b55bc4c12f1583e860a6e.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_ebee954d4f7ea0def8d46edfde0be6de55fcaaf0.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_ebfca5a6128e516287a23f887c6654c830351cf1.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_ec09569ce70475c54a4e4b11cd97645d3730be3b.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_edeaeeea942a8fdda2e17f11f0c462e64eb8c37a.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_ee3aeef28558c68b736f52a0a07a48c423e4890e.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_ee53f51975b36b96d8a4983de792fabd01b70d42.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_ef2cdfdd2f56d352d66bea0878172e4d879671eb.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_ef4ea00d5101351892dbd7da8f2edf9a33200133.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_efc30952d48115b7f0f5df70780d3149d7c1c433.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_f068493d1c0d6b20d007d96faed037c4cac8c97f.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_f112a6dedb7ebc6c76a840d459a67ef4202b4d0c.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_f3cd3e8f323e835370d95c57c92c237d9e6a3e98.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_f40dc3f8cb8446ddcda3fdeabceb07c13bee5c6c.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_f54e547482daae0033ea507d605988a3c7c86ea6.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_f57a1638efefddfb9bebaadc1fd4bd5e7000b34c.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_f714eedecb9b69a9ed815c9c059c71a7855671af.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_f73aa05056af7f7ded9bb3f048122fed54b59284.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_f927f8b9da3c65d6bb90f2fadbb0906cb1bc758f.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_f92e0765596d8f819a76b6df96eab83d35a36f89.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_f9421cf6421cc4bea28d19bd984f1172f36d3e14.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_fb34b464646d4414066ef4d4bfac571bf31771f7.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_fb87e8fb992077f5f4c370aea40d95b9d70a0c22.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_fcb280ada8da7179aa7b7cd35247087a55e944cd.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_fd0e8eed237d75c1faa69a612853c2701d1ac8e8.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_fd48c089083c97d15f078b930168893d28419859.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_ff6a64d681319d10e9f530c701ac234e38950786.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.agent_state_main.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".local/state/replit/agent/.latest.json",
+      "type": "json"
+    },
+    {
+      "path": ".local/state/replit/agent/rapid_build_started",
+      "type": "local/state/replit/agent/rapid_build_started"
+    },
+    {
+      "path": ".local/state/replit/agent/rapid_build_success",
+      "type": "local/state/replit/agent/rapid_build_success"
+    },
+    {
+      "path": ".local/state/replit/agent/repl_state.bin",
+      "type": "bin"
+    },
+    {
+      "path": ".upm/store.json",
+      "type": "json"
+    },
+    {
+      "path": "AZURE_CREDENTIAL_FIX.md",
+      "type": "md"
+    },
+    {
+      "path": "AZURE_ENVIRONMENT_SETUP.md",
+      "type": "md"
+    },
+    {
+      "path": "AZURE_PERMISSION_FIX.md",
+      "type": "md"
+    },
+    {
+      "path": "AZURE_SOLUTION_COMPLETE.md",
+      "type": "md"
+    },
+    {
+      "path": "COMPLETE_AZURE_SETUP.md",
+      "type": "md"
+    },
+    {
+      "path": "CUSTOM_DOMAIN_SETUP.md",
+      "type": "md"
+    },
+    {
+      "path": "DEPLOYMENT.md",
+      "type": "md"
+    },
+    {
+      "path": "DEPLOYMENT_FIX_FINAL.md",
+      "type": "md"
+    },
+    {
+      "path": "FINAL_AZURE_CONFIG.md",
+      "type": "md"
+    },
+    {
+      "path": "FINAL_DEPLOYMENT_CONFIG.md",
+      "type": "md"
+    },
+    {
+      "path": "NETLIFY_FIX.md",
+      "type": "md"
+    },
+    {
+      "path": "README.md",
+      "type": "md"
+    },
+    {
+      "path": "READY_TO_DEPLOY.md",
+      "type": "md"
+    },
+    {
+      "path": "SIMPLE_NETLIFY_SETUP.md",
+      "type": "md"
+    },
+    {
+      "path": "STANDALONE_DEPLOYMENT_GUIDE.md",
+      "type": "md"
+    },
+    {
+      "path": "_redirects",
+      "type": "directory"
+    },
+    {
+      "path": "azure-credential-direct-test.js",
+      "type": "js"
+    },
+    {
+      "path": "azure-credential-validator.js",
+      "type": "js"
+    },
+    {
+      "path": "azure-direct-test.js",
+      "type": "js"
+    },
+    {
+      "path": "azure-live-deployment-test.js",
+      "type": "js"
+    },
+    {
+      "path": "azure-permission-fix.js",
+      "type": "js"
+    },
+    {
+      "path": "azure-permission-monitor.js",
+      "type": "js"
+    },
+    {
+      "path": "azure-provider-registration.js",
+      "type": "js"
+    },
+    {
+      "path": "azure-resource-graph-query.js",
+      "type": "js"
+    },
+    {
+      "path": "azure-role-assignment.sh",
+      "type": "sh"
+    },
+    {
+      "path": "azure-setup-cli.js",
+      "type": "js"
+    },
+    {
+      "path": "azure-setup-guide.md",
+      "type": "md"
+    },
+    {
+      "path": "azure-test.sh",
+      "type": "sh"
+    },
+    {
+      "path": "check-deployment-status.js",
+      "type": "js"
+    },
+    {
+      "path": "check-domain-status.js",
+      "type": "js"
+    },
+    {
+      "path": "check-netlify-domain.js",
+      "type": "js"
+    },
+    {
+      "path": "client/index.html",
+      "type": "html"
+    },
+    {
+      "path": "client/src/App.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/chat/chat-panel.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/dashboard/azure-docker.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/dashboard/cloud-architecture-diagram.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/dashboard/cloud-insights-dashboard.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/dashboard/deployments.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/dashboard/infrastructure.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/dashboard/isometric-cloud-diagram.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/dashboard/monitoring.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/dashboard/multi-cloud-overview.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/dashboard/overview.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/dashboard/projects.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/dashboard/settings.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/dashboard/sidebar.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/deployment-demo.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/domains/domain-manager.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/env-config.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/infrastructure/import-wizard.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/infrastructure/infrastructure-importer.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/layout/footer.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/real-deployment-test.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/accordion.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/alert-dialog.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/alert.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/aspect-ratio.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/auth-form.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/avatar.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/badge.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/breadcrumb.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/button.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/calendar.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/card.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/carousel.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/chart.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/checkbox.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/collapsible.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/command.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/context-menu.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/dialog.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/drawer.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/dropdown-menu.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/form.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/hover-card.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/input-otp.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/input.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/label.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/menubar.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/navigation-menu.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/pagination.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/popover.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/progress.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/radio-group.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/resizable.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/scroll-area.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/select.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/separator.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/sheet.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/sidebar.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/skeleton.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/slider.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/switch.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/table.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/tabs.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/textarea.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/toast.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/toaster.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/toggle-group.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/toggle.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/components/ui/tooltip.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/hooks/use-mobile.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/hooks/use-toast.ts",
+      "type": "ts"
+    },
+    {
+      "path": "client/src/hooks/use-websocket.ts",
+      "type": "ts"
+    },
+    {
+      "path": "client/src/index.css",
+      "type": "css"
+    },
+    {
+      "path": "client/src/lib/chat-responses.ts",
+      "type": "ts"
+    },
+    {
+      "path": "client/src/lib/queryClient.ts",
+      "type": "ts"
+    },
+    {
+      "path": "client/src/lib/utils.ts",
+      "type": "ts"
+    },
+    {
+      "path": "client/src/main.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/pages/auth.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/pages/azure-monitor.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/pages/chat-workspace.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/pages/dashboard.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/pages/deployment-test.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/pages/landing.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/pages/not-found.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/pages/pricing.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "client/src/pages/test-simple.tsx",
+      "type": "tsx"
+    },
+    {
+      "path": "complete-github-deployment.js",
+      "type": "js"
+    },
+    {
+      "path": "complete-server-deployment.js",
+      "type": "js"
+    },
+    {
+      "path": "complete-setup.js",
+      "type": "js"
+    },
+    {
+      "path": "complete-typescript-fix.js",
+      "type": "js"
+    },
+    {
+      "path": "components.json",
+      "type": "json"
+    },
+    {
+      "path": "comprehensive-deployment-test.js",
+      "type": "js"
+    },
+    {
+      "path": "configure-domain-direct.js",
+      "type": "js"
+    },
+    {
+      "path": "configure-env-keys.js",
+      "type": "js"
+    },
+    {
+      "path": "configure-instantiate-dev.js",
+      "type": "js"
+    },
+    {
+      "path": "configure-instantiate-domain.js",
+      "type": "js"
+    },
+    {
+      "path": "configure-netlify-domain.js",
+      "type": "js"
+    },
+    {
+      "path": "deploy-ai-chat-frontend.js",
+      "type": "js"
+    },
+    {
+      "path": "deploy-cli.js",
+      "type": "js"
+    },
+    {
+      "path": "deploy-connected-frontend.js",
+      "type": "js"
+    },
+    {
+      "path": "deploy-custom-domain-site.js",
+      "type": "js"
+    },
+    {
+      "path": "deploy-dashboard-components.js",
+      "type": "js"
+    },
+    {
+      "path": "deploy-essential-files.js",
+      "type": "js"
+    },
+    {
+      "path": "deploy-functional-site.js",
+      "type": "js"
+    },
+    {
+      "path": "deploy-syntax-fixes.js",
+      "type": "js"
+    },
+    {
+      "path": "deploy-to-github.sh",
+      "type": "sh"
+    },
+    {
+      "path": "deploy-with-ssl.js",
+      "type": "js"
+    },
+    {
+      "path": "deploy-working-app.js",
+      "type": "js"
+    },
+    {
+      "path": "deploy-working-site.js",
+      "type": "js"
+    },
+    {
+      "path": "deployment-resolution.js",
+      "type": "js"
+    },
+    {
+      "path": "direct-domain-check.js",
+      "type": "js"
+    },
+    {
+      "path": "domain-status-checker.js",
+      "type": "js"
+    },
+    {
+      "path": "domain-verification.html",
+      "type": "html"
+    },
+    {
+      "path": "drizzle.config.ts",
+      "type": "ts"
+    },
+    {
+      "path": "emergency-deployment.js",
+      "type": "js"
+    },
+    {
+      "path": "emoji-deployment-demo.js",
+      "type": "js"
+    },
+    {
+      "path": "export-code-archive.js",
+      "type": "js"
+    },
+    {
+      "path": "final-domain-setup.js",
+      "type": "js"
+    },
+    {
+      "path": "finalize-deployment.js",
+      "type": "js"
+    },
+    {
+      "path": "fix-all-syntax-errors.js",
+      "type": "js"
+    },
+    {
+      "path": "fix-component-types.js",
+      "type": "js"
+    },
+    {
+      "path": "fix-domain-routing.js",
+      "type": "js"
+    },
+    {
+      "path": "fix-netlify-build.js",
+      "type": "js"
+    },
+    {
+      "path": "fix-runtime-errors.js",
+      "type": "js"
+    },
+    {
+      "path": "fix-ssl-certificate.js",
+      "type": "js"
+    },
+    {
+      "path": "fix-typescript-and-redeploy.js",
+      "type": "js"
+    },
+    {
+      "path": "generated-icon.png",
+      "type": "png"
+    },
+    {
+      "path": "github-deployment.js",
+      "type": "js"
+    },
+    {
+      "path": "initialize-github-repo.js",
+      "type": "js"
+    },
+    {
+      "path": "namecheap-domain-setup.js",
+      "type": "js"
+    },
+    {
+      "path": "netlify/functions/server.js",
+      "type": "js"
+    },
+    {
+      "path": "netlify-config-steps.md",
+      "type": "md"
+    },
+    {
+      "path": "netlify-deploy-fix.toml",
+      "type": "toml"
+    },
+    {
+      "path": "netlify-deploy-setup.js",
+      "type": "js"
+    },
+    {
+      "path": "netlify-deployment-guide.js",
+      "type": "js"
+    },
+    {
+      "path": "netlify-env-setup.js",
+      "type": "js"
+    },
+    {
+      "path": "netlify-production-server.js",
+      "type": "js"
+    },
+    {
+      "path": "netlify.toml",
+      "type": "toml"
+    },
+    {
+      "path": "package-lock.json",
+      "type": "json"
+    },
+    {
+      "path": "package-scripts-fix.js",
+      "type": "js"
+    },
+    {
+      "path": "package.json",
+      "type": "json"
+    },
+    {
+      "path": "postcss.config.js",
+      "type": "js"
+    },
+    {
+      "path": "repository-package.md",
+      "type": "md"
+    },
+    {
+      "path": "restore-deployment.js",
+      "type": "js"
+    },
+    {
+      "path": "server/ai-chat-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/auth-helpers.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/azure-app-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/azure-bypass-deployment.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/azure-code-deployment.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/azure-container-apps.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/azure-deployment-test.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/azure-diagnostic.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/azure-direct-deployment.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/azure-functions-deployment.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/azure-permission-monitor.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/azure-resource-manager.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/azure-service-principal-manager.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/azure-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/azure-simple-deployment.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/azure-static-apps.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/azure-verified-deployment.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/azure-webapp-deployment.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/azure-working-deployment.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/clear-resources.js",
+      "type": "js"
+    },
+    {
+      "path": "server/cloud-providers/alibaba-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/cloud-providers/aws-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/cloud-providers/digitalocean-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/cloud-providers/gcp-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/cloud-providers/huawei-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/cloud-providers/ibm-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/cloud-providers/linode-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/cloud-providers/multi-cloud-manager.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/cloud-providers/oracle-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/cloud-providers/tencent-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/code-generator.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/db.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/demo-deployment-assistant.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/deployment-assistant.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/deployment-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/deployment-status-manager.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/deployment-verification-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/direct-deployment-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/gcp-diagnostic.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/gcp-service-simple.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/index.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/infrastructure/import-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/namecheap/namecheap-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/netlify-deployment-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/production-deployment.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/real-deployment-test.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/replit-deployment-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/routes/cleanup-resources.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/routes/insights-routes.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/routes/multi-cloud-routes.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/routes.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/saas-deployment-service.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/seed.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/simple-deployment.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/smart-deployment-assistant.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/storage.ts",
+      "type": "ts"
+    },
+    {
+      "path": "server/vite.ts",
+      "type": "ts"
+    },
+    {
+      "path": "set-netlify-env.sh",
+      "type": "sh"
+    },
+    {
+      "path": "setup-custom-domain.js",
+      "type": "js"
+    },
+    {
+      "path": "setup-domain-dns.js",
+      "type": "js"
+    },
+    {
+      "path": "setup-main-domain.js",
+      "type": "js"
+    },
+    {
+      "path": "setup-production-deployment.js",
+      "type": "js"
+    },
+    {
+      "path": "shared/schema.ts",
+      "type": "ts"
+    },
+    {
+      "path": "tailwind.config.ts",
+      "type": "ts"
+    },
+    {
+      "path": "test-ai-chat.js",
+      "type": "js"
+    },
+    {
+      "path": "test-api-direct.js",
+      "type": "js"
+    },
+    {
+      "path": "test-namecheap-connection.js",
+      "type": "js"
+    },
+    {
+      "path": "tsconfig.json",
+      "type": "json"
+    },
+    {
+      "path": "update-colors-github.js",
+      "type": "js"
+    },
+    {
+      "path": "upload-footer-to-github.js",
+      "type": "js"
+    },
+    {
+      "path": "upload-infrastructure-importer.js",
+      "type": "js"
+    },
+    {
+      "path": "verify-deployment.js",
+      "type": "js"
+    },
+    {
+      "path": "verify-domain-setup.js",
+      "type": "js"
+    },
+    {
+      "path": "vite.config.ts",
+      "type": "ts"
+    }
+  ],
+  "instructions": {
+    "build_command": "npm run build",
+    "upload_directory": "client/dist",
+    "server_files": "server/",
+    "config_files": [
+      ".htaccess",
+      ".env.namecheap",
+      "api/index.php"
+    ]
+  }
+}
