@@ -1,17 +1,14 @@
 [build]
-  base = "."
-  command = "npm install && npm install vite@5.0.12 --save-dev && npm install && npx vite build"
-  publish = "dist"
-  functions = "functions"
+  publish = "client/dist"
+  command = "npm run build"
 
 [build.environment]
-  NODE_VERSION = "18.17.0"
-  NPM_FLAGS = "--legacy-peer-deps"
-  NODE_ENV = "production"
+  NODE_VERSION = "20"
+  NPM_VERSION = "10"
 
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
+  to = "/.netlify/functions/server/:splat"
   status = 200
 
 [[redirects]]
@@ -20,13 +17,8 @@
   status = 200
 
 [functions]
-  directory = "functions"
+  directory = "netlify/functions"
   node_bundler = "esbuild"
-  external_node_modules = ["express", "ws", "uuid"]
-  included_files = ["server/**/*"]
-
-[functions."api"]
-  external_node_modules = ["express", "ws", "uuid"]
 
 [[headers]]
   for = "/*"
@@ -34,3 +26,11 @@
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
