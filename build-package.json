@@ -1,0 +1,8 @@
+{
+  "name": "build-with-cname",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "npm run build-app && echo 'instantiate.dev' > client/dist/CNAME",
+    "build-app": "cd client && npm run build"
+  }
+}
