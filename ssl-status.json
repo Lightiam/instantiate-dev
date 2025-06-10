@@ -1,0 +1,15 @@
+{
+  "domain": "instantiate.dev",
+  "issue": "ERR_CERT_COMMON_NAME_INVALID",
+  "cause": "Custom domain not configured in hosting platform",
+  "solution": "Deploy to Netlify and add custom domain",
+  "status": "ready_for_deployment",
+  "next_steps": [
+    "Deploy repository to Netlify",
+    "Add instantiate.dev as custom domain",
+    "Wait for SSL certificate provisioning",
+    "Verify https://instantiate.dev works"
+  ],
+  "timeline": "5-10 minutes after deployment",
+  "automated_ssl": true
+}
