@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deploy Instantiate.dev</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+        .deploy-button {
+            display: inline-block;
+            background: #00C7B7;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 18px;
+            margin: 20px;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 199, 183, 0.3);
+        }
+        .deploy-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 199, 183, 0.4);
+        }
+        .features {
+            text-align: left;
+            margin: 30px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .status {
+            background: rgba(0, 255, 157, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #00ff9d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Deploy Instantiate.dev</h1>
+        <p>Your multi-cloud infrastructure management platform is ready for deployment!</p>
+        
+        <div class="status">
+            <h3>✅ Domain Configured</h3>
+            <p>instantiate.dev DNS is pointing to your deployment. SSL certificate will be auto-provisioned upon deployment.</p>
+        </div>
+        
+        <a href="https://app.netlify.com/start/deploy?repository=https://github.com/Imole-cloud/-Instantiate.dev" class="deploy-button">
+            Deploy to Netlify
+        </a>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>🌐 Multi-Cloud Management</h3>
+                <p>Deploy to 11+ cloud providers simultaneously with real-time monitoring</p>
+            </div>
+            <div class="feature">
+                <h3>📦 Infrastructure Import</h3>
+                <p>Import from Terraform, CloudFormation, ARM templates, and Kubernetes</p>
+            </div>
+            <div class="feature">
+                <h3>🤖 AI Assistant</h3>
+                <p>Intelligent deployment guidance and troubleshooting</p>
+            </div>
+            <div class="feature">
+                <h3>🔧 Domain Management</h3>
+                <p>Complete Namecheap integration with DNS control</p>
+            </div>
+        </div>
+        
+        <h2>Deployment Instructions</h2>
+        <div style="text-align: left; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px;">
+            <h3>Step 1: Deploy to Netlify</h3>
+            <p>Click the deploy button above to automatically:</p>
+            <ul>
+                <li>Create Netlify site from your GitHub repository</li>
+                <li>Configure build settings (npm run build)</li>
+                <li>Set up continuous deployment</li>
+            </ul>
+            
+            <h3>Step 2: Configure Custom Domain</h3>
+            <p>In Netlify dashboard:</p>
+            <ol>
+                <li>Go to Domain settings</li>
+                <li>Add custom domain: <code>instantiate.dev</code></li>
+                <li>SSL certificate will be auto-provisioned</li>
+            </ol>
+            
+            <h3>Step 3: Environment Variables</h3>
+            <p>Add these in Netlify Environment Variables:</p>
+            <ul>
+                <li><code>GROQ_API_KEY</code> - Your AI chat API key</li>
+                <li><code>DATABASE_URL</code> - PostgreSQL database URL</li>
+                <li><code>NAMECHEAP_API_*</code> - Your domain management credentials</li>
+            </ul>
+        </div>
+        
+        <div class="status" style="margin-top: 30px;">
+            <h3>🔒 SSL Certificate</h3>
+            <p>Once deployed with custom domain, your site will be accessible at <strong>https://instantiate.dev</strong> with a valid SSL certificate.</p>
+        </div>
+        
+        <p style="margin-top: 30px;">
+            <small>Repository: <a href="https://github.com/Imole-cloud/-Instantiate.dev" style="color: #00ff9d;">github.com/Imole-cloud/-Instantiate.dev</a></small>
+        </p>
+    </div>
+</body>
+</html>
