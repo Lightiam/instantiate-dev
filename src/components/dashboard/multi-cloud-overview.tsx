@@ -1,27 +1,9 @@
-import { useState, useEffect } from "react";
+
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import { 
-  Cloud, 
-  Server, 
-  DollarSign, 
-  Activity, 
-  Globe, 
-  RefreshCw,
-  AlertCircle,
-  CheckCircle,
-  XCircle,
-  BarChart3,
-  PieChart,
-  TrendingUp
-} from "lucide-react";
-import { CloudArchitectureDiagram } from "./cloud-architecture-diagram";
-import { IsometricCloudDiagram } from "./isometric-cloud-diagram";
-// Using only Lucide icons for reliability
+import { Cloud, DollarSign, Server, TrendingUp, RefreshCw, AlertTriangle } from "lucide-react";
 
 interface CloudResource {
   id: string;
@@ -31,9 +13,15 @@ interface CloudResource {
   region: string;
   status: string;
   cost?: number;
-  url?: string;
   createdAt: string;
-  lastChecked: string;
+}
+
+interface DeploymentStats {
+  totalResources: number;
+  totalCost: number;
+  providerDistribution: Record<string, number>;
+  statusDistribution: Record<string, number>;
+  regionDistribution: Record<string, number>;
 }
 
 interface ProviderStatus {
@@ -45,462 +33,204 @@ interface ProviderStatus {
   error?: string;
 }
 
-interface DeploymentStats {
-  totalResources: number;
-  totalCost: number;
-  providerDistribution: Record<string, number>;
-  statusDistribution: Record<string, number>;
-  regionDistribution: Record<string, number>;
-}
-
-const providerIcons: Record<string, any> = {
-  aws: Cloud,
-  azure: Cloud,
-  gcp: Cloud,
-  alibaba: Cloud,
-  ibm: Server,
-  oracle: Server,
-  digitalocean: Cloud,
-  linode: Server,
-  huawei: Cloud,
-  tencent: Cloud,
-
-};
-
-const providerNames: Record<string, string> = {
-  aws: 'Amazon Web Services',
-  azure: 'Microsoft Azure',
-  gcp: 'Google Cloud Platform',
-  alibaba: 'Alibaba Cloud',
-  ibm: 'IBM Cloud',
-  oracle: 'Oracle Cloud',
-  digitalocean: 'DigitalOcean',
-  linode: 'Linode',
-  huawei: 'Huawei Cloud',
-  tencent: 'Tencent Cloud',
-
-};
-
-const statusColors: Record<string, string> = {
-  connected: 'bg-green-500',
-  'not-configured': 'bg-gray-400',
-  running: 'bg-green-500',
-  deployed: 'bg-blue-500',
-  deploying: 'bg-yellow-500',
-  stopped: 'bg-gray-500',
-  error: 'bg-red-500'
-};
-
 export function MultiCloudOverview() {
-  const [selectedProvider, setSelectedProvider] = useState<string>('all');
-  const [refreshing, setRefreshing] = useState(false);
-
-  const { data: resources, refetch: refetchResources } = useQuery({
-    queryKey: ['/api/multi-cloud/resources'],
-    refetchInterval: 30000 // Refresh every 30 seconds
+  const { data: resources = [], isLoading: resourcesLoading, refetch: refetchResources } = useQuery<CloudResource[]>({
+    queryKey: ["/api/multi-cloud/resources"],
   });
 
-  const { data: providerStatuses, refetch: refetchStatuses } = useQuery({
-    queryKey: ['/api/multi-cloud/status'],
-    refetchInterval: 60000 // Refresh every minute
+  const { data: stats, isLoading: statsLoading } = useQuery<DeploymentStats>({
+    queryKey: ["/api/multi-cloud/stats"],
   });
 
-  const { data: stats, refetch: refetchStats } = useQuery({
-    queryKey: ['/api/multi-cloud/stats'],
-    refetchInterval: 30000
+  const { data: providerStatuses = [], isLoading: statusesLoading } = useQuery<ProviderStatus[]>({
+    queryKey: ["/api/multi-cloud/status"],
   });
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
+  const handleSync = async () => {
     try {
-      await Promise.all([
-        refetchResources(),
-        refetchStatuses(),
-        refetchStats()
-      ]);
-    } finally {
-      setRefreshing(false);
+      await fetch('/api/multi-cloud/sync', { method: 'POST' });
+      refetchResources();
+    } catch (error) {
+      console.error('Sync failed:', error);
     }
   };
 
-  const filteredResources = resources?.filter((resource: CloudResource) => 
-    selectedProvider === 'all' || resource.provider === selectedProvider
-  ) || [];
+  if (resourcesLoading || statsLoading || statusesLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-white">Multi-Cloud Overview</h2>
+          <Button disabled>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Loading...
+          </Button>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="bg-slate-900 border-slate-700">
+              <CardContent className="p-6">
+                <div className="animate-pulse">
+                  <div className="h-4 bg-slate-700 rounded w-3/4 mb-2"></div>
+                  <div className="h-8 bg-slate-700 rounded w-1/2"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
-  const getProviderIcon = (provider: string) => {
-    const IconComponent = providerIcons[provider];
-    return IconComponent ? <IconComponent className="h-4 w-4" /> : <Cloud className="h-4 w-4" />;
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'connected':
-      case 'running':
-      case 'deployed':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'error':
-        return <XCircle className="h-4 w-4 text-red-500" />;
-      case 'deploying':
-        return <Activity className="h-4 w-4 text-yellow-500" />;
-      default:
-        return <AlertCircle className="h-4 w-4 text-gray-500" />;
-    }
-  };
+  const activeResources = resources.filter(r => r.status === 'running' || r.status === 'active');
+  const totalCost = stats?.totalCost || 0;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Multi-Cloud Dashboard</h2>
-          <p className="text-muted-foreground">
-            Unified view across all cloud providers
-          </p>
+          <h2 className="text-2xl font-bold text-white">Multi-Cloud Overview</h2>
+          <p className="text-slate-400">Monitor and manage your multi-cloud infrastructure</p>
         </div>
-        <Button 
-          onClick={handleRefresh} 
-          disabled={refreshing}
-          variant="outline"
-        >
-          <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-          Refresh
+        <Button onClick={handleSync} className="bg-primary hover:bg-primary/90">
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Sync All
         </Button>
       </div>
 
-      {/* Overview Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Resources</CardTitle>
-            <Server className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalResources || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              Across {Object.keys(providerNames).length} providers
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Cost</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${(stats?.totalCost || 0).toFixed(2)}
+        <Card className="bg-slate-900 border-slate-700">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-2">
+              <Server className="h-4 w-4 text-blue-400" />
+              <span className="text-sm font-medium text-slate-400">Total Resources</span>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Estimated monthly spend
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Providers</CardTitle>
-            <Cloud className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {providerStatuses?.filter((p: ProviderStatus) => p.status === 'connected').length || 0}
+            <div className="text-2xl font-bold text-white mt-2">
+              {stats?.totalResources || 0}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Of {providerStatuses?.length || 0} configured
+            <p className="text-xs text-slate-500 mt-1">
+              {activeResources.length} active
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Regions</CardTitle>
-            <Globe className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+        <Card className="bg-slate-900 border-slate-700">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-2">
+              <DollarSign className="h-4 w-4 text-green-400" />
+              <span className="text-sm font-medium text-slate-400">Monthly Cost</span>
+            </div>
+            <div className="text-2xl font-bold text-white mt-2">
+              ${totalCost.toFixed(2)}
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Estimated
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-slate-900 border-slate-700">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-2">
+              <Cloud className="h-4 w-4 text-purple-400" />
+              <span className="text-sm font-medium text-slate-400">Cloud Providers</span>
+            </div>
+            <div className="text-2xl font-bold text-white mt-2">
+              {providerStatuses.filter(p => p.status === 'connected').length}
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              {providerStatuses.length} total
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-slate-900 border-slate-700">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-2">
+              <TrendingUp className="h-4 w-4 text-orange-400" />
+              <span className="text-sm font-medium text-slate-400">Regions</span>
+            </div>
+            <div className="text-2xl font-bold text-white mt-2">
               {Object.keys(stats?.regionDistribution || {}).length}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Global deployment regions
+            <p className="text-xs text-slate-500 mt-1">
+              Active regions
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Provider Status Grid */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Provider Status</CardTitle>
-          <CardDescription>
-            Connection status and resource counts for each cloud provider
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {providerStatuses?.map((provider: ProviderStatus) => (
-              <div
-                key={provider.provider}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors cursor-pointer"
-                onClick={() => setSelectedProvider(
-                  selectedProvider === provider.provider ? 'all' : provider.provider
-                )}
-              >
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="bg-slate-900 border-slate-700">
+          <CardHeader>
+            <CardTitle className="text-white">Provider Status</CardTitle>
+            <CardDescription className="text-slate-400">
+              Connection status for each cloud provider
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {providerStatuses.map((provider) => (
+              <div key={provider.provider} className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  {getProviderIcon(provider.provider)}
-                  <div>
-                    <p className="font-medium text-sm">
-                      {providerNames[provider.provider]}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {provider.resourceCount} resources
-                    </p>
+                  <div className="capitalize font-medium text-white">
+                    {provider.provider}
                   </div>
+                  <Badge 
+                    variant={provider.status === 'connected' ? 'default' : 'destructive'}
+                    className="text-xs"
+                  >
+                    {provider.status}
+                  </Badge>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="text-right">
+                  <div className="text-sm text-white">{provider.resourceCount} resources</div>
                   {provider.totalCost && (
-                    <span className="text-xs font-mono">
-                      ${provider.totalCost.toFixed(0)}
-                    </span>
+                    <div className="text-xs text-slate-400">${provider.totalCost.toFixed(2)}/mo</div>
                   )}
-                  {getStatusIcon(provider.status)}
                 </div>
               </div>
             ))}
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Resource Management Tabs */}
-      <Tabs defaultValue="architecture" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger 
-            value="overview" 
-            onClick={() => setSelectedProvider('all')}
-          >
-            Overview
-          </TabsTrigger>
-          <TabsTrigger value="architecture">Architecture</TabsTrigger>
-          <TabsTrigger value="resources">Resources</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-4">
-          {/* Provider Distribution */}
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Resource Distribution</CardTitle>
-                <CardDescription>Resources by cloud provider</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {Object.entries(stats?.providerDistribution || {}).map(([provider, count]) => (
-                    count > 0 && (
-                      <div key={provider} className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          {getProviderIcon(provider)}
-                          <span className="text-sm font-medium">
-                            {providerNames[provider]}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Progress 
-                            value={(count / (stats?.totalResources || 1)) * 100} 
-                            className="w-20 h-2"
-                          />
-                          <span className="text-sm text-muted-foreground">{count}</span>
-                        </div>
-                      </div>
-                    )
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Status Overview</CardTitle>
-                <CardDescription>Resource health across all providers</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {Object.entries(stats?.statusDistribution || {}).map(([status, count]) => (
-                    <div key={status} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <div className={`w-3 h-3 rounded-full ${statusColors[status]}`} />
-                        <span className="text-sm font-medium capitalize">{status}</span>
-                      </div>
-                      <span className="text-sm text-muted-foreground">{count}</span>
+        <Card className="bg-slate-900 border-slate-700">
+          <CardHeader>
+            <CardTitle className="text-white">Resource Distribution</CardTitle>
+            <CardDescription className="text-slate-400">
+              Resources by provider and status
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {Object.entries(stats?.providerDistribution || {}).map(([provider, count]) => (
+              count > 0 && (
+                <div key={provider} className="flex items-center justify-between">
+                  <span className="capitalize text-white">{provider}</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-20 bg-slate-700 rounded-full h-2">
+                      <div 
+                        className="bg-blue-500 h-2 rounded-full" 
+                        style={{ 
+                          width: `${((count as number) / (stats?.totalResources || 1)) * 100}%` 
+                        }}
+                      ></div>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="architecture" className="space-y-4">
-          <div className="grid gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>3D Infrastructure View</CardTitle>
-                <CardDescription>
-                  Isometric visualization of your multi-cloud infrastructure with live data flows
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <IsometricCloudDiagram />
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Network Topology</CardTitle>
-                <CardDescription>
-                  Circular network diagram showing AI orchestration and provider connections
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <CloudArchitectureDiagram />
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="resources" className="space-y-4">
-          {/* Resource List */}
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {selectedProvider === 'all' 
-                  ? 'All Resources' 
-                  : `${providerNames[selectedProvider]} Resources`
-                }
-              </CardTitle>
-              <CardDescription>
-                {filteredResources.length} resources
-                {selectedProvider !== 'all' && (
-                  <Button 
-                    variant="link" 
-                    size="sm" 
-                    onClick={() => setSelectedProvider('all')}
-                    className="ml-2"
-                  >
-                    View all
-                  </Button>
-                )}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {filteredResources.map((resource: CloudResource) => (
-                  <div
-                    key={`${resource.provider}-${resource.id}`}
-                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent transition-colors"
-                  >
-                    <div className="flex items-center space-x-3">
-                      {getProviderIcon(resource.provider)}
-                      <div>
-                        <p className="font-medium text-sm">{resource.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {resource.type} • {resource.region}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-4">
-                      {resource.cost && (
-                        <span className="text-xs font-mono text-muted-foreground">
-                          ${resource.cost.toFixed(2)}/mo
-                        </span>
-                      )}
-                      
-                      <Badge variant="outline" className="text-xs">
-                        {resource.status}
-                      </Badge>
-                      
-                      {resource.url && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => window.open(resource.url, '_blank')}
-                        >
-                          View
-                        </Button>
-                      )}
-                    </div>
+                    <span className="text-sm text-slate-400">{count}</span>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="analytics" className="space-y-4">
-          {/* Analytics Charts */}
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Cost Analysis</CardTitle>
-                <CardDescription>Spending breakdown by provider</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {providerStatuses
-                    ?.filter((p: ProviderStatus) => p.totalCost && p.totalCost > 0)
-                    .sort((a: ProviderStatus, b: ProviderStatus) => (b.totalCost || 0) - (a.totalCost || 0))
-                    .map((provider: ProviderStatus) => (
-                      <div key={provider.provider} className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          {getProviderIcon(provider.provider)}
-                          <span className="text-sm font-medium">
-                            {providerNames[provider.provider]}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Progress 
-                            value={((provider.totalCost || 0) / (stats?.totalCost || 1)) * 100} 
-                            className="w-20 h-2"
-                          />
-                          <span className="text-sm font-mono">
-                            ${(provider.totalCost || 0).toFixed(2)}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
                 </div>
-              </CardContent>
-            </Card>
+              )
+            ))}
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Regional Distribution</CardTitle>
-                <CardDescription>Resources by geographic region</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {Object.entries(stats?.regionDistribution || {})
-                    .sort(([,a], [,b]) => b - a)
-                    .slice(0, 8)
-                    .map(([region, count]) => (
-                      <div key={region} className="flex items-center justify-between">
-                        <span className="text-sm font-medium">{region}</span>
-                        <div className="flex items-center space-x-2">
-                          <Progress 
-                            value={(count / (stats?.totalResources || 1)) * 100} 
-                            className="w-20 h-2"
-                          />
-                          <span className="text-sm text-muted-foreground">{count}</span>
-                        </div>
-                      </div>
-                    ))}
+            <div className="pt-4 border-t border-slate-700">
+              <h4 className="text-sm font-medium text-white mb-3">Status Distribution</h4>
+              {Object.entries(stats?.statusDistribution || {}).map(([status, count]) => (
+                <div key={status} className="flex items-center justify-between mb-2">
+                  <span className="capitalize text-slate-300">{status}</span>
+                  <span className="text-sm text-slate-400">{count}</span>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
