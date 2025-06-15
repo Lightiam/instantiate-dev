@@ -25,7 +25,6 @@ export class DeploymentService {
     const deploymentId = uuidv4();
     
     try {
-      // Initialize deployment status
       this.deployments.set(deploymentId, {
         deploymentId,
         status: 'pending',
@@ -50,30 +49,10 @@ export class DeploymentService {
     this.updateDeploymentStatus(deploymentId, 'running');
     
     try {
-      if (request.resourceType === 'container') {
-        const containerSpec = this.parseContainerSpec(request.code);
-        this.addLog(deploymentId, `Creating container: ${containerSpec.name}`);
-        
-        // Simulate container deployment
-        await this.simulateDeployment();
-        
-        this.addLog(deploymentId, 'Container deployment completed successfully');
-        this.updateDeploymentStatus(deploymentId, 'success');
-        
-        const deployment = this.deployments.get(deploymentId);
-        if(deployment) {
-          deployment.outputs = {
-            containerName: containerSpec.name,
-            resourceGroup: containerSpec.resourceGroup,
-            location: containerSpec.location,
-            status: 'succeeded'
-          };
-        }
-      } else if (request.resourceType === 'resource_group') {
+      if (request.resourceType === 'resource_group') {
         const resourceSpec = this.parseResourceSpec(request.code);
         this.addLog(deploymentId, `Creating resource group: ${resourceSpec.resourceGroup}`);
         
-        // Use Azure service to create resource group
         const result = await azureService.createResourceGroup(
           resourceSpec.resourceGroup,
           resourceSpec.location,
@@ -105,18 +84,6 @@ export class DeploymentService {
     }
   }
 
-  private parseContainerSpec(terraformCode: string) {
-    const nameMatch = terraformCode.match(/name\s*=\s*"([^"]+)"/);
-    const resourceGroupMatch = terraformCode.match(/resource_group_name\s*=\s*"([^"]+)"/);
-    const locationMatch = terraformCode.match(/location\s*=\s*"([^"]+)"/);
-    
-    return {
-      name: nameMatch?.[1] || 'instanti8-container',
-      resourceGroup: resourceGroupMatch?.[1] || 'instanti8-rg',
-      location: locationMatch?.[1] || 'eastus'
-    };
-  }
-
   private parseResourceSpec(terraformCode: string) {
     const resourceGroupMatch = terraformCode.match(/resource\s+"azurerm_resource_group"\s+"[^"]+"\s+\{[\s\S]*?name\s*=\s*"([^"]+)"/);
     const locationMatch = terraformCode.match(/location\s*=\s*"([^"]+)"/);
@@ -128,7 +95,6 @@ export class DeploymentService {
   }
 
   private async simulateDeployment(): Promise<void> {
-    // Simulate deployment time
     await new Promise(resolve => setTimeout(resolve, 2000));
   }
 
@@ -158,5 +124,4 @@ export class DeploymentService {
   }
 }
 
-const deploymentService = new DeploymentService();
-export { deploymentService };
+export const deploymentService = new DeploymentService();

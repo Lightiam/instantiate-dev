@@ -7,24 +7,11 @@ export interface AzureDeploymentConfig {
   tags?: Record<string, string>
 }
 
-export interface AWSDeploymentConfig {
-  functionName: string
-  runtime: string
-  code: string
-}
-
-export interface GCPDeploymentConfig {
-  name: string
-  region: string
-  image: string
-}
-
 export interface DeploymentResult {
   success: boolean
   deploymentId?: string
   resourceGroup?: string
   location?: string
-  functionName?: string
   name?: string
   error?: string
 }
@@ -52,38 +39,6 @@ class AzureService {
   }
 }
 
-class AWSService {
-  async deploy(config: AWSDeploymentConfig): Promise<DeploymentResult> {
-    // Mock implementation for AWS
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          deploymentId: `aws-${Date.now()}`,
-          functionName: config.functionName
-        })
-      }, 2000)
-    })
-  }
-}
-
-class GCPService {
-  async deploy(config: GCPDeploymentConfig): Promise<DeploymentResult> {
-    // Mock implementation for GCP
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          deploymentId: `gcp-${Date.now()}`,
-          name: config.name
-        })
-      }, 2000)
-    })
-  }
-}
-
 export const cloudProviders = {
-  azure: new AzureService(),
-  aws: new AWSService(),
-  gcp: new GCPService()
+  azure: new AzureService()
 }
