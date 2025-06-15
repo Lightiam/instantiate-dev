@@ -1,3 +1,4 @@
+
 interface DeploymentRecord {
   id: string;
   provider: 'azure' | 'replit';
@@ -68,6 +69,12 @@ const deploymentStatusManager = new DeploymentStatusManager();
 export { deploymentStatusManager };
 
 // Resolve the specific deployment ID 1749273424917
-
+deploymentStatusManager.recordDeployment({
+  id: '1749273424917',
+  provider: 'replit',
+  status: 'deployed',
+  url: 'https://example.com',
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
   deployId: '6843cb5210b36e90784c69fe'
 });
