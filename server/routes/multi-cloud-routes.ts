@@ -1,3 +1,4 @@
+
 import { Router } from 'express';
 import { multiCloudManager } from '../cloud-providers/multi-cloud-manager';
 import { z } from 'zod';
@@ -16,7 +17,17 @@ const deploymentRequestSchema = z.object({
 
 router.post('/deploy', async (req, res) => {
   try {
-    const request = deploymentRequestSchema.parse(req.body);
+    const validationResult = deploymentRequestSchema.safeParse(req.body);
+    
+    if (!validationResult.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid request data',
+        details: validationResult.error.errors
+      });
+    }
+
+    const request = validationResult.data;
     const result = await multiCloudManager.deployToProvider(request);
     
     res.json({
@@ -66,34 +77,6 @@ router.get('/stats', async (req, res) => {
     res.json(stats);
   } catch (error: any) {
     console.error('Error fetching deployment stats:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-router.get('/resource/:provider/:resourceId/status', async (req, res) => {
-  try {
-    const { provider, resourceId } = req.params;
-    const { type } = req.query;
-    
-    if (!type || typeof type !== 'string') {
-      return res.status(400).json({
-        success: false,
-        error: 'Resource type is required'
-      });
-    }
-
-    const status = await multiCloudManager.getResourceStatus(
-      resourceId,
-      provider as any,
-      type
-    );
-    
-    res.json(status);
-  } catch (error: any) {
-    console.error('Error fetching resource status:', error);
     res.status(500).json({
       success: false,
       error: error.message
