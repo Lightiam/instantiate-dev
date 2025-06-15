@@ -64,7 +64,7 @@ const providerIcons: Record<string, any> = {
   linode: Server,
   huawei: Cloud,
   tencent: Cloud,
-  netlify: Globe
+
 };
 
 const providerNames: Record<string, string> = {
@@ -78,7 +78,7 @@ const providerNames: Record<string, string> = {
   linode: 'Linode',
   huawei: 'Huawei Cloud',
   tencent: 'Tencent Cloud',
-  netlify: 'Netlify'
+
 };
 
 const statusColors: Record<string, string> = {

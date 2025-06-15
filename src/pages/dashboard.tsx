@@ -12,13 +12,13 @@ import { MultiCloudOverview } from "@/components/dashboard/multi-cloud-overview"
 import { CloudInsightsDashboard } from "@/components/dashboard/cloud-insights-dashboard";
 import { InfrastructureImporter } from "@/components/infrastructure/infrastructure-importer";
 import { ImportWizard } from "@/components/infrastructure/import-wizard";
-import { DomainManager } from "@/components/domains/domain-manager";
+
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/layout/footer";
 import { Plus } from "lucide-react";
 
-type Section = "overview" | "projects" | "deployments" | "azure-docker" | "multi-cloud" | "infrastructure" | "import-wizard" | "domains" | "monitoring" | "settings";
+type Section = "overview" | "projects" | "deployments" | "azure-docker" | "multi-cloud" | "infrastructure" | "import-wizard" | "monitoring" | "settings";
 
 const sectionTitles: Record<Section, { title: string; subtitle: string }> = {
   overview: { title: "Overview", subtitle: "Monitor your deployments and infrastructure" },
@@ -28,7 +28,7 @@ const sectionTitles: Record<Section, { title: string; subtitle: string }> = {
   "multi-cloud": { title: "Multi-Cloud", subtitle: "Unified dashboard for all cloud providers" },
   infrastructure: { title: "Infrastructure", subtitle: "Import existing infrastructure from any cloud provider" },
   "import-wizard": { title: "Import Wizard", subtitle: "Step-by-step infrastructure import and conversion" },
-  domains: { title: "Domain Manager", subtitle: "Manage your Namecheap domains and DNS settings" },
+
   monitoring: { title: "Monitoring", subtitle: "Real-time metrics and alerts" },
   settings: { title: "Settings", subtitle: "Configure environment variables and cloud credentials" },
 };
@@ -48,8 +48,7 @@ export default function Dashboard() {
         return <InfrastructureImporter />;
       case "import-wizard":
         return <ImportWizard />;
-      case "domains":
-        return <DomainManager />;
+
       case "monitoring":
         return <Monitoring />;
       case "azure-docker":

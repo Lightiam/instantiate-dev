@@ -25,7 +25,7 @@ export function Pricing() {
       period: "per month",
       description: "For growing teams",
       features: [
-        "All 11 cloud providers",
+        "All 9 cloud providers",
         "Advanced analytics",
         "Priority support",
         "Unlimited deployments",
