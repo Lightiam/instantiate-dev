@@ -2,7 +2,7 @@ import { exec } from 'child_process';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import {  getAzureService  } from "./azure-service.js";
+import { URLSearchParams } from 'url';
 
 interface DeploymentRequest {
   code: string;
@@ -63,6 +63,135 @@ export class DeploymentService {
     }
   }
 
+  private async _getAccessToken(): Promise<string> {
+    const credentials = this.getAzureConfig();
+    const tokenUrl = `https://login.microsoftonline.com/${credentials.tenantId}/oauth2/v2.0/token`;
+
+    const params = new URLSearchParams({
+      grant_type: 'client_credentials',
+      client_id: credentials.clientId,
+      client_secret: credentials.clientSecret,
+      scope: 'https://management.azure.com/.default'
+    });
+
+    const response = await fetch(tokenUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: params.toString()
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(`Failed to get access token: ${JSON.stringify(data)}`);
+    }
+
+    return data.access_token;
+  }
+
+  private async _makeAzureRequest(deploymentId: string, path: string, method = 'GET', body: any = null, apiVersion = '2022-12-01') {
+    this.addLog(deploymentId, `Making Azure request: ${method} ${path}`);
+    const token = await this._getAccessToken();
+    const url = `https://management.azure.com${path}?api-version=${apiVersion}`;
+
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+
+    if (response.status === 204 || response.headers.get('content-length') === '0') {
+      return {}; // No content
+    }
+    
+    const data = await response.json();
+    if (!response.ok) {
+      this.addLog(deploymentId, `Azure API error: ${response.status} - ${JSON.stringify(data)}`);
+      throw new Error(`Azure API error: ${response.status} - ${JSON.stringify(data)}`);
+    }
+
+    return data;
+  }
+
+  private async _createResourceGroup(deploymentId: string, name: string, location: string) {
+    this.addLog(deploymentId, `Creating resource group: ${name} in ${location}...`);
+    const path = `/subscriptions/${this.getAzureConfig().subscriptionId}/resourcegroups/${name}`;
+    const body = {
+      location: location,
+      tags: {
+        createdBy: 'Instanti8-Platform',
+        purpose: 'live-deployment'
+      }
+    };
+
+    try {
+      const result = await this._makeAzureRequest(deploymentId, path, 'PUT', body);
+      this.addLog(deploymentId, 'Resource group created successfully');
+      return result;
+    } catch (error: any) {
+      if (error.message && error.message.includes('ResourceGroupAlreadyExists')) {
+        this.addLog(deploymentId, 'Resource group already exists.');
+        return { status: 'exists' };
+      }
+      throw error;
+    }
+  }
+
+  private async _deployContainer(deploymentId: string, spec: any) {
+    this.addLog(deploymentId, `Deploying container: ${spec.name}...`);
+    const path = `/subscriptions/${this.getAzureConfig().subscriptionId}/resourceGroups/${spec.resourceGroup}/providers/Microsoft.ContainerInstance/containerGroups/${spec.name}`;
+    
+    const containerPorts = spec.ports.map((port: number) => ({ port, protocol: 'TCP' }));
+    const ipPorts = spec.ports.map((port: number) => ({ port, protocol: 'TCP' }));
+
+    const body = {
+      location: spec.location,
+      properties: {
+        containers: [{
+          name: spec.name,
+          properties: {
+            image: spec.image,
+            ports: containerPorts,
+            environmentVariables: Object.entries(spec.environmentVariables || {}).map(([name, value]) => ({
+              name,
+              value: value as string
+            })),
+            resources: {
+              requests: {
+                cpu: spec.cpu,
+                memoryInGB: spec.memory
+              }
+            }
+          }
+        }],
+        osType: 'Linux',
+        restartPolicy: 'Always',
+        ipAddress: {
+          type: 'Public',
+          ports: ipPorts
+        }
+      },
+      tags: {
+        createdBy: 'Instanti8-Platform',
+        deploymentTime: new Date().toISOString()
+      }
+    };
+
+    const result = await this._makeAzureRequest(deploymentId, path, 'PUT', body, '2021-09-01');
+    this.addLog(deploymentId, 'Container deployment initiated');
+    return result;
+  }
+
+  private async _getContainerStatus(deploymentId: string, resourceGroup: string, containerName: string) {
+    this.addLog(deploymentId, `Getting status for container ${containerName}`);
+    const path = `/subscriptions/${this.getAzureConfig().subscriptionId}/resourceGroups/${resourceGroup}/providers/Microsoft.ContainerInstance/containerGroups/${containerName}`;
+    return await this._makeAzureRequest(deploymentId, path, 'GET', null, '2021-09-01');
+  }
+
   private async deployTerraform(deploymentId: string, deploymentPath: string, request: DeploymentRequest) {
     this.addLog(deploymentId, 'Starting Azure deployment via SDK...');
     
@@ -88,37 +217,60 @@ export class DeploymentService {
     }
     
     try {
-      // Use Azure SDK directly instead of Terraform
-      const { getAzureService } = await import('./azure-service');
-      const azureService = getAzureService();
-      
       if (request.provider === 'azure') {
         if (request.resourceType === 'container') {
-          this.addLog(deploymentId, 'Deploying container to Azure Container Instances...');
+          this.addLog(deploymentId, 'Starting live Azure Container Instance deployment...');
           
           const containerSpec = this.parseContainerSpec(request.code);
-          this.addLog(deploymentId, `Creating container: ${containerSpec.name}`);
-          
+          containerSpec.environmentVariables = {
+            'DEPLOYMENT_TYPE': 'live-test',
+            'PLATFORM': 'azure-container-instances',
+            'TIMESTAMP': new Date().toISOString(),
+            'TEST_ID': 'instanti8-verification',
+            ...(containerSpec.environmentVariables || {})
+          };
+          this.addLog(deploymentId, `Parsed container spec: ${JSON.stringify(containerSpec)}`);
+
           try {
-            const result = await azureService.createContainer(containerSpec);
+            await this._createResourceGroup(deploymentId, containerSpec.resourceGroup, containerSpec.location);
+    
+            await this._deployContainer(deploymentId, containerSpec);
             
-            this.addLog(deploymentId, `Container created successfully: ${result.name}`);
-            if (result.publicIp) {
-              this.addLog(deploymentId, `Public IP assigned: ${result.publicIp}`);
+            this.addLog(deploymentId, 'Waiting 20 seconds for deployment to initialize...');
+            await new Promise(resolve => setTimeout(resolve, 20000));
+            
+            this.addLog(deploymentId, 'Checking deployment status...');
+            const status = await this._getContainerStatus(deploymentId, containerSpec.resourceGroup, containerSpec.name);
+            
+            const provisioningState = status.properties?.provisioningState;
+            const ipAddress = status.properties?.ipAddress?.ip;
+        
+            this.addLog(deploymentId, `Deployment status: ${provisioningState}`);
+            if (ipAddress) {
+              this.addLog(deploymentId, `Public IP: ${ipAddress}`);
             }
-            
-            this.updateDeploymentStatus(deploymentId, 'success');
-            
-            // Store deployment outputs
+
             const deployment = this.deployments.get(deploymentId);
-            if (deployment) {
-              deployment.outputs = {
-                containerName: result.name,
-                publicIp: result.publicIp,
-                resourceGroup: containerSpec.resourceGroup,
-                location: containerSpec.location
-              };
+            if(deployment) {
+                deployment.outputs = {
+                    containerName: containerSpec.name,
+                    publicIp: ipAddress,
+                    resourceGroup: containerSpec.resourceGroup,
+                    location: containerSpec.location,
+                    status: provisioningState
+                };
             }
+
+            if (provisioningState === 'Succeeded') {
+                this.updateDeploymentStatus(deploymentId, 'success');
+                this.addLog(deploymentId, 'Deployment completed successfully!');
+            } else if (provisioningState === 'Failed') {
+                this.updateDeploymentStatus(deploymentId, 'failed', `Deployment failed with state: ${provisioningState}`);
+            } else {
+                this.updateDeploymentStatus(deploymentId, 'running');
+                this.addLog(deploymentId, `Deployment is ongoing with status: ${provisioningState}.`);
+            }
+
           } catch (azureError: any) {
             this.addLog(deploymentId, `Azure deployment failed: ${azureError.message}`);
             this.addLog(deploymentId, 'Authentication error - Azure credentials may be invalid');
