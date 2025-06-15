@@ -1,4 +1,3 @@
-
 import Groq from 'groq-sdk';
 
 interface ChatMessage {
@@ -147,7 +146,7 @@ Always provide practical, actionable advice with code examples when relevant. Be
     const codeMatch = response.match(/CODE:\s*([\s\S]*?)\s*EXPLANATION:/);
     const explanationMatch = response.match(/EXPLANATION:\s*([\s\S]*?)$/);
     
-    const code = codeMatch?.[1]?.trim() || this.generateFallbackTerraform(prompt, provider);
+    const code = codeMatch?.[1]?.trim() || this.generateFallbackTerraform(prompt, provider, codeType);
     const explanation = explanationMatch?.[1]?.trim() || `Generated ${codeType} code for ${provider} based on: ${prompt}`;
     
     return { code, explanation };
@@ -204,14 +203,14 @@ Always provide practical, actionable advice with code examples when relevant. Be
 
   private getFallbackCode(prompt: string, provider: string, codeType: string): { code: string; explanation: string } {
     return {
-      code: this.generateFallbackTerraform(prompt, provider),
+      code: this.generateFallbackTerraform(prompt, provider, codeType),
       explanation: `Generated basic ${codeType} template for ${provider}. Configure Groq API key for enhanced code generation.`
     };
   }
 
-  private generateFallbackTerraform(prompt: string, provider: string): string {
+  private generateFallbackTerraform(prompt: string, provider: string, codeType: string): string {
     if (provider === 'azure') {
-      return `# Terraform configuration for Azure
+      return `# ${codeType} configuration for Azure
 # Generated from: ${prompt}
 
 terraform {
