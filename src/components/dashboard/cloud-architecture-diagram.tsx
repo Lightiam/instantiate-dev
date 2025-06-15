@@ -55,7 +55,7 @@ export function CloudArchitectureDiagram() {
     { name: 'Alibaba', label: '阿里' },
     { name: 'Huawei', label: 'HW' },
     { name: 'Tencent', label: '腾讯' },
-    { name: 'Netlify', label: 'NET' }
+
   ];
 
   return (

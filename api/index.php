@@ -20,7 +20,7 @@ switch ($path) {
         echo json_encode([
             'status' => 'ok',
             'timestamp' => date('c'),
-            'environment' => 'namecheap_hosting'
+            'environment' => 'production'
         ]);
         break;
         

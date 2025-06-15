@@ -34,14 +34,7 @@ export function Footer() {
               >
                 <Mail className="w-5 h-5" />
               </a>
-              <a
-                href="https://netlify.app"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-cyan-400 hover:text-cyan-300 transition-colors"
-              >
-                <Globe className="w-5 h-5" />
-              </a>
+
             </div>
           </div>
 
@@ -82,7 +75,7 @@ export function Footer() {
               <li>Linode</li>
               <li>Huawei Cloud</li>
               <li>Tencent Cloud</li>
-              <li>Netlify</li>
+
             </ul>
           </div>
         </div>

@@ -13,8 +13,8 @@ export function Landing() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 max-w-6xl mx-auto">
             <div className="bg-slate-800/50 backdrop-blur-sm p-8 rounded-xl border border-slate-700">
               <div className="text-4xl mb-4">☁️</div>
-              <h3 className="text-2xl font-semibold mb-4">11 Cloud Providers</h3>
-              <p className="text-slate-300">AWS, Azure, GCP, Alibaba, IBM, Oracle, DigitalOcean, Linode, Huawei, Tencent, Netlify</p>
+              <h3 className="text-2xl font-semibold mb-4">9 Cloud Providers</h3>
+              <p className="text-slate-300">AWS, Azure, GCP, Alibaba, IBM, Oracle, DigitalOcean, Linode, Huawei, Tencent</p>
             </div>
             <div className="bg-slate-800/50 backdrop-blur-sm p-8 rounded-xl border border-slate-700">
               <div className="text-4xl mb-4">📊</div>
