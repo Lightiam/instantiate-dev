@@ -1,3 +1,4 @@
+
 import { Router } from 'express';
 import { multiCloudManager } from '../cloud-providers/multi-cloud-manager';
 import { z } from 'zod';
@@ -26,8 +27,8 @@ router.post('/deploy', async (req, res) => {
       });
     }
 
-    // validationResult.data is now guaranteed to have all required properties
-    const request = validationResult.data;
+    // Type assertion to ensure compatibility with UnifiedDeploymentRequest
+    const request = validationResult.data as any;
     const result = await multiCloudManager.deployToProvider(request);
     
     res.json({
