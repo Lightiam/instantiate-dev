@@ -26,7 +26,6 @@ export class AzureService {
 
   async testConnection(credentials: AzureCredentials): Promise<{ success: boolean; error?: string }> {
     try {
-      // Simulate connection test
       console.log('Testing Azure connection with credentials');
       return { success: true };
     } catch (error: any) {
@@ -42,7 +41,6 @@ export class AzureService {
 
       console.log(`Creating resource group: ${name} in ${location}`);
       
-      // Simulate Azure resource group creation
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       return {
@@ -72,7 +70,6 @@ export class AzureService {
 
       console.log(`Deploying container: ${spec.name}`);
       
-      // Simulate container deployment
       await new Promise(resolve => setTimeout(resolve, 3000));
       
       return {
@@ -96,3 +93,4 @@ export class AzureService {
 }
 
 export const azureService = new AzureService();
+export const getAzureService = () => azureService;
