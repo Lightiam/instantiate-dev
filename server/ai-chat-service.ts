@@ -7,7 +7,7 @@ interface ChatMessage {
 }
 
 interface DeploymentContext {
-  provider?: 'azure' | 'replit';
+  provider?: 'azure' | 'aws' | 'replit';
   resourceType?: string;
   userQuery: string;
   errorLogs?: string;
@@ -47,7 +47,7 @@ export class AIChatService {
     this.systemPrompt = `You are an expert cloud infrastructure and DevOps assistant for Instantiate.dev, a multi-cloud deployment platform. Your role is to help users with:
 
 1. Infrastructure planning and architecture recommendations
-2. Troubleshooting deployment issues across Azure and Replit
+2. Troubleshooting deployment issues across Azure, AWS, and Replit
 3. Generating Infrastructure as Code (Terraform, Pulumi, Docker)
 4. Optimizing cloud costs and performance
 5. Security best practices and compliance
@@ -103,13 +103,13 @@ Response format:
     }
   }
 
-  async generateInfrastructureCode(prompt: string, provider: 'azure' | 'replit', codeType: 'terraform' | 'pulumi'): Promise<{ code: string; explanation: string }> {
+  async generateInfrastructureCode(prompt: string, provider: 'azure' | 'aws' | 'replit', codeType: 'terraform' | 'pulumi'): Promise<{ code: string; explanation: string }> {
     try {
       const messages = [
         { role: 'system', content: this.systemPrompt },
         { 
           role: 'user', 
-          content: `Generate ${codeType} code for ${provider} to: ${prompt}. Provide the code and a brief explanation of what it does.` 
+          content: `Generate ${codeType} code for ${provider} to: ${prompt}. ${provider === 'aws' ? 'Include proper VPC, security groups, and load balancer configuration for secure web applications.' : ''} Provide the code and a brief explanation of what it does.` 
         }
       ];
 

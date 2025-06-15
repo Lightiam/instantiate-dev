@@ -145,6 +145,33 @@ export class DeploymentService {
         } else {
           throw new Error(`Unsupported Azure resource type: ${request.resourceType}`);
         }
+      } else if (request.provider === 'aws') {
+        const { awsService } = await import('./cloud-providers/aws-service');
+        
+        const deploymentSpec = {
+          name: `deployment-${Date.now()}`,
+          code: request.code,
+          codeType: 'html' as const,
+          region: 'us-east-1',
+          service: 'web-app-with-alb' as const,
+          environmentVariables: {}
+        };
+        
+        const awsResult = await awsService.deployWebAppWithLoadBalancer(deploymentSpec);
+        
+        this.addLog(deploymentId, `AWS deployment completed: ${awsResult.id}`);
+        this.updateDeploymentStatus(deploymentId, 'success');
+        
+        const deployment = this.deployments.get(deploymentId);
+        if (deployment) {
+          deployment.outputs = {
+            deploymentId: awsResult.id,
+            url: awsResult.url,
+            loadBalancerArn: awsResult.loadBalancerArn,
+            instanceIds: awsResult.instanceIds,
+            region: awsResult.region
+          };
+        }
       } else {
         throw new Error(`Unsupported cloud provider: ${request.provider}`);
       }

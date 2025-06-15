@@ -6,7 +6,7 @@ interface AWSDeploymentRequest {
   code: string;
   codeType: 'javascript' | 'python' | 'html';
   region: string;
-  service: 'lambda' | 'ec2' | 's3' | 'ecs';
+  service: 'lambda' | 'ec2' | 's3' | 'ecs' | 'web-app-with-alb';
   environmentVariables?: Record<string, string>;
 }
 
@@ -152,7 +152,7 @@ export class AWSService {
       const functions = await lambda.listFunctions().promise();
       
       functions.Functions?.forEach(func => {
-        if (func.Tags?.['CreatedBy'] === 'Instantiate') {
+        if (func.Description?.includes('Instantiate')) {
           resources.push({
             id: func.FunctionArn || '',
             name: func.FunctionName || '',
@@ -246,6 +246,220 @@ export class AWSService {
     }
 
     return Buffer.from(codeContent);
+  }
+
+  async deployWebAppWithLoadBalancer(spec: AWSDeploymentRequest): Promise<any> {
+    if (!this.credentials.accessKeyId) {
+      throw new Error('AWS credentials not configured. Please set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.');
+    }
+
+    const ec2 = new AWS.EC2({ region: spec.region });
+    const elbv2 = new AWS.ELBv2({ region: spec.region });
+    const deploymentId = `${spec.name}-${Date.now()}`;
+
+    try {
+      const vpc = await this.createVPC(ec2, deploymentId);
+      const subnets = await this.createSubnets(ec2, vpc.VpcId, deploymentId);
+      const securityGroup = await this.createSecurityGroup(ec2, vpc.VpcId, deploymentId);
+      
+      const instances = await this.createEC2Instances(ec2, spec, subnets[0].SubnetId, securityGroup.GroupId, deploymentId);
+      
+      const loadBalancer = await this.createApplicationLoadBalancer(elbv2, subnets.map(s => s.SubnetId), deploymentId);
+      
+      const targetGroup = await this.createTargetGroup(elbv2, vpc.VpcId, deploymentId);
+      await this.registerTargets(elbv2, targetGroup.TargetGroupArn, instances);
+      
+      await this.createListener(elbv2, loadBalancer.LoadBalancerArn, targetGroup.TargetGroupArn);
+
+      return {
+        id: deploymentId,
+        name: spec.name,
+        type: 'web-app-with-alb',
+        region: spec.region,
+        status: 'deployed',
+        url: `http://${loadBalancer.DNSName}`,
+        loadBalancerArn: loadBalancer.LoadBalancerArn,
+        instanceIds: instances.map(i => i.InstanceId),
+        createdAt: new Date().toISOString(),
+        logs: [`Web application with load balancer deployed successfully`]
+      };
+    } catch (error: any) {
+      throw new Error(`AWS web app deployment failed: ${error.message}`);
+    }
+  }
+
+  private async createVPC(ec2: AWS.EC2, deploymentId: string) {
+    const vpcResult = await ec2.createVpc({
+      CidrBlock: '10.0.0.0/16',
+      TagSpecifications: [{
+        ResourceType: 'vpc',
+        Tags: [
+          { Key: 'Name', Value: `${deploymentId}-vpc` },
+          { Key: 'CreatedBy', Value: 'Instantiate' }
+        ]
+      }]
+    }).promise();
+    
+    const igwResult = await ec2.createInternetGateway({
+      TagSpecifications: [{
+        ResourceType: 'internet-gateway',
+        Tags: [{ Key: 'Name', Value: `${deploymentId}-igw` }]
+      }]
+    }).promise();
+    
+    await ec2.attachInternetGateway({
+      VpcId: vpcResult.Vpc.VpcId,
+      InternetGatewayId: igwResult.InternetGateway.InternetGatewayId
+    }).promise();
+
+    const routeTableResult = await ec2.createRouteTable({
+      VpcId: vpcResult.Vpc.VpcId,
+      TagSpecifications: [{
+        ResourceType: 'route-table',
+        Tags: [{ Key: 'Name', Value: `${deploymentId}-rt` }]
+      }]
+    }).promise();
+
+    await ec2.createRoute({
+      RouteTableId: routeTableResult.RouteTable.RouteTableId,
+      DestinationCidrBlock: '0.0.0.0/0',
+      GatewayId: igwResult.InternetGateway.InternetGatewayId
+    }).promise();
+
+    return vpcResult.Vpc;
+  }
+
+  private async createSubnets(ec2: AWS.EC2, vpcId: string, deploymentId: string) {
+    const availabilityZones = await ec2.describeAvailabilityZones().promise();
+    const azs = availabilityZones.AvailabilityZones.slice(0, 2);
+
+    const subnets = [];
+    for (let i = 0; i < azs.length; i++) {
+      const subnetResult = await ec2.createSubnet({
+        VpcId: vpcId,
+        CidrBlock: `10.0.${i + 1}.0/24`,
+        AvailabilityZone: azs[i].ZoneName,
+        TagSpecifications: [{
+          ResourceType: 'subnet',
+          Tags: [{ Key: 'Name', Value: `${deploymentId}-subnet-${i + 1}` }]
+        }]
+      }).promise();
+
+      await ec2.modifySubnetAttribute({
+        SubnetId: subnetResult.Subnet.SubnetId,
+        MapPublicIpOnLaunch: { Value: true }
+      }).promise();
+
+      subnets.push(subnetResult.Subnet);
+    }
+
+    return subnets;
+  }
+
+  private async createSecurityGroup(ec2: AWS.EC2, vpcId: string, deploymentId: string) {
+    const sgResult = await ec2.createSecurityGroup({
+      GroupName: `${deploymentId}-sg`,
+      Description: 'Security group for web application',
+      VpcId: vpcId,
+      TagSpecifications: [{
+        ResourceType: 'security-group',
+        Tags: [{ Key: 'Name', Value: `${deploymentId}-sg` }]
+      }]
+    }).promise();
+
+    await ec2.authorizeSecurityGroupIngress({
+      GroupId: sgResult.GroupId,
+      IpPermissions: [
+        {
+          IpProtocol: 'tcp',
+          FromPort: 80,
+          ToPort: 80,
+          IpRanges: [{ CidrIp: '0.0.0.0/0' }]
+        },
+        {
+          IpProtocol: 'tcp',
+          FromPort: 22,
+          ToPort: 22,
+          IpRanges: [{ CidrIp: '0.0.0.0/0' }]
+        }
+      ]
+    }).promise();
+
+    return sgResult;
+  }
+
+  private async createEC2Instances(ec2: AWS.EC2, spec: AWSDeploymentRequest, subnetId: string, securityGroupId: string, deploymentId: string) {
+    const userData = Buffer.from(`#!/bin/bash
+yum update -y
+yum install -y httpd
+systemctl start httpd
+systemctl enable httpd
+echo '${spec.code}' > /var/www/html/index.html
+`).toString('base64');
+
+    const instanceResult = await ec2.runInstances({
+      ImageId: 'ami-0c02fb55956c7d316',
+      InstanceType: 't2.micro',
+      MinCount: 2,
+      MaxCount: 2,
+      SecurityGroupIds: [securityGroupId],
+      SubnetId: subnetId,
+      UserData: userData,
+      TagSpecifications: [{
+        ResourceType: 'instance',
+        Tags: [
+          { Key: 'Name', Value: `${deploymentId}-instance` },
+          { Key: 'CreatedBy', Value: 'Instantiate' }
+        ]
+      }]
+    }).promise();
+
+    return instanceResult.Instances;
+  }
+
+  private async createApplicationLoadBalancer(elbv2: AWS.ELBv2, subnetIds: string[], deploymentId: string) {
+    const albResult = await elbv2.createLoadBalancer({
+      Name: `${deploymentId}-alb`.substring(0, 32),
+      Subnets: subnetIds,
+      Tags: [
+        { Key: 'Name', Value: `${deploymentId}-alb` },
+        { Key: 'CreatedBy', Value: 'Instantiate' }
+      ]
+    }).promise();
+
+    return albResult.LoadBalancers[0];
+  }
+
+  private async createTargetGroup(elbv2: AWS.ELBv2, vpcId: string, deploymentId: string) {
+    const tgResult = await elbv2.createTargetGroup({
+      Name: `${deploymentId}-tg`.substring(0, 32),
+      Protocol: 'HTTP',
+      Port: 80,
+      VpcId: vpcId,
+      HealthCheckPath: '/',
+      Tags: [{ Key: 'CreatedBy', Value: 'Instantiate' }]
+    }).promise();
+
+    return tgResult.TargetGroups[0];
+  }
+
+  private async registerTargets(elbv2: AWS.ELBv2, targetGroupArn: string, instances: AWS.EC2.Instance[]) {
+    await elbv2.registerTargets({
+      TargetGroupArn: targetGroupArn,
+      Targets: instances.map(instance => ({ Id: instance.InstanceId, Port: 80 }))
+    }).promise();
+  }
+
+  private async createListener(elbv2: AWS.ELBv2, loadBalancerArn: string, targetGroupArn: string) {
+    await elbv2.createListener({
+      LoadBalancerArn: loadBalancerArn,
+      Protocol: 'HTTP',
+      Port: 80,
+      DefaultActions: [{
+        Type: 'forward',
+        TargetGroupArn: targetGroupArn
+      }]
+    }).promise();
   }
 }
 

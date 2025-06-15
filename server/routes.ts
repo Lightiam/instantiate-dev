@@ -1848,7 +1848,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AWS deployment endpoint
+  app.post("/api/real-deploy/aws", async (req, res) => {
+    try {
+      const { awsService } = await import('./cloud-providers/aws-service');
+      const { name, code, codeType, region, service, environmentVariables } = req.body;
+      
+      if (!name || !code) {
+        return res.status(400).json({
+          success: false,
+          error: "Missing required parameters: name, code"
+        });
+      }
 
+      const deploymentSpec = {
+        name,
+        code: code || `<html><body><h1>Hello from ${name}</h1><p>Deployed via Instantiate</p></body></html>`,
+        codeType: codeType || 'html',
+        region: region || 'us-east-1',
+        service: service || 'web-app-with-alb',
+        environmentVariables: environmentVariables || {}
+      };
+
+      let result;
+      if (deploymentSpec.service === 'web-app-with-alb') {
+        result = await awsService.deployWebAppWithLoadBalancer(deploymentSpec);
+      } else if (deploymentSpec.service === 'lambda') {
+        result = await awsService.deployLambda(deploymentSpec);
+      } else if (deploymentSpec.service === 's3') {
+        result = await awsService.deployS3Website(deploymentSpec);
+      } else {
+        throw new Error(`Unsupported AWS service: ${deploymentSpec.service}`);
+      }
+
+      res.json({
+        success: result.id ? true : false,
+        deploymentId: result.id,
+        name: result.name,
+        type: result.type,
+        region: result.region,
+        status: result.status,
+        url: result.url,
+        loadBalancerArn: result.loadBalancerArn,
+        instanceIds: result.instanceIds,
+        error: result.error,
+        message: result.id ? "AWS deployment completed successfully" : "AWS deployment failed"
+      });
+
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        error: "AWS deployment failed",
+        message: error.message
+      });
+    }
+  });
 
   // Direct deployment routes
   app.post("/api/deploy/direct", async (req, res) => {
@@ -2203,7 +2257,7 @@ const files = ${JSON.stringify(result.files, null, 2)};`,
 
     // Use AI for general deployment assistance
     const originalProvider = codeGenerator.determineProvider(message);
-    const validProvider = originalProvider === 'aws' || originalProvider === 'gcp' ? 'azure' : originalProvider as 'azure' | 'netlify' | 'replit';
+    const validProvider = originalProvider as 'azure' | 'aws' | 'netlify' | 'replit';
     
     const deploymentContext = {
       userQuery: message,
