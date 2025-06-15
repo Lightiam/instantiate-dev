@@ -8,7 +8,6 @@ import { linodeService } from './linode-service';
 import { huaweiCloudService } from './huawei-service';
 import { tencentCloudService } from './tencent-service';
 import { getAzureService } from '../azure-service';
-import { netlifyDeploymentService } from '../netlify-deployment-service';
 
 interface UnifiedDeploymentRequest {
   name: string;
@@ -30,8 +29,7 @@ type CloudProvider =
   | 'digitalocean' 
   | 'linode' 
   | 'huawei' 
-  | 'tencent' 
-  | 'netlify';
+  | 'tencent';
 
 interface CloudResource {
   id: string;
@@ -75,7 +73,7 @@ export class MultiCloudManager {
     linode: linodeService,
     huawei: huaweiCloudService,
     tencent: tencentCloudService,
-    netlify: netlifyDeploymentService
+
   };
 
   private resourceCache = new Map<CloudProvider, CloudResource[]>();
@@ -179,13 +177,7 @@ export class MultiCloudManager {
           }
           break;
 
-        case 'netlify':
-          result = await provider.deployCode({
-            name: request.name,
-            code: request.code,
-            codeType: request.codeType
-          });
-          break;
+
 
         default:
           throw new Error(`Service ${request.service} not supported for provider ${request.provider}`);
@@ -307,7 +299,7 @@ export class MultiCloudManager {
     const providerDistribution: Record<CloudProvider, number> = {
       aws: 0, gcp: 0, azure: 0, alibaba: 0, ibm: 0,
       oracle: 0, digitalocean: 0, linode: 0, huawei: 0,
-      tencent: 0, netlify: 0
+      tencent: 0
     };
 
     const statusDistribution: Record<string, number> = {};
@@ -381,8 +373,7 @@ export class MultiCloudManager {
       digitalocean: ['droplet', 'app-platform', 'kubernetes', 'functions'],
       linode: ['linode', 'kubernetes', 'object-storage', 'nodebalancer'],
       huawei: ['function-graph', 'ecs', 'obs', 'cce'],
-      tencent: ['scf', 'cvm', 'cos', 'tke'],
-      netlify: ['static-sites', 'functions', 'edge-functions']
+      tencent: ['scf', 'cvm', 'cos', 'tke']
     };
 
     return capabilities[provider] || [];
@@ -399,8 +390,7 @@ export class MultiCloudManager {
       digitalocean: ['nyc1', 'nyc3', 'ams3', 'sgp1', 'lon1', 'fra1'],
       linode: ['us-east', 'us-west', 'eu-west', 'ap-south'],
       huawei: ['cn-north-4', 'cn-north-1', 'cn-east-2', 'cn-south-1'],
-      tencent: ['ap-guangzhou', 'ap-shanghai', 'ap-beijing', 'ap-singapore'],
-      netlify: ['global']
+      tencent: ['ap-guangzhou', 'ap-shanghai', 'ap-beijing', 'ap-singapore']
     };
 
     return regions[provider] || [];

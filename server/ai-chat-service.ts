@@ -7,7 +7,7 @@ interface ChatMessage {
 }
 
 interface DeploymentContext {
-  provider?: 'azure' | 'netlify' | 'replit';
+  provider?: 'azure' | 'replit';
   resourceType?: string;
   userQuery: string;
   errorLogs?: string;
@@ -47,7 +47,7 @@ export class AIChatService {
     this.systemPrompt = `You are an expert cloud infrastructure and DevOps assistant for Instantiate.dev, a multi-cloud deployment platform. Your role is to help users with:
 
 1. Infrastructure planning and architecture recommendations
-2. Troubleshooting deployment issues across Azure, Netlify, and Replit
+2. Troubleshooting deployment issues across Azure and Replit
 3. Generating Infrastructure as Code (Terraform, Pulumi, Docker)
 4. Optimizing cloud costs and performance
 5. Security best practices and compliance
@@ -103,7 +103,7 @@ Response format:
     }
   }
 
-  async generateInfrastructureCode(prompt: string, provider: 'azure' | 'netlify' | 'replit', codeType: 'terraform' | 'pulumi'): Promise<{ code: string; explanation: string }> {
+  async generateInfrastructureCode(prompt: string, provider: 'azure' | 'replit', codeType: 'terraform' | 'pulumi'): Promise<{ code: string; explanation: string }> {
     try {
       const messages = [
         { role: 'system', content: this.systemPrompt },

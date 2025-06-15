@@ -13,10 +13,10 @@ export function Sidebar({ currentSection, onSectionChange }: SidebarProps) {
     { id: "projects", label: "Projects", icon: Folder, badge: "3" },
     { id: "deployments", label: "Deployments", icon: Rocket, badge: "2" },
     { id: "azure-docker", label: "Azure Docker", icon: Cloud },
-    { id: "multi-cloud", label: "Multi-Cloud", icon: Globe, badge: "11" },
+    { id: "multi-cloud", label: "Multi-Cloud", icon: Globe, badge: "9" },
     { id: "infrastructure", label: "Import Infrastructure", icon: Server },
     { id: "import-wizard", label: "Import Wizard", icon: Activity },
-    { id: "domains", label: "Domain Manager", icon: Globe },
+
     { id: "monitoring", label: "Monitoring", icon: BarChart3 },
   ];
 

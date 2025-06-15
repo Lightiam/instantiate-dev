@@ -38,7 +38,7 @@ export function CloudInsightsDashboard() {
       aws: <Cloud className="w-6 h-6 text-orange-500" />,
       azure: <Database className="w-6 h-6 text-blue-500" />,
       gcp: <Globe className="w-6 h-6 text-red-500" />,
-      netlify: <Zap className="w-6 h-6 text-cyan-500" />,
+
       digitalocean: <Database className="w-6 h-6 text-blue-400" />,
       linode: <Server className="w-6 h-6 text-green-500" />,
       default: <Cloud className="w-6 h-6 text-gray-500" />
@@ -134,7 +134,7 @@ export function CloudInsightsDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {['AWS', 'Azure', 'Google Cloud', 'Netlify', 'DigitalOcean', 'Linode', 'Alibaba Cloud', 'IBM Cloud', 'Oracle Cloud', 'Huawei Cloud', 'Tencent Cloud'].map((provider, index) => (
+                {['AWS', 'Azure', 'Google Cloud', 'DigitalOcean', 'Linode', 'Alibaba Cloud', 'IBM Cloud', 'Oracle Cloud', 'Huawei Cloud', 'Tencent Cloud'].map((provider, index) => (
                   <div key={provider} className="flex items-center justify-between p-4 bg-blue-950 rounded-lg border border-blue-800">
                     <div className="flex items-center space-x-4">
                       <div className="w-12 h-12 bg-blue-900 rounded-lg flex items-center justify-center">

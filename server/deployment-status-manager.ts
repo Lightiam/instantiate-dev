@@ -1,6 +1,6 @@
 interface DeploymentRecord {
   id: string;
-  provider: 'netlify' | 'azure' | 'replit';
+  provider: 'azure' | 'replit';
   status: 'uploading' | 'processing' | 'ready' | 'error' | 'deployed';
   url?: string;
   createdAt: string;
@@ -68,13 +68,6 @@ const deploymentStatusManager = new DeploymentStatusManager();
 export { deploymentStatusManager };
 
 // Resolve the specific deployment ID 1749273424917
-deploymentStatusManager.recordDeployment({
-  id: '1749273424917',
-  provider: 'netlify',
-  status: 'deployed',
-  url: 'https://deployment-1749273424917-resolved.netlify.app',
-  createdAt: '2025-06-07T05:17:06.179Z',
-  updatedAt: new Date().toISOString(),
-  siteId: '25650649-1b7f-4b9e-9334-cf57728c1139',
+
   deployId: '6843cb5210b36e90784c69fe'
 });
