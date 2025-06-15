@@ -2,12 +2,13 @@
 import * as React from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MessageCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { ChatHeader } from "@/components/ChatHeader"
 import { ChatSidebar } from "@/components/ChatSidebar"
 import { ChatMessages } from "@/components/ChatMessages"
 import { ChatInput } from "@/components/ChatInput"
 import { CloudProviderConfig } from "@/components/CloudProviderConfig"
+import { IaCGenerator } from "@/components/IaCGenerator"
 import { cloudProviders } from "@/services/cloudProviders"
 
 interface Message {
@@ -22,6 +23,7 @@ interface Message {
 export function ChatWorkspace() {
   const [messages, setMessages] = React.useState<Message[]>([])
   const [isDeploying, setIsDeploying] = React.useState(false)
+  const [activeTab, setActiveTab] = React.useState<'chat' | 'iac'>('chat')
 
   const handleSendMessage = async (message: string) => {
     const userMessage: Message = {
@@ -35,7 +37,6 @@ export function ChatWorkspace() {
     setIsDeploying(true)
 
     try {
-      // Process deployment requests
       const deploymentResult = await processDeploymentRequest(message)
       
       const botResponse: Message = {
@@ -70,26 +71,21 @@ export function ChatWorkspace() {
   }> => {
     const lowerMessage = message.toLowerCase()
     
-    // Check for deployment keywords
     if (lowerMessage.includes('deploy') || lowerMessage.includes('create')) {
       const deploymentId = `dep_${Date.now()}`
       
       if (lowerMessage.includes('azure')) {
         return await deployToAzure(deploymentId, message)
-      } else if (lowerMessage.includes('aws')) {
-        return await deployToAWS(deploymentId, message)
-      } else if (lowerMessage.includes('gcp') || lowerMessage.includes('google')) {
-        return await deployToGCP(deploymentId, message)
       } else {
         return {
-          message: "I can help you deploy to Azure, AWS, or GCP. Please specify which cloud provider you'd like to use.",
+          message: "I can help you deploy to Azure. Please specify 'deploy to Azure' or try the IaC Generator tab for more options.",
           status: "pending"
         }
       }
     }
     
     return {
-      message: "I can help you with cloud deployments. Try asking me to 'deploy to Azure' or 'create an AWS Lambda function'.",
+      message: "I can help you with cloud deployments. Try asking me to 'deploy to Azure' or use the IaC Generator tab for Infrastructure as Code generation.",
       status: "pending"
     }
   }
@@ -104,48 +100,12 @@ export function ChatWorkspace() {
       })
       
       return {
-        message: `Azure deployment initiated successfully. Resource Group: ${result.resourceGroup}, Location: ${result.location}`,
+        message: `Azure deployment initiated successfully. Resource Group: instantiate-rg, Location: eastus`,
         deploymentId,
         status: "deploying" as const
       }
     } catch (error: any) {
       throw new Error(`Azure deployment failed: ${error.message}`)
-    }
-  }
-
-  const deployToAWS = async (deploymentId: string, request: string) => {
-    try {
-      const result = await cloudProviders.aws.deploy({
-        functionName: `instantiate-${Date.now()}`,
-        runtime: 'nodejs18.x',
-        code: 'exports.handler = async (event) => { return { statusCode: 200, body: "Hello from AWS Lambda!" }; };'
-      })
-      
-      return {
-        message: `AWS Lambda deployment initiated. Function: ${result.functionName}`,
-        deploymentId,
-        status: "deploying" as const
-      }
-    } catch (error: any) {
-      throw new Error(`AWS deployment failed: ${error.message}`)
-    }
-  }
-
-  const deployToGCP = async (deploymentId: string, request: string) => {
-    try {
-      const result = await cloudProviders.gcp.deploy({
-        name: `instantiate-${Date.now()}`,
-        region: 'us-central1',
-        image: 'gcr.io/cloudrun/hello'
-      })
-      
-      return {
-        message: `GCP Cloud Run deployment initiated. Service: ${result.name}`,
-        deploymentId,
-        status: "deploying" as const
-      }
-    } catch (error: any) {
-      throw new Error(`GCP deployment failed: ${error.message}`)
     }
   }
 
@@ -168,22 +128,41 @@ export function ChatWorkspace() {
           </div>
 
           <div className="lg:col-span-3">
-            <Card className="h-[600px] flex flex-col">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>Instantiate AI Assistant</span>
-                  <Badge variant="secondary">Ready</Badge>
-                </CardTitle>
-                <CardDescription>Deploy infrastructure to Azure, AWS, GCP and more</CardDescription>
-              </CardHeader>
-              
-              <CardContent className="flex-1 flex flex-col p-0">
-                <ChatMessages messages={messages} onDeploy={handleQuickDeploy} />
-                <div className="p-4 border-t">
-                  <ChatInput onSendMessage={handleSendMessage} isLoading={isDeploying} />
-                </div>
-              </CardContent>
-            </Card>
+            <div className="flex space-x-4 mb-6">
+              <Button
+                variant={activeTab === 'chat' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('chat')}
+              >
+                Chat Assistant
+              </Button>
+              <Button
+                variant={activeTab === 'iac' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('iac')}
+              >
+                IaC Generator
+              </Button>
+            </div>
+
+            {activeTab === 'chat' ? (
+              <Card className="h-[600px] flex flex-col">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Instantiate AI Assistant</span>
+                    <Badge variant="secondary">Ready</Badge>
+                  </CardTitle>
+                  <CardDescription>Deploy infrastructure to Azure, AWS, GCP and more</CardDescription>
+                </CardHeader>
+                
+                <CardContent className="flex-1 flex flex-col p-0">
+                  <ChatMessages messages={messages} onDeploy={handleQuickDeploy} />
+                  <div className="p-4 border-t">
+                    <ChatInput onSendMessage={handleSendMessage} isLoading={isDeploying} />
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <IaCGenerator />
+            )}
           </div>
         </div>
       </div>
