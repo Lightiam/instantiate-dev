@@ -18,6 +18,7 @@ export function Auth() {
   // Redirect if already authenticated
   useEffect(() => {
     if (user && !loading) {
+      console.log("User authenticated, redirecting to dashboard")
       setLocation("/dashboard")
     }
   }, [user, loading, setLocation])
@@ -30,13 +31,23 @@ export function Auth() {
     const email = formData.get("email") as string
     const password = formData.get("password") as string
 
-    const { error } = await signIn(email, password)
+    console.log("Attempting sign in for:", email)
 
-    if (error) {
-      toast.error(error.message)
-    } else {
-      toast.success("Successfully signed in!")
-      setLocation("/dashboard")
+    try {
+      const { error } = await signIn(email, password)
+
+      if (error) {
+        console.error("Sign in error:", error)
+        toast.error(error.message)
+      } else {
+        console.log("Sign in successful, redirecting...")
+        toast.success("Successfully signed in!")
+        // Force redirect to dashboard
+        window.location.href = "/dashboard"
+      }
+    } catch (err) {
+      console.error("Sign in exception:", err)
+      toast.error("An unexpected error occurred")
     }
 
     setIsLoading(false)
@@ -51,12 +62,21 @@ export function Auth() {
     const password = formData.get("password-signup") as string
     const fullName = formData.get("name") as string
 
-    const { error } = await signUp(email, password, fullName)
+    console.log("Attempting sign up for:", email)
 
-    if (error) {
-      toast.error(error.message)
-    } else {
-      toast.success("Check your email to confirm your account!")
+    try {
+      const { error } = await signUp(email, password, fullName)
+
+      if (error) {
+        console.error("Sign up error:", error)
+        toast.error(error.message)
+      } else {
+        console.log("Sign up successful")
+        toast.success("Check your email to confirm your account!")
+      }
+    } catch (err) {
+      console.error("Sign up exception:", err)
+      toast.error("An unexpected error occurred")
     }
 
     setIsLoading(false)

@@ -20,9 +20,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    console.log("Setting up auth state listener...")
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log("Auth state changed:", event, session?.user?.email)
         setSession(session)
         setUser(session?.user ?? null)
         setLoading(false)
@@ -31,23 +34,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Initial session:", session?.user?.email)
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      console.log("Cleaning up auth subscription")
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signIn = async (email: string, password: string) => {
+    console.log("SignIn called for:", email)
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
+    console.log("SignIn result:", error ? "Error" : "Success")
     return { error }
   }
 
   const signUp = async (email: string, password: string, fullName?: string) => {
+    console.log("SignUp called for:", email)
     const redirectUrl = `${window.location.origin}/`
     
     const { error } = await supabase.auth.signUp({
@@ -58,10 +68,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         data: fullName ? { full_name: fullName } : undefined
       }
     })
+    console.log("SignUp result:", error ? "Error" : "Success")
     return { error }
   }
 
   const signOut = async () => {
+    console.log("SignOut called")
     await supabase.auth.signOut()
   }
 
