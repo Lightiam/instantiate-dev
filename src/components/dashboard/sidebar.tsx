@@ -1,6 +1,5 @@
 import { Cloud, BarChart3, Folder, Rocket, Server, Settings, HelpCircle, User, Activity, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Link } from "wouter";
 
 interface SidebarProps {
   currentSection: string;
@@ -76,15 +75,13 @@ export function Sidebar({ currentSection, onSectionChange }: SidebarProps) {
           </button>
         ))}
         
-        <Link href="/azure-monitor">
-          <button className="nav-link w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left">
-            <Activity className="w-5 h-5" />
-            <span>Azure Monitor</span>
-            <span className="ml-auto bg-yellow-500 text-xs px-2 py-1 rounded-full text-black">
-              Live
-            </span>
-          </button>
-        </Link>
+        <button className="nav-link w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left">
+          <Activity className="w-5 h-5" />
+          <span>Azure Monitor</span>
+          <span className="ml-auto bg-yellow-500 text-xs px-2 py-1 rounded-full text-black">
+            Live
+          </span>
+        </button>
       </nav>
 
       <div className="p-4 border-t border-slate-700">
