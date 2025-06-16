@@ -1,7 +1,8 @@
+
 import { Route, Switch } from "wouter";
-import { Landing } from "@/pages/landing";
+import Landing from "@/pages/landing";
 import { Auth } from "@/pages/auth";
-import { Dashboard } from "@/pages/dashboard";
+import Dashboard from "@/pages/dashboard";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Header } from "@/components/layout/header";
 import { NotFound } from "@/pages/not-found";
