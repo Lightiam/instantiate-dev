@@ -62,10 +62,10 @@ export default function LandingPage() {
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
               </div>
               <div className="text-left space-y-2 font-mono text-sm">
-                <div className="text-cyan-400">resource "aws_instance" "web" {</div>
-                <div className="text-white ml-4">ami = "ami-0c55b159cbfafe1d0"</div>
-                <div className="text-white ml-4">instance_type = "t2.micro"</div>
-                <div className="text-cyan-400">}</div>
+                <div className="text-cyan-400">{'resource "aws_instance" "web" {'}</div>
+                <div className="text-white ml-4">{'ami = "ami-0c55b159cbfafe1d0"'}</div>
+                <div className="text-white ml-4">{'instance_type = "t2.micro"'}</div>
+                <div className="text-cyan-400">{'}'}</div>
               </div>
             </div>
             
