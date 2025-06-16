@@ -47,25 +47,25 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-      {/* Hero Section */}
       <div className="container mx-auto px-4 py-16">
-        <div className="text-center max-w-5xl mx-auto mb-16">
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent">
+        {/* Hero Section */}
+        <div className="text-center max-w-4xl mx-auto mb-20">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent">
             <span className="font-mono text-cyan-400">&lt;/&gt;</span>instanti8.dev
           </h1>
           <p className="text-xl md:text-2xl mb-4 text-slate-200 font-medium">
             Self-service infrastructure deployment
           </p>
-          <p className="text-base md:text-lg mb-8 text-slate-300 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-base md:text-lg mb-8 text-slate-300 max-w-3xl mx-auto leading-relaxed">
             Launch compliant cloud environments in minutes without coding. Firefly's "Compose", our self-service 
             infrastructure deployment offering, allows your teams to quickly generate and deploy cloud infrastructure 
             directly from the Firefly UI by selecting modules from a public or private catalog.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
             <Button
               size="lg"
-              className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-300"
               onClick={() => window.location.href = '/dashboard'}
             >
               Access Dashboard
@@ -81,25 +81,25 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Features Grid */}
-        <div className="max-w-7xl mx-auto mb-16">
+        {/* Features Section */}
+        <div className="max-w-6xl mx-auto mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white">
             Platform Capabilities
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <Card 
                 key={index}
-                className="bg-slate-800/60 backdrop-blur-sm border border-slate-600/50 hover:border-cyan-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-400/20 hover:transform hover:scale-105 group"
+                className="bg-slate-800/50 backdrop-blur-sm border border-slate-600/50 hover:border-cyan-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-400/20 group"
               >
                 <CardContent className="p-6">
-                  <div className="flex items-center justify-center w-14 h-14 mb-4 bg-gradient-to-br from-cyan-400/20 to-blue-600/20 rounded-xl group-hover:from-cyan-400/30 group-hover:to-blue-600/30 transition-all duration-300">
-                    <feature.icon className="w-7 h-7 text-cyan-400" />
+                  <div className="flex items-center justify-center w-12 h-12 mb-4 bg-gradient-to-br from-cyan-400/20 to-blue-600/20 rounded-lg group-hover:from-cyan-400/30 group-hover:to-blue-600/30 transition-all duration-300">
+                    <feature.icon className="w-6 h-6 text-cyan-400" />
                   </div>
-                  <h3 className="text-lg font-semibold mb-3 text-white group-hover:text-cyan-100 transition-colors">
+                  <h3 className="text-lg font-semibold mb-3 text-white">
                     {feature.title}
                   </h3>
-                  <p className="text-slate-300 text-sm leading-relaxed group-hover:text-slate-200 transition-colors">
+                  <p className="text-slate-300 text-sm leading-relaxed">
                     {feature.description}
                   </p>
                 </CardContent>
@@ -113,7 +113,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {stats.map((stat, index) => (
               <div key={index} className="p-4 bg-slate-800/30 rounded-lg backdrop-blur-sm border border-slate-700/50">
-                <div className="text-3xl md:text-4xl font-bold text-cyan-400 mb-2">{stat.number}</div>
+                <div className="text-2xl md:text-3xl font-bold text-cyan-400 mb-2">{stat.number}</div>
                 <div className="text-slate-400 text-xs md:text-sm uppercase tracking-wider">{stat.label}</div>
               </div>
             ))}
