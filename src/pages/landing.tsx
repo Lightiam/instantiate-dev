@@ -97,7 +97,7 @@ export default function LandingPage() {
             <span className="text-xl font-bold">Instanti8.dev</span>
           </div>
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#platform" onClick={() => scrollToSection('platform')} className="hover:opacity-70 transition-opacity cursor-pointer">Platform</a>
+            <button onClick={() => scrollToSection('platform')} className="hover:opacity-70 transition-opacity cursor-pointer">Platform</button>
             <a href="#pricing" className="hover:opacity-70 transition-opacity">Pricing</a>
             <a href="#docs" className="hover:opacity-70 transition-opacity">Docs</a>
           </div>
@@ -249,7 +249,74 @@ resource "google_container_cluster" "mlops_cluster" {
               </div>
             </div>
           )}
-          {/* Add other tab contents as needed */}
+          {activeTab === 'azure' && (
+            <div>
+              <h3 className="text-2xl font-semibold mb-4">Microsoft Azure Templates</h3>
+              <p className="mb-6 text-white/80">Deploy Azure resources with integrated ML services and enterprise security.</p>
+              <div className="bg-gray-900 rounded-lg p-6 overflow-x-auto">
+                <pre className="text-green-400 text-sm">
+{`# AKS Cluster with Azure ML Integration
+resource "azurerm_kubernetes_cluster" "mlops_cluster" {
+  name                = var.cluster_name
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  dns_prefix          = "\${var.cluster_name}-dns"
+
+  default_node_pool {
+    name       = "default"
+    node_count = 3
+    vm_size    = "Standard_DS2_v2"
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
+}`}
+                </pre>
+              </div>
+            </div>
+          )}
+          {activeTab === 'kubernetes' && (
+            <div>
+              <h3 className="text-2xl font-semibold mb-4">Kubernetes Deployments</h3>
+              <p className="mb-6 text-white/80">Container orchestration with GitOps workflows and monitoring.</p>
+              <div className="bg-gray-900 rounded-lg p-6 overflow-x-auto">
+                <pre className="text-green-400 text-sm">
+{`# MLflow Deployment with PostgreSQL Backend
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow-server
+  namespace: mlops
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlflow-server`}
+                </pre>
+              </div>
+            </div>
+          )}
+          {activeTab === 'mlops' && (
+            <div>
+              <h3 className="text-2xl font-semibold mb-4">MLOps Pipeline Templates</h3>
+              <p className="mb-6 text-white/80">End-to-end ML pipeline infrastructure with CI/CD and monitoring.</p>
+              <div className="bg-gray-900 rounded-lg p-6 overflow-x-auto">
+                <pre className="text-green-400 text-sm">
+{`# Kubeflow Pipelines with Tekton
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: ml-training-pipeline
+  namespace: mlops
+spec:
+  params:
+  - name: model-name
+    type: string`}
+                </pre>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
