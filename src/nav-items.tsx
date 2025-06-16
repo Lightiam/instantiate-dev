@@ -1,9 +1,10 @@
 
-import { Home, Settings, Zap, MessageSquare } from "lucide-react";
+import { Home, Settings, Zap, MessageSquare, DollarSign } from "lucide-react";
 import LandingPage from "./pages/landing";
 import DashboardPage from "./pages/dashboard";
 import DeploymentConfigPage from "./pages/deployment-config";
 import { ChatWorkspace } from "./pages/chat-workspace";
+import { Pricing } from "./pages/pricing";
 
 export const navItems = [
   {
@@ -29,5 +30,11 @@ export const navItems = [
     to: "/chat",
     icon: <MessageSquare className="h-4 w-4" />,
     page: <ChatWorkspace />,
+  },
+  {
+    title: "Pricing",
+    to: "/pricing",
+    icon: <DollarSign className="h-4 w-4" />,
+    page: <Pricing />,
   },
 ];
