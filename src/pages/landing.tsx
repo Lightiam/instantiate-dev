@@ -1,79 +1,62 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Cloud, Rocket, Shield, Database, GitBranch, Monitor } from "lucide-react";
+import { Wrench, Code, Cloud } from "lucide-react";
 
 export default function LandingPage() {
-  const features = [
-    {
-      icon: Rocket,
-      title: "Self-service Infrastructure",
-      description: "Launch compliant cloud environments in minutes without coding using our intuitive Compose platform"
-    },
-    {
-      icon: Cloud,
-      title: "Multi-cloud Management",
-      description: "Easily manage multiple clouds, K8s, and SaaS in one unified inventory across 11+ providers"
-    },
-    {
-      icon: GitBranch,
-      title: "IaC Provisioning",
-      description: "Manage Infrastructure as Code using your own CI/CD with enhanced predictability and GitOps"
-    },
-    {
-      icon: Shield,
-      title: "Cloud Governance",
-      description: "Control cloud risk and compliance with automated policy enforcement and AI-native remediation"
-    },
-    {
-      icon: Database,
-      title: "Backup & Recovery",
-      description: "Cloud resiliency with independent backup and recovery for infrastructure configurations"
-    },
-    {
-      icon: Monitor,
-      title: "Real-time Monitoring",
-      description: "Complete visibility across your multi-cloud infrastructure with automated insights"
-    }
-  ];
-
-  const stats = [
-    { number: "11+", label: "Cloud Providers" },
-    { number: "99.9%", label: "Uptime SLA" },
-    { number: "5min", label: "Avg Deploy Time" },
-    { number: "24/7", label: "Support" }
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-      <div className="container mx-auto px-4 py-16">
-        {/* Hero Section */}
-        <div className="text-center max-w-4xl mx-auto mb-20">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent">
-            <span className="font-mono text-cyan-400">&lt;/&gt;</span>instanti8.dev
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <header className="flex items-center justify-between px-6 py-4 bg-white shadow-sm">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+            <span className="text-white font-mono text-sm">&lt;/&gt;</span>
+          </div>
+          <span className="text-xl font-semibold text-gray-900">instanti8.dev</span>
+        </div>
+        <nav className="hidden md:flex items-center space-x-8">
+          <a href="#" className="text-gray-600 hover:text-gray-900">Pricing</a>
+          <a href="#" className="text-gray-600 hover:text-gray-900">Sign In</a>
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6">
+            Get Started
+          </Button>
+        </nav>
+      </header>
+
+      {/* Hero Section */}
+      <main className="px-6 py-16">
+        <div className="max-w-4xl mx-auto text-center">
+          {/* Badge */}
+          <div className="inline-flex items-center space-x-2 bg-blue-50 px-4 py-2 rounded-full mb-8">
+            <span className="text-blue-600 text-sm">🚀 Self-Service Infrastructure Deployment</span>
+          </div>
+
+          {/* Main Heading */}
+          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+            Launch Compliant Cloud{" "}
+            <span className="text-blue-600">Environments in Minutes</span>
           </h1>
-          <p className="text-xl md:text-2xl mb-4 text-slate-200 font-medium">
-            Self-service infrastructure deployment
+
+          {/* Subheading */}
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+            Instantiate's "Compose" allows your teams to quickly generate and deploy cloud 
+            infrastructure directly from the UI by selecting modules from a public or private 
+            catalog - no coding required.
           </p>
-          <p className="text-base md:text-lg mb-8 text-slate-300 max-w-3xl mx-auto leading-relaxed">
-            Launch compliant cloud environments in minutes without coding. Firefly's "Compose", our self-service 
-            infrastructure deployment offering, allows your teams to quickly generate and deploy cloud infrastructure 
-            directly from the Firefly UI by selecting modules from a public or private catalog.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-            <Button
-              size="lg"
-              className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20">
+            <Button 
+              size="lg" 
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
               onClick={() => window.location.href = '/dashboard'}
             >
-              Access Dashboard
+              Start Deploying →
             </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="border-2 border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900 font-semibold px-8 py-3 text-lg transition-all duration-300 bg-transparent"
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="px-8 py-3 text-lg"
               onClick={() => window.location.href = '/chat'}
             >
               Try AI Assistant
@@ -81,45 +64,53 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Features Section */}
-        <div className="max-w-6xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white">
-            Platform Capabilities
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <Card 
-                key={index}
-                className="bg-slate-800/50 backdrop-blur-sm border border-slate-600/50 hover:border-cyan-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-400/20 group"
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-center w-12 h-12 mb-4 bg-gradient-to-br from-cyan-400/20 to-blue-600/20 rounded-lg group-hover:from-cyan-400/30 group-hover:to-blue-600/30 transition-all duration-300">
-                    <feature.icon className="w-6 h-6 text-cyan-400" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-3 text-white">
-                    {feature.title}
-                  </h3>
-                  <p className="text-slate-300 text-sm leading-relaxed">
-                    {feature.description}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Stats Section */}
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {stats.map((stat, index) => (
-              <div key={index} className="p-4 bg-slate-800/30 rounded-lg backdrop-blur-sm border border-slate-700/50">
-                <div className="text-2xl md:text-3xl font-bold text-cyan-400 mb-2">{stat.number}</div>
-                <div className="text-slate-400 text-xs md:text-sm uppercase tracking-wider">{stat.label}</div>
+        {/* Feature Cards */}
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Card 1 */}
+            <div className="text-center p-8">
+              <div className="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Wrench className="w-8 h-8 text-white" />
               </div>
-            ))}
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                Simply Fill Out the Form
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                Generate and deploy cloud infrastructure directly from our 
+                intuitive interface by selecting from pre-built modules.
+              </p>
+            </div>
+
+            {/* Card 2 */}
+            <div className="text-center p-8">
+              <div className="w-16 h-16 bg-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Code className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                Generate the Code
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                Automatically create Infrastructure as Code configurations 
+                that follow best practices and compliance standards.
+              </p>
+            </div>
+
+            {/* Card 3 */}
+            <div className="text-center p-8">
+              <div className="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Cloud className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                Deploy & Understand Impact
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                Deploy with confidence while understanding costs and 
+                infrastructure impact before making changes.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
