@@ -4,6 +4,7 @@ import { Overview } from "@/components/dashboard/overview";
 import { Projects } from "@/components/dashboard/projects";
 import { Monitoring } from "@/components/dashboard/monitoring";
 import { Deployments } from "@/components/dashboard/deployments";
+import { Settings } from "@/components/dashboard/settings";
 
 export default function DashboardPage() {
   const [currentSection, setCurrentSection] = useState("overview");
@@ -18,6 +19,8 @@ export default function DashboardPage() {
         return <Monitoring />;
       case "deployments":
         return <Deployments />;
+      case "settings":
+        return <Settings />;
       default:
         return <Overview />;
     }
@@ -65,6 +68,12 @@ export default function DashboardPage() {
             className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left ${currentSection === "deployments" ? "bg-primary text-black" : "text-white hover:bg-slate-800"}`}
           >
             <span>Deployments</span>
+          </button>
+          <button 
+            onClick={() => setCurrentSection("settings")}
+            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left ${currentSection === "settings" ? "bg-primary text-black" : "text-white hover:bg-slate-800"}`}
+          >
+            <span>Settings</span>
           </button>
         </nav>
       </div>
