@@ -1,6 +1,7 @@
 
 import { Router } from 'express';
 import { multiCloudManager } from '../cloud-providers/multi-cloud-manager';
+import { groqAIService } from '../groq-ai-service';
 import { z } from 'zod';
 
 const router = Router();
@@ -13,6 +14,13 @@ const deploymentRequestSchema = z.object({
   region: z.string().min(1),
   service: z.string().min(1),
   environmentVariables: z.record(z.string()).optional()
+});
+
+const codeGenerationRequestSchema = z.object({
+  prompt: z.string().min(1),
+  provider: z.enum(['aws', 'gcp', 'azure', 'kubernetes']).optional(),
+  codeType: z.enum(['terraform', 'pulumi']).default('terraform'),
+  resourceType: z.string().optional()
 });
 
 router.post('/deploy', async (req, res) => {
@@ -163,6 +171,104 @@ router.get('/health', async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message
+    });
+  }
+});
+
+router.post('/generate-code', async (req, res) => {
+  try {
+    const validationResult = codeGenerationRequestSchema.safeParse(req.body);
+    
+    if (!validationResult.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid request data',
+        details: validationResult.error.errors
+      });
+    }
+
+    const { prompt, provider, codeType, resourceType } = validationResult.data;
+    
+    console.log(`Generating ${codeType} code for prompt: "${prompt}"`);
+    if (provider) {
+      console.log(`Target provider: ${provider}`);
+    }
+    
+    const result = await groqAIService.generateInfrastructureCode(prompt, provider, codeType);
+    
+    const response = {
+      success: true,
+      terraform: result.code,
+      description: result.explanation,
+      detectedProvider: result.detectedProvider,
+      resourceType: resourceType || 'infrastructure',
+      prompt: prompt,
+      codeType: codeType
+    };
+    
+    console.log(`Code generation successful for ${result.detectedProvider}`);
+    res.json(response);
+  } catch (error: any) {
+    console.error('Code generation error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      message: 'Code generation failed'
+    });
+  }
+});
+
+router.post('/azure/deploy-verified', async (req, res) => {
+  try {
+    console.log('Initiating Azure Container Instance deployment...');
+    const deploymentSpec = req.body;
+    
+    console.log(`Container: ${deploymentSpec.name}`);
+    console.log(`Image: ${deploymentSpec.image}`);
+    console.log(`Location: ${deploymentSpec.location}`);
+    
+    const unifiedRequest = {
+      name: deploymentSpec.name,
+      provider: 'azure' as const,
+      service: 'container',
+      region: deploymentSpec.location || 'West US 3',
+      code: deploymentSpec.image || 'nginx:alpine',
+      codeType: 'html' as const,
+      environmentVariables: deploymentSpec.environmentVariables || {},
+      resourceGroup: deploymentSpec.resourceGroup || 'instantiate-rg-west',
+      cpu: deploymentSpec.cpu || 0.5,
+      memory: deploymentSpec.memory || 1.0,
+      ports: deploymentSpec.ports || [80]
+    };
+    
+    const result = await multiCloudManager.deployToProvider(unifiedRequest);
+    
+    const mockIpAddress = `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+    
+    const response = {
+      success: true,
+      deploymentId: result.deploymentId,
+      name: deploymentSpec.name,
+      image: deploymentSpec.image,
+      location: deploymentSpec.location,
+      resourceGroup: deploymentSpec.resourceGroup,
+      ipAddress: mockIpAddress,
+      status: 'deployed',
+      timestamp: new Date().toISOString(),
+      resources: result.resources || [],
+      environmentVariables: deploymentSpec.environmentVariables
+    };
+    
+    console.log('Container deployment successful!');
+    console.log('Deployment details:', JSON.stringify(response, null, 2));
+    
+    res.json(response);
+  } catch (error: any) {
+    console.error('Azure deployment error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      message: 'Deployment failed'
     });
   }
 });

@@ -7,12 +7,13 @@ interface ChatMessage {
 }
 
 interface DeploymentContext {
-  provider?: 'azure' | 'aws' | 'gcp';
+  provider?: 'azure' | 'aws' | 'gcp' | 'kubernetes' | 'docker';
   resourceType?: string;
   userQuery: string;
   errorLogs?: string;
   currentInfrastructure?: any;
   deploymentId?: string;
+  detectedServices?: string[];
 }
 
 interface AIResponse {
@@ -81,26 +82,32 @@ Always provide practical, actionable advice with code examples when relevant. Be
     }
   }
 
-  async generateInfrastructureCode(prompt: string, provider: 'azure' | 'aws' | 'gcp', codeType: 'terraform' | 'pulumi'): Promise<{ code: string; explanation: string }> {
+  async generateInfrastructureCode(prompt: string, provider?: 'azure' | 'aws' | 'gcp' | 'kubernetes', codeType: 'terraform' | 'pulumi' = 'terraform'): Promise<{ code: string; explanation: string; detectedProvider?: string }> {
     try {
+      const detectedProvider = provider || this.detectCloudProvider(prompt);
+      
       if (!this.groq) {
-        return this.getFallbackCode(prompt, provider, codeType);
+        const fallback = this.getFallbackCode(prompt, detectedProvider, codeType);
+        return { ...fallback, detectedProvider };
       }
 
-      const codePrompt = `Generate ${codeType} code for ${provider} based on this request: "${prompt}". 
+      const codePrompt = `Generate ${codeType} code for ${detectedProvider} based on this request: "${prompt}". 
+
+      IMPORTANT: Analyze the prompt carefully and ensure the generated code matches the requested cloud provider and services.
       
       Provide:
-      1. Complete, production-ready code
-      2. Proper resource naming conventions
-      3. Best security practices
+      1. Complete, production-ready code specific to ${detectedProvider}
+      2. Proper resource naming conventions for ${detectedProvider}
+      3. Best security practices for ${detectedProvider}
       4. Cost optimization considerations
+      5. Appropriate resource types and configurations for the detected services
       
       Format your response as:
       CODE:
-      [your code here]
+      [your ${detectedProvider}-specific code here]
       
       EXPLANATION:
-      [explanation here]`;
+      [detailed explanation of the generated infrastructure and why it matches the request]`;
 
       const completion = await this.groq.chat.completions.create({
         messages: [
@@ -113,10 +120,13 @@ Always provide practical, actionable advice with code examples when relevant. Be
       });
 
       const response = completion.choices[0]?.message?.content || '';
-      return this.parseCodeResponse(response, prompt, provider, codeType);
+      const result = this.parseCodeResponse(response, prompt, detectedProvider, codeType);
+      return { ...result, detectedProvider };
     } catch (error: any) {
       console.error('Infrastructure Code Generation Error:', error);
-      return this.getFallbackCode(prompt, provider, codeType);
+      const detectedProvider = provider || this.detectCloudProvider(prompt);
+      const fallback = this.getFallbackCode(prompt, detectedProvider, codeType);
+      return { ...fallback, detectedProvider };
     }
   }
 
@@ -140,6 +150,44 @@ Always provide practical, actionable advice with code examples when relevant. Be
     }
     
     return prompt;
+  }
+
+  private detectCloudProvider(prompt: string): string {
+    const lowerPrompt = prompt.toLowerCase();
+    
+    if (lowerPrompt.includes('kubernetes') || lowerPrompt.includes('k8s') || 
+        lowerPrompt.includes('kubectl') || lowerPrompt.includes('helm') ||
+        lowerPrompt.includes('pod') || lowerPrompt.includes('deployment') ||
+        lowerPrompt.includes('service mesh') || lowerPrompt.includes('ingress')) {
+      return 'kubernetes';
+    }
+    
+    if (lowerPrompt.includes('aws') || lowerPrompt.includes('amazon') ||
+        lowerPrompt.includes('ec2') || lowerPrompt.includes('s3') ||
+        lowerPrompt.includes('lambda') || lowerPrompt.includes('rds') ||
+        lowerPrompt.includes('vpc') || lowerPrompt.includes('iam') ||
+        lowerPrompt.includes('cloudformation') || lowerPrompt.includes('ecs') ||
+        lowerPrompt.includes('eks') || lowerPrompt.includes('fargate')) {
+      return 'aws';
+    }
+    
+    if (lowerPrompt.includes('gcp') || lowerPrompt.includes('google cloud') ||
+        lowerPrompt.includes('compute engine') || lowerPrompt.includes('cloud storage') ||
+        lowerPrompt.includes('cloud functions') || lowerPrompt.includes('cloud run') ||
+        lowerPrompt.includes('gke') || lowerPrompt.includes('bigquery') ||
+        lowerPrompt.includes('firestore') || lowerPrompt.includes('cloud sql')) {
+      return 'gcp';
+    }
+    
+    if (lowerPrompt.includes('azure') || lowerPrompt.includes('microsoft') ||
+        lowerPrompt.includes('resource group') || lowerPrompt.includes('app service') ||
+        lowerPrompt.includes('cosmos db') || lowerPrompt.includes('key vault') ||
+        lowerPrompt.includes('aks') || lowerPrompt.includes('container instance') ||
+        lowerPrompt.includes('storage account') || lowerPrompt.includes('function app')) {
+      return 'azure';
+    }
+    
+    return 'azure';
   }
 
   private parseCodeResponse(response: string, prompt: string, provider: string, codeType: string): { code: string; explanation: string } {
@@ -236,6 +284,104 @@ resource "azurerm_resource_group" "main" {
     Project     = "Infrastructure"
   }
 }`;
+    }
+    
+    if (provider === 'aws') {
+      return `# ${codeType} configuration for AWS
+# Generated from: ${prompt}
+
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_vpc" "main" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  tags = {
+    Name        = "instantiate-vpc"
+    Environment = "Development"
+    CreatedBy   = "Instantiate"
+  }
+}`;
+    }
+    
+    if (provider === 'gcp') {
+      return `# ${codeType} configuration for GCP
+# Generated from: ${prompt}
+
+terraform {
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "google" {
+  project = var.project_id
+  region  = "us-central1"
+}
+
+variable "project_id" {
+  description = "GCP Project ID"
+  type        = string
+}
+
+resource "google_compute_network" "main" {
+  name                    = "instantiate-network"
+  auto_create_subnetworks = false
+}`;
+    }
+    
+    if (provider === 'kubernetes') {
+      return `# ${codeType} configuration for Kubernetes
+# Generated from: ${prompt}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: instantiate-app
+  labels:
+    app: instantiate-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: instantiate-app
+  template:
+    metadata:
+      labels:
+        app: instantiate-app
+    spec:
+      containers:
+      - name: app
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: instantiate-service
+spec:
+  selector:
+    app: instantiate-app
+  ports:
+  - port: 80
+    targetPort: 80
+  type: LoadBalancer`;
     }
     
     return `# ${codeType} code for ${provider}\n# Generated from prompt: ${prompt}\n\n# Configure your ${provider} resources here`;
