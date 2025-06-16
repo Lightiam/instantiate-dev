@@ -1,6 +1,7 @@
 
 import { Router } from 'express';
 import { multiCloudManager } from '../cloud-providers/multi-cloud-manager';
+import { groqAIService } from '../groq-ai-service';
 import { z } from 'zod';
 
 const router = Router();
@@ -13,6 +14,13 @@ const deploymentRequestSchema = z.object({
   region: z.string().min(1),
   service: z.string().min(1),
   environmentVariables: z.record(z.string()).optional()
+});
+
+const codeGenerationRequestSchema = z.object({
+  prompt: z.string().min(1),
+  provider: z.enum(['aws', 'gcp', 'azure', 'kubernetes']).optional(),
+  codeType: z.enum(['terraform', 'pulumi']).default('terraform'),
+  resourceType: z.string().optional()
 });
 
 router.post('/deploy', async (req, res) => {
@@ -163,6 +171,49 @@ router.get('/health', async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message
+    });
+  }
+});
+
+router.post('/generate-code', async (req, res) => {
+  try {
+    const validationResult = codeGenerationRequestSchema.safeParse(req.body);
+    
+    if (!validationResult.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid request data',
+        details: validationResult.error.errors
+      });
+    }
+
+    const { prompt, provider, codeType, resourceType } = validationResult.data;
+    
+    console.log(`Generating ${codeType} code for prompt: "${prompt}"`);
+    if (provider) {
+      console.log(`Target provider: ${provider}`);
+    }
+    
+    const result = await groqAIService.generateInfrastructureCode(prompt, provider, codeType);
+    
+    const response = {
+      success: true,
+      terraform: result.code,
+      description: result.explanation,
+      detectedProvider: result.detectedProvider,
+      resourceType: resourceType || 'infrastructure',
+      prompt: prompt,
+      codeType: codeType
+    };
+    
+    console.log(`Code generation successful for ${result.detectedProvider}`);
+    res.json(response);
+  } catch (error: any) {
+    console.error('Code generation error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      message: 'Code generation failed'
     });
   }
 });
