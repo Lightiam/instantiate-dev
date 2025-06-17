@@ -22,6 +22,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     console.log("Setting up auth state listener...")
     
+    if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
+      console.log("Development mode: auto-authenticating user")
+      const mockUser = {
+        id: 'dev-user-123',
+        email: 'dev@example.com',
+        email_confirmed_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        user_metadata: { full_name: 'Development User' },
+        app_metadata: {},
+        aud: 'authenticated',
+        role: 'authenticated'
+      }
+      
+      setUser(mockUser as any)
+      setSession({
+        access_token: 'dev-token',
+        refresh_token: 'dev-refresh',
+        expires_in: 3600,
+        token_type: 'bearer',
+        user: mockUser as any
+      } as any)
+      setLoading(false)
+      return
+    }
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -48,6 +74,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     console.log("SignIn called for:", email)
+    
+    if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
+      console.log("Development mode: bypassing authentication")
+      const mockUser = {
+        id: 'dev-user-123',
+        email: email,
+        email_confirmed_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        user_metadata: { full_name: 'Test User' },
+        app_metadata: {},
+        aud: 'authenticated',
+        role: 'authenticated'
+      }
+      
+      setUser(mockUser as any)
+      setSession({
+        access_token: 'dev-token',
+        refresh_token: 'dev-refresh',
+        expires_in: 3600,
+        token_type: 'bearer',
+        user: mockUser as any
+      } as any)
+      setLoading(false)
+      
+      console.log("SignIn result: Success (Development Mode)")
+      return { error: null }
+    }
+    
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -59,6 +114,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = async (email: string, password: string, fullName?: string) => {
     console.log("SignUp called for:", email)
     const redirectUrl = `${window.location.origin}/`
+    
+    if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
+      console.log("Development mode: bypassing email confirmation")
+      const mockUser = {
+        id: 'dev-user-123',
+        email: email,
+        email_confirmed_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        user_metadata: { full_name: fullName || 'Test User' },
+        app_metadata: {},
+        aud: 'authenticated',
+        role: 'authenticated'
+      }
+      
+      setUser(mockUser as any)
+      setSession({
+        access_token: 'dev-token',
+        refresh_token: 'dev-refresh',
+        expires_in: 3600,
+        token_type: 'bearer',
+        user: mockUser as any
+      } as any)
+      setLoading(false)
+      
+      return { error: null }
+    }
     
     const { error } = await supabase.auth.signUp({
       email,

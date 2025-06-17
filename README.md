@@ -58,12 +58,20 @@
    ```
 
 4. **Start the development servers**
+   
+   **Important**: Both frontend and backend servers must be running simultaneously for full functionality.
+   
    ```bash
-   # Frontend (port 8080)
+   # Terminal 1: Start frontend (port 8080)
    npm run dev
 
-   # Backend (port 5000)
-   cd server && npx tsx index.ts
+   # Terminal 2: Start backend (port 5000)
+   npx tsx server/index.ts
+   ```
+   
+   **Alternative**: Use the combined script (after step 6)
+   ```bash
+   npm run dev:full
    ```
 
 5. **Access the application**
@@ -191,7 +199,7 @@ const response = await fetch('/api/multi-cloud/azure/deploy-verified', {
 - **Frontend**: React 18 + TypeScript + Tailwind CSS + Wouter routing
 - **Backend**: Node.js + Express + TypeScript
 - **Database**: PostgreSQL + Drizzle ORM
-- **AI Integration**: Groq SDK for natural language processing
+- **AI Integration**: OpenAI API for natural language processing
 - **Cloud SDKs**: AWS SDK, Azure SDK, Google Cloud SDK
 - **Infrastructure**: Terraform/Pulumi code generation
 
@@ -214,6 +222,8 @@ instantiate-dev/
 ### Available Scripts
 ```bash
 npm run dev          # Start frontend development server
+npm run dev:backend  # Start backend development server
+npm run dev:full     # Start both frontend and backend servers
 npm run build        # Build for production
 npm run preview      # Preview production build
 npm run lint         # Run ESLint
