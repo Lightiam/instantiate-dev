@@ -102,7 +102,7 @@ export default function LandingPage() {
             <a href="#docs" className="hover:opacity-70 transition-opacity">Docs</a>
           </div>
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" className="text-white border-white/30 hover:bg-white/10">
+            <Button onClick={() => window.location.href = '/auth'} variant="ghost" className="text-white border-white/30 hover:bg-white/10">
               Sign In
             </Button>
             <Button onClick={() => scrollToSection('deploy')} className="bg-blue-600 hover:bg-blue-700">
@@ -115,17 +115,16 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="text-center px-8 py-16 max-w-6xl mx-auto">
         <div className="bg-white/20 text-white px-4 py-2 rounded-full text-sm mb-8 inline-block">
-          🚀 Self-Service Infrastructure Deployment
+          🚀 Infrastructure as Code Simplified
         </div>
         <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-          Launch Compliant Cloud{" "}
+          Infrastructure as{" "}
           <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            Environments in Minutes
+            Code Simplified
           </span>
         </h1>
         <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
-          Instantiate's "Compose" allows your teams to quickly generate and deploy cloud infrastructure 
-          directly from the UI by selecting modules from a public or private catalog - no coding required.
+          Instanti8.dev transforms complex infrastructure provisioning into simple, declarative code. Define once, deploy everywhere - seamlessly orchestrate resources across AWS, Azure, and GCP with intelligent automation, version control, and collaborative workflows.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
           <Button 

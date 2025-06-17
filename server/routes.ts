@@ -1,9 +1,12 @@
 
 import type { Express } from "express";
 import { multiCloudRoutes } from "./routes/multi-cloud-routes";
+import authRoutes from "./routes/auth-routes";
 import { aiChatService } from "./ai-chat-service";
 
 export function registerRoutes(app: Express): void {
+  app.use("/api/auth", authRoutes);
+  
   // Multi-cloud deployment routes
   app.use("/api/multi-cloud", multiCloudRoutes);
 
