@@ -1,134 +1,106 @@
+
 import * as React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useAuth } from "@/hooks/useAuth"
+import { useLocation } from "wouter"
+import { toast } from "sonner"
 
 export function Auth() {
-  const [signInData, setSignInData] = useState({
-    email: '',
-    password: ''
-  })
-  
-  const [signUpData, setSignUpData] = useState({
-    name: '',
-    email: '',
-    password: ''
-  })
-  
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
+  const [, setLocation] = useLocation()
+  const { user, signIn, signUp, loading } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(email)
-  }
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user && !loading) {
+      console.log("User authenticated, redirecting to dashboard")
+      setLocation("/dashboard")
+    }
+  }, [user, loading, setLocation])
 
-  const validatePassword = (password: string) => {
-    return password.length >= 6
-  }
-
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setError('')
-    setSuccess('')
-    
-    if (!validateEmail(signInData.email)) {
-      setError('Please enter a valid email address')
-      return
-    }
-    
-    if (!validatePassword(signInData.password)) {
-      setError('Password must be at least 6 characters long')
-      return
-    }
-    
-    setLoading(true)
-    
+    setIsLoading(true)
+
+    const formData = new FormData(e.currentTarget)
+    const email = formData.get("email") as string
+    const password = formData.get("password") as string
+
+    console.log("Attempting sign in for:", email)
+
     try {
-      const response = await fetch('/api/auth/signin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(signInData),
-      })
-      
-      const result = await response.json()
-      
-      if (response.ok) {
-        setSuccess('Sign in successful!')
-        localStorage.setItem('authToken', result.token)
-        setTimeout(() => {
-          window.location.href = '/dashboard'
-        }, 1500)
+      const { error } = await signIn(email, password)
+
+      if (error) {
+        console.error("Sign in error:", error)
+        toast.error(error.message)
       } else {
-        setError(result.message || 'Sign in failed')
+        console.log("Sign in successful, redirecting...")
+        toast.success("Successfully signed in!")
+        // Force redirect to dashboard
+        window.location.href = "/dashboard"
       }
     } catch (err) {
-      setError('Network error. Please try again.')
-    } finally {
-      setLoading(false)
+      console.error("Sign in exception:", err)
+      toast.error("An unexpected error occurred")
     }
+
+    setIsLoading(false)
   }
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setError('')
-    setSuccess('')
-    
-    if (!signUpData.name.trim()) {
-      setError('Please enter your full name')
-      return
-    }
-    
-    if (!validateEmail(signUpData.email)) {
-      setError('Please enter a valid email address')
-      return
-    }
-    
-    if (!validatePassword(signUpData.password)) {
-      setError('Password must be at least 6 characters long')
-      return
-    }
-    
-    setLoading(true)
-    
+    setIsLoading(true)
+
+    const formData = new FormData(e.currentTarget)
+    const email = formData.get("email-signup") as string
+    const password = formData.get("password-signup") as string
+    const fullName = formData.get("name") as string
+
+    console.log("Attempting sign up for:", email)
+
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(signUpData),
-      })
-      
-      const result = await response.json()
-      
-      if (response.ok) {
-        setSuccess('Account created successfully!')
-        localStorage.setItem('authToken', result.token)
-        setTimeout(() => {
-          window.location.href = '/dashboard'
-        }, 1500)
+      const { error } = await signUp(email, password, fullName)
+
+      if (error) {
+        console.error("Sign up error:", error)
+        toast.error(error.message)
       } else {
-        setError(result.message || 'Account creation failed')
+        console.log("Sign up successful")
+        toast.success("Check your email to confirm your account!")
       }
     } catch (err) {
-      setError('Network error. Please try again.')
-    } finally {
-      setLoading(false)
+      console.error("Sign up exception:", err)
+      toast.error("An unexpected error occurred")
     }
+
+    setIsLoading(false)
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-2 text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Welcome to Instantiate.dev</CardTitle>
+          <CardTitle className="text-2xl">
+            <span className="text-2xl font-bold">
+              &lt;/&gt;instanti<span className="text-primary">8</span>.dev
+            </span>
+          </CardTitle>
           <CardDescription>Sign in to your account or create a new one</CardDescription>
         </CardHeader>
         <CardContent>
@@ -138,44 +110,30 @@ export function Auth() {
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
             
-            {error && (
-              <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                {error}
-              </div>
-            )}
-            
-            {success && (
-              <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
-                {success}
-              </div>
-            )}
-            
             <TabsContent value="signin" className="space-y-4">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input 
                     id="email" 
+                    name="email"
                     type="email" 
                     placeholder="Enter your email"
-                    value={signInData.email}
-                    onChange={(e) => setSignInData({...signInData, email: e.target.value})}
-                    disabled={loading}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
                   <Input 
                     id="password" 
+                    name="password"
                     type="password" 
                     placeholder="Enter your password"
-                    value={signInData.password}
-                    onChange={(e) => setSignInData({...signInData, password: e.target.value})}
-                    disabled={loading}
+                    required
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Signing In...' : 'Sign In'}
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
             </TabsContent>
@@ -186,36 +144,32 @@ export function Auth() {
                   <Label htmlFor="name">Full Name</Label>
                   <Input 
                     id="name" 
-                    placeholder="Enter your full name"
-                    value={signUpData.name}
-                    onChange={(e) => setSignUpData({...signUpData, name: e.target.value})}
-                    disabled={loading}
+                    name="name"
+                    placeholder="Enter your full name" 
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email-signup">Email</Label>
                   <Input 
                     id="email-signup" 
+                    name="email-signup"
                     type="email" 
                     placeholder="Enter your email"
-                    value={signUpData.email}
-                    onChange={(e) => setSignUpData({...signUpData, email: e.target.value})}
-                    disabled={loading}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password-signup">Password</Label>
                   <Input 
                     id="password-signup" 
+                    name="password-signup"
                     type="password" 
                     placeholder="Create a password"
-                    value={signUpData.password}
-                    onChange={(e) => setSignUpData({...signUpData, password: e.target.value})}
-                    disabled={loading}
+                    required
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Creating Account...' : 'Create Account'}
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Creating account..." : "Create Account"}
                 </Button>
               </form>
             </TabsContent>

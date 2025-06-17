@@ -12,6 +12,7 @@ interface GeneratedCode {
   terraform: string
   description: string
   resourceType: string
+  detectedProvider?: string
 }
 
 interface DeploymentResult {
@@ -34,7 +35,7 @@ export function IaCGenerator() {
 
     setIsGenerating(true)
     try {
-      const response = await fetch('/api/azure/generate-iac', {
+      const response = await fetch('/api/multi-cloud/generate-code', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -42,12 +43,21 @@ export function IaCGenerator() {
         body: JSON.stringify({
           prompt,
           resourceType,
-          provider: 'azure'
+          codeType: 'terraform'
         })
       })
 
       const result = await response.json()
-      setGeneratedCode(result)
+      if (result.success) {
+        setGeneratedCode({
+          terraform: result.terraform,
+          description: result.description,
+          resourceType: result.resourceType,
+          detectedProvider: result.detectedProvider
+        })
+      } else {
+        console.error('Code generation failed:', result.error)
+      }
     } catch (error) {
       console.error('Failed to generate IaC code:', error)
     } finally {
@@ -94,7 +104,8 @@ export function IaCGenerator() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `azure-${generatedCode.resourceType}.tf`
+    const provider = generatedCode.detectedProvider || 'multi-cloud'
+    a.download = `${provider}-${generatedCode.resourceType}.tf`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -108,7 +119,7 @@ export function IaCGenerator() {
             <span>IaC Code Generator</span>
           </CardTitle>
           <CardDescription>
-            Generate Infrastructure as Code for Azure based on your requirements
+            Generate Infrastructure as Code for AWS, Azure, GCP, and Kubernetes based on your requirements
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -119,12 +130,14 @@ export function IaCGenerator() {
                 <SelectValue placeholder="Select resource type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="resource_group">Resource Group</SelectItem>
-                <SelectItem value="storage_account">Storage Account</SelectItem>
-                <SelectItem value="virtual_machine">Virtual Machine</SelectItem>
-                <SelectItem value="app_service">App Service</SelectItem>
-                <SelectItem value="container_instance">Container Instance</SelectItem>
-                <SelectItem value="sql_database">SQL Database</SelectItem>
+                <SelectItem value="compute">Compute (VM/EC2/GCE)</SelectItem>
+                <SelectItem value="storage">Storage (S3/Blob/Cloud Storage)</SelectItem>
+                <SelectItem value="database">Database (RDS/SQL/Cloud SQL)</SelectItem>
+                <SelectItem value="container">Container (ECS/ACI/GKE)</SelectItem>
+                <SelectItem value="kubernetes">Kubernetes Cluster</SelectItem>
+                <SelectItem value="network">Network (VPC/VNet)</SelectItem>
+                <SelectItem value="serverless">Serverless (Lambda/Functions)</SelectItem>
+                <SelectItem value="infrastructure">General Infrastructure</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -133,7 +146,7 @@ export function IaCGenerator() {
             <Label htmlFor="prompt">Describe your infrastructure requirements</Label>
             <Textarea
               id="prompt"
-              placeholder="e.g., Create a resource group named 'my-app-rg' in East US region with tags for environment and project"
+              placeholder="e.g., Deploy a web application to AWS using ECS with load balancer, or Create a Kubernetes cluster on GCP with 3 nodes, or Set up Azure storage account with blob containers"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               className="min-h-[100px]"
@@ -166,6 +179,11 @@ export function IaCGenerator() {
             <CardTitle className="flex items-center justify-between">
               <span>Generated Terraform Code</span>
               <div className="flex space-x-2">
+                {generatedCode.detectedProvider && (
+                  <Badge variant="secondary" className="mr-2">
+                    {generatedCode.detectedProvider.toUpperCase()}
+                  </Badge>
+                )}
                 <Button variant="outline" size="sm" onClick={downloadCode}>
                   <Download className="h-4 w-4 mr-1" />
                   Download
@@ -183,7 +201,7 @@ export function IaCGenerator() {
                   ) : (
                     <>
                       <Play className="h-4 w-4 mr-1" />
-                      Deploy to Azure
+                      Deploy to {generatedCode.detectedProvider?.toUpperCase() || 'Cloud'}
                     </>
                   )}
                 </Button>

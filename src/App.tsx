@@ -1,27 +1,38 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Router, Route, Switch } from "wouter";
-import { navItems } from "./nav-items";
+import { Route, Switch } from "wouter";
+import Landing from "@/pages/landing";
+import { Auth } from "@/pages/auth";
+import Dashboard from "@/pages/dashboard";
+import { AuthGuard } from "@/components/AuthGuard";
+import { Header } from "@/components/layout/header";
+import { NotFound } from "@/pages/not-found";
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <Router>
-        <Switch>
-          {navItems.map(({ to, page }) => (
-            <Route key={to} path={to} component={() => page} />
-          ))}
-        </Switch>
-      </Router>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      <Switch>
+        <Route path="/" component={Landing} />
+        <Route path="/auth" component={Auth} />
+        <Route path="/dashboard">
+          <AuthGuard>
+            <Dashboard />
+          </AuthGuard>
+        </Route>
+        <Route path="/chat-workspace">
+          <AuthGuard>
+            <div>Chat Workspace (Protected)</div>
+          </AuthGuard>
+        </Route>
+        <Route path="/iac-workspace">
+          <AuthGuard>
+            <div>IaC Workspace (Protected)</div>
+          </AuthGuard>
+        </Route>
+        <Route component={NotFound} />
+      </Switch>
+    </div>
+  );
+}
 
 export default App;

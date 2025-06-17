@@ -1,6 +1,5 @@
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 
 export default function LandingPage() {
   const [activeTab, setActiveTab] = useState('aws');
@@ -8,7 +7,6 @@ export default function LandingPage() {
   const [selectedProvider, setSelectedProvider] = useState('');
   const [selectedInfraType, setSelectedInfraType] = useState('');
   const [isDeploying, setIsDeploying] = useState(false);
-
   const cloudRegions: Record<string, Array<{value: string, text: string}>> = {
     aws: [
       { value: 'us-east-1', text: 'US East (N. Virginia)' },
@@ -88,91 +86,254 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-600 to-purple-800 text-white">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      color: 'white',
+      fontFamily: 'system-ui, -apple-system, sans-serif'
+    }}>
       {/* Navigation */}
-      <nav className="bg-white/10 backdrop-blur-md px-8 py-4 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <span className="text-purple-300 text-xl font-mono">&lt;/&gt;</span>
-            <span className="text-xl font-bold">Instanti8.dev</span>
+      <nav style={{
+        background: 'rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(10px)',
+        padding: '1rem 2rem',
+        position: 'sticky',
+        top: 0,
+        zIndex: 50
+      }}>
+        <div style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ color: '#c4b5fd', fontSize: '1.25rem', fontFamily: 'monospace' }}>&lt;/&gt;</span>
+            <span style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Instanti8.dev</span>
           </div>
-          <div className="hidden md:flex items-center space-x-8">
-            <button onClick={() => scrollToSection('platform')} className="hover:opacity-70 transition-opacity cursor-pointer">Platform</button>
-            <a href="#pricing" className="hover:opacity-70 transition-opacity">Pricing</a>
-            <a href="#docs" className="hover:opacity-70 transition-opacity">Docs</a>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+            <button onClick={() => scrollToSection('platform')} style={{
+              background: 'none', border: 'none', color: 'white', cursor: 'pointer'
+            }}>Platform</button>
+            <a href="#pricing" style={{ color: 'white', textDecoration: 'none' }}>Pricing</a>
+            <a href="#docs" style={{ color: 'white', textDecoration: 'none' }}>Docs</a>
           </div>
-          <div className="flex items-center space-x-4">
-            <Button onClick={() => window.location.href = '/auth'} variant="ghost" className="text-white border-white/30 hover:bg-white/10">
-              Sign In
-            </Button>
-            <Button onClick={() => scrollToSection('deploy')} className="bg-blue-600 hover:bg-blue-700">
-              Get Started
-            </Button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <button onClick={() => window.location.href = '/auth'} style={{
+              background: 'transparent',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.375rem',
+              cursor: 'pointer'
+            }}>Sign In</button>
+            <button onClick={() => scrollToSection('deploy')} style={{
+              background: '#2563eb',
+              border: 'none',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.375rem',
+              cursor: 'pointer'
+            }}>Get Started</button>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="text-center px-8 py-16 max-w-6xl mx-auto">
-        <div className="bg-white/20 text-white px-4 py-2 rounded-full text-sm mb-8 inline-block">
+      <section style={{
+        textAlign: 'center',
+        padding: '4rem 2rem',
+        maxWidth: '1200px',
+        margin: '0 auto'
+      }}>
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.2)',
+          color: 'white',
+          padding: '0.5rem 1rem',
+          borderRadius: '9999px',
+          fontSize: '0.875rem',
+          marginBottom: '2rem',
+          display: 'inline-block'
+        }}>
           🚀 Infrastructure as Code Simplified
         </div>
-        <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+        <h1 style={{
+          fontSize: '3rem',
+          fontWeight: 'bold',
+          marginBottom: '1.5rem',
+          lineHeight: '1.2'
+        }}>
           Infrastructure as{" "}
-          <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+          <span style={{
+            background: 'linear-gradient(to right, #60a5fa, #a78bfa)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
             Code Simplified
           </span>
         </h1>
-        <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
+        <p style={{
+          fontSize: '1.25rem',
+          color: 'rgba(255, 255, 255, 0.9)',
+          marginBottom: '2rem',
+          maxWidth: '768px',
+          margin: '0 auto 2rem auto',
+          lineHeight: '1.6'
+        }}>
           Instanti8.dev transforms complex infrastructure provisioning into simple, declarative code. Define once, deploy everywhere - seamlessly orchestrate resources across AWS, Azure, and GCP with intelligent automation, version control, and collaborative workflows.
         </p>
-        <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
-          <Button 
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          gap: '1rem',
+          marginBottom: '3rem'
+        }}>
+          <button 
             onClick={() => scrollToSection('deploy')}
-            size="lg" 
-            className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-3"
+            style={{
+              background: '#2563eb',
+              border: 'none',
+              color: 'white',
+              fontSize: '1.125rem',
+              padding: '0.75rem 2rem',
+              borderRadius: '0.375rem',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s'
+            }}
           >
             Start Deploying →
-          </Button>
-          <Button 
+          </button>
+          <button 
             onClick={() => scrollToSection('platform')}
-            variant="outline" 
-            size="lg"
-            className="border-white/30 text-white hover:bg-white/10 text-lg px-8 py-3"
+            style={{
+              background: 'transparent',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              color: 'white',
+              fontSize: '1.125rem',
+              padding: '0.75rem 2rem',
+              borderRadius: '0.375rem',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s'
+            }}
           >
             Try AI Assistant
-          </Button>
+          </button>
         </div>
       </section>
 
       {/* Features Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-8 px-8 max-w-6xl mx-auto mb-16">
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 text-center border border-white/20 hover:transform hover:-translate-y-2 transition-all duration-300">
-          <div className="w-16 h-16 bg-green-500 rounded-xl flex items-center justify-center text-2xl mx-auto mb-4">
+      <section style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '2rem',
+        padding: '0 2rem',
+        maxWidth: '1200px',
+        margin: '0 auto 4rem auto'
+      }}>
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '1rem',
+          padding: '2rem',
+          textAlign: 'center',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          transition: 'transform 0.3s'
+        }}>
+          <div style={{
+            width: '4rem',
+            height: '4rem',
+            background: '#10b981',
+            borderRadius: '0.75rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '1.5rem',
+            margin: '0 auto 1rem auto'
+          }}>
             🔧
           </div>
-          <h3 className="text-xl font-semibold mb-4">Simply Fill Out the Form</h3>
-          <p className="text-white/80 leading-relaxed">
+          <h3 style={{
+            fontSize: '1.25rem',
+            fontWeight: '600',
+            marginBottom: '1rem'
+          }}>Simply Fill Out the Form</h3>
+          <p style={{
+            color: 'rgba(255, 255, 255, 0.8)',
+            lineHeight: '1.6'
+          }}>
             Generate and deploy cloud infrastructure directly from our intuitive interface. 
             Select from pre-built templates and customize to your needs.
           </p>
         </div>
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 text-center border border-white/20 hover:transform hover:-translate-y-2 transition-all duration-300">
-          <div className="w-16 h-16 bg-purple-500 rounded-xl flex items-center justify-center text-2xl mx-auto mb-4">
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '1rem',
+          padding: '2rem',
+          textAlign: 'center',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          transition: 'transform 0.3s'
+        }}>
+          <div style={{
+            width: '4rem',
+            height: '4rem',
+            background: '#8b5cf6',
+            borderRadius: '0.75rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '1.5rem',
+            margin: '0 auto 1rem auto'
+          }}>
             💻
           </div>
-          <h3 className="text-xl font-semibold mb-4">Generate the Code</h3>
-          <p className="text-white/80 leading-relaxed">
+          <h3 style={{
+            fontSize: '1.25rem',
+            fontWeight: '600',
+            marginBottom: '1rem'
+          }}>Generate the Code</h3>
+          <p style={{
+            color: 'rgba(255, 255, 255, 0.8)',
+            lineHeight: '1.6'
+          }}>
             Automatically create Infrastructure as Code configurations using Terraform, 
             CloudFormation, or Pulumi based on your selections.
           </p>
         </div>
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 text-center border border-white/20 hover:transform hover:-translate-y-2 transition-all duration-300">
-          <div className="w-16 h-16 bg-yellow-500 rounded-xl flex items-center justify-center text-2xl mx-auto mb-4">
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '1rem',
+          padding: '2rem',
+          textAlign: 'center',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          transition: 'transform 0.3s'
+        }}>
+          <div style={{
+            width: '4rem',
+            height: '4rem',
+            background: '#f59e0b',
+            borderRadius: '0.75rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '1.5rem',
+            margin: '0 auto 1rem auto'
+          }}>
             📊
           </div>
-          <h3 className="text-xl font-semibold mb-4">Deploy & Understand Impact</h3>
-          <p className="text-white/80 leading-relaxed">
+          <h3 style={{
+            fontSize: '1.25rem',
+            fontWeight: '600',
+            marginBottom: '1rem'
+          }}>Deploy & Understand Impact</h3>
+          <p style={{
+            color: 'rgba(255, 255, 255, 0.8)',
+            lineHeight: '1.6'
+          }}>
             Deploy with confidence while understanding costs and security implications. 
             Full visibility into your infrastructure changes.
           </p>
@@ -180,20 +341,46 @@ export default function LandingPage() {
       </section>
 
       {/* Platform Section */}
-      <section id="platform" className="bg-white/5 mx-8 rounded-3xl p-12 max-w-6xl mx-auto backdrop-blur-md mb-8">
-        <h2 className="text-center text-4xl font-bold mb-8">Multi-Cloud Infrastructure Platform</h2>
+      <section id="platform" style={{
+        background: 'rgba(255, 255, 255, 0.05)',
+        margin: '0 2rem',
+        borderRadius: '1.5rem',
+        padding: '3rem',
+        maxWidth: '1200px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        backdropFilter: 'blur(10px)',
+        marginBottom: '2rem'
+      }}>
+        <h2 style={{
+          textAlign: 'center',
+          fontSize: '2.5rem',
+          fontWeight: 'bold',
+          marginBottom: '2rem'
+        }}>Multi-Cloud Infrastructure Platform</h2>
         
         {/* Platform Tabs */}
-        <div className="flex flex-wrap justify-center gap-4 mb-8">
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+          gap: '1rem',
+          marginBottom: '2rem'
+        }}>
           {['aws', 'gcp', 'azure', 'kubernetes', 'mlops'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-6 py-3 rounded-lg border transition-all ${
-                activeTab === tab
-                  ? 'bg-blue-600 border-blue-600 text-white'
-                  : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
-              }`}
+              style={{
+                padding: '0.75rem 1.5rem',
+                borderRadius: '0.5rem',
+                border: '1px solid',
+                borderColor: activeTab === tab ? '#2563eb' : 'rgba(255, 255, 255, 0.2)',
+                background: activeTab === tab ? '#2563eb' : 'rgba(255, 255, 255, 0.1)',
+                color: 'white',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
             >
               {tab.toUpperCase()}
             </button>
@@ -201,7 +388,11 @@ export default function LandingPage() {
         </div>
 
         {/* Tab Content */}
-        <div className="bg-black/20 rounded-xl p-8">
+        <div style={{
+          background: 'rgba(0, 0, 0, 0.2)',
+          borderRadius: '0.75rem',
+          padding: '2rem'
+        }}>
           {activeTab === 'aws' && (
             <div>
               <h3 className="text-2xl font-semibold mb-4">AWS Infrastructure Templates</h3>
@@ -320,24 +511,56 @@ spec:
       </section>
 
       {/* Deployment Form */}
-      <section id="deploy" className="bg-white/10 backdrop-blur-md rounded-2xl p-8 mx-8 max-w-4xl mx-auto border border-white/20 mb-8">
-        <h2 className="text-center text-3xl font-bold mb-8">Deploy Infrastructure</h2>
-        <form onSubmit={handleDeploy} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <section id="deploy" style={{
+        background: 'rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(10px)',
+        borderRadius: '1rem',
+        padding: '2rem',
+        margin: '0 2rem',
+        maxWidth: '1024px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        marginBottom: '2rem'
+      }}>
+        <h2 style={{
+          textAlign: 'center',
+          fontSize: '1.875rem',
+          fontWeight: 'bold',
+          marginBottom: '2rem'
+        }}>Deploy Infrastructure</h2>
+        <form onSubmit={handleDeploy} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
             <div>
-              <label className="block text-white mb-2 font-medium">Project Name</label>
+              <label style={{ display: 'block', color: 'white', marginBottom: '0.5rem', fontWeight: '500' }}>Project Name</label>
               <input
                 type="text"
                 placeholder="my-mlops-project"
                 required
-                className="w-full p-3 border border-white/30 rounded-lg bg-white/10 text-white placeholder-white/60"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '0.5rem',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: 'white',
+                  fontSize: '1rem'
+                }}
               />
             </div>
             <div>
-              <label className="block text-white mb-2 font-medium">Environment</label>
+              <label style={{ display: 'block', color: 'white', marginBottom: '0.5rem', fontWeight: '500' }}>Environment</label>
               <select
                 required
-                className="w-full p-3 border border-white/30 rounded-lg bg-white/10 text-white"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '0.5rem',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: 'white',
+                  fontSize: '1rem'
+                }}
               >
                 <option value="">Select Environment</option>
                 <option value="development">Development</option>
@@ -347,14 +570,22 @@ spec:
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
             <div>
-              <label className="block text-white mb-2 font-medium">Cloud Provider</label>
+              <label style={{ display: 'block', color: 'white', marginBottom: '0.5rem', fontWeight: '500' }}>Cloud Provider</label>
               <select
                 required
                 value={selectedProvider}
                 onChange={(e) => setSelectedProvider(e.target.value)}
-                className="w-full p-3 border border-white/30 rounded-lg bg-white/10 text-white"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '0.5rem',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: 'white',
+                  fontSize: '1rem'
+                }}
               >
                 <option value="">Select Provider</option>
                 <option value="aws">Amazon Web Services</option>
@@ -363,10 +594,18 @@ spec:
               </select>
             </div>
             <div>
-              <label className="block text-white mb-2 font-medium">Region</label>
+              <label style={{ display: 'block', color: 'white', marginBottom: '0.5rem', fontWeight: '500' }}>Region</label>
               <select
                 required
-                className="w-full p-3 border border-white/30 rounded-lg bg-white/10 text-white"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '0.5rem',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: 'white',
+                  fontSize: '1rem'
+                }}
               >
                 <option value="">Select Region</option>
                 {selectedProvider && cloudRegions[selectedProvider]?.map((region) => (
@@ -379,12 +618,20 @@ spec:
           </div>
 
           <div>
-            <label className="block text-white mb-2 font-medium">Infrastructure Type</label>
+            <label style={{ display: 'block', color: 'white', marginBottom: '0.5rem', fontWeight: '500' }}>Infrastructure Type</label>
             <select
               required
               value={selectedInfraType}
               onChange={(e) => setSelectedInfraType(e.target.value)}
-              className="w-full p-3 border border-white/30 rounded-lg bg-white/10 text-white"
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '0.5rem',
+                background: 'rgba(255, 255, 255, 0.1)',
+                color: 'white',
+                fontSize: '1rem'
+              }}
             >
               <option value="">Select Type</option>
               <option value="web-app">Web Application</option>
@@ -397,10 +644,18 @@ spec:
           </div>
 
           <div>
-            <label className="block text-white mb-2 font-medium">Template</label>
+            <label style={{ display: 'block', color: 'white', marginBottom: '0.5rem', fontWeight: '500' }}>Template</label>
             <select
               required
-              className="w-full p-3 border border-white/30 rounded-lg bg-white/10 text-white"
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '0.5rem',
+                background: 'rgba(255, 255, 255, 0.1)',
+                color: 'white',
+                fontSize: '1rem'
+              }}
             >
               <option value="">Select Template</option>
               {selectedInfraType && templates[selectedInfraType]?.map((template) => (
@@ -412,83 +667,261 @@ spec:
           </div>
 
           <div>
-            <label className="block text-white mb-2 font-medium">Description (Optional)</label>
+            <label style={{ display: 'block', color: 'white', marginBottom: '0.5rem', fontWeight: '500' }}>Description (Optional)</label>
             <textarea
               rows={3}
               placeholder="Describe your infrastructure deployment..."
-              className="w-full p-3 border border-white/30 rounded-lg bg-white/10 text-white placeholder-white/60"
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '0.5rem',
+                background: 'rgba(255, 255, 255, 0.1)',
+                color: 'white',
+                fontSize: '1rem',
+                resize: 'vertical'
+              }}
             />
           </div>
 
-          <div className="text-center">
-            <Button
+          <div style={{ textAlign: 'center' }}>
+            <button
               type="submit"
-              size="lg"
               disabled={isDeploying}
-              className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-3"
+              style={{
+                background: '#2563eb',
+                border: 'none',
+                color: 'white',
+                fontSize: '1.125rem',
+                padding: '0.75rem 2rem',
+                borderRadius: '0.375rem',
+                cursor: isDeploying ? 'not-allowed' : 'pointer',
+                opacity: isDeploying ? 0.7 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto'
+              }}
             >
               {isDeploying ? (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  <div style={{
+                    animation: 'spin 1s linear infinite',
+                    borderRadius: '50%',
+                    width: '1.25rem',
+                    height: '1.25rem',
+                    border: '2px solid transparent',
+                    borderTop: '2px solid white',
+                    marginRight: '0.5rem'
+                  }}></div>
                   Deploying...
                 </>
               ) : (
                 'Deploy Infrastructure'
               )}
-            </Button>
+            </button>
           </div>
         </form>
       </section>
 
       {/* Dashboard */}
       {showDashboard && (
-        <section id="dashboard" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mx-8 max-w-6xl mx-auto mb-16">
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-            <div className="flex justify-between items-center mb-4">
-              <span className="font-semibold">EKS Cluster</span>
-              <span className="bg-green-500 text-white text-xs px-3 py-1 rounded-full">Running</span>
+        <section id="dashboard" style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '1.5rem',
+          margin: '0 2rem',
+          maxWidth: '1200px',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          marginBottom: '4rem'
+        }}>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '0.75rem',
+            padding: '1.5rem',
+            border: '1px solid rgba(255, 255, 255, 0.2)'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1rem'
+            }}>
+              <span style={{ fontWeight: '600' }}>EKS Cluster</span>
+              <span style={{
+                background: '#10b981',
+                color: 'white',
+                fontSize: '0.75rem',
+                padding: '0.25rem 0.75rem',
+                borderRadius: '9999px'
+              }}>Running</span>
             </div>
-            <p className="text-white/80 mb-4 text-sm">Kubernetes cluster with 3 nodes</p>
-            <div className="w-full bg-white/20 rounded-full h-2 mb-4">
-              <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full w-full"></div>
+            <p style={{
+              color: 'rgba(255, 255, 255, 0.8)',
+              marginBottom: '1rem',
+              fontSize: '0.875rem'
+            }}>Kubernetes cluster with 3 nodes</p>
+            <div style={{
+              width: '100%',
+              background: 'rgba(255, 255, 255, 0.2)',
+              borderRadius: '9999px',
+              height: '0.5rem',
+              marginBottom: '1rem'
+            }}>
+              <div style={{
+                background: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
+                height: '0.5rem',
+                borderRadius: '9999px',
+                width: '100%'
+              }}></div>
             </div>
-            <div className="text-white/60 text-xs">Deployed 5 minutes ago</div>
+            <div style={{
+              color: 'rgba(255, 255, 255, 0.6)',
+              fontSize: '0.75rem'
+            }}>Deployed 5 minutes ago</div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-            <div className="flex justify-between items-center mb-4">
-              <span className="font-semibold">MLflow Server</span>
-              <span className="bg-green-500 text-white text-xs px-3 py-1 rounded-full">Running</span>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '0.75rem',
+            padding: '1.5rem',
+            border: '1px solid rgba(255, 255, 255, 0.2)'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1rem'
+            }}>
+              <span style={{ fontWeight: '600' }}>MLflow Server</span>
+              <span style={{
+                background: '#10b981',
+                color: 'white',
+                fontSize: '0.75rem',
+                padding: '0.25rem 0.75rem',
+                borderRadius: '9999px'
+              }}>Running</span>
             </div>
-            <p className="text-white/80 mb-4 text-sm">Model tracking and registry</p>
-            <div className="w-full bg-white/20 rounded-full h-2 mb-4">
-              <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full w-full"></div>
+            <p style={{
+              color: 'rgba(255, 255, 255, 0.8)',
+              marginBottom: '1rem',
+              fontSize: '0.875rem'
+            }}>Model tracking and registry</p>
+            <div style={{
+              width: '100%',
+              background: 'rgba(255, 255, 255, 0.2)',
+              borderRadius: '9999px',
+              height: '0.5rem',
+              marginBottom: '1rem'
+            }}>
+              <div style={{
+                background: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
+                height: '0.5rem',
+                borderRadius: '9999px',
+                width: '100%'
+              }}></div>
             </div>
-            <div className="text-white/60 text-xs">Deployed 3 minutes ago</div>
+            <div style={{
+              color: 'rgba(255, 255, 255, 0.6)',
+              fontSize: '0.75rem'
+            }}>Deployed 3 minutes ago</div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-            <div className="flex justify-between items-center mb-4">
-              <span className="font-semibold">Jupyter Hub</span>
-              <span className="bg-yellow-500 text-white text-xs px-3 py-1 rounded-full">Deploying</span>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '0.75rem',
+            padding: '1.5rem',
+            border: '1px solid rgba(255, 255, 255, 0.2)'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1rem'
+            }}>
+              <span style={{ fontWeight: '600' }}>Jupyter Hub</span>
+              <span style={{
+                background: '#f59e0b',
+                color: 'white',
+                fontSize: '0.75rem',
+                padding: '0.25rem 0.75rem',
+                borderRadius: '9999px'
+              }}>Deploying</span>
             </div>
-            <p className="text-white/80 mb-4 text-sm">Multi-user notebook environment</p>
-            <div className="w-full bg-white/20 rounded-full h-2 mb-4">
-              <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full w-3/5"></div>
+            <p style={{
+              color: 'rgba(255, 255, 255, 0.8)',
+              marginBottom: '1rem',
+              fontSize: '0.875rem'
+            }}>Multi-user notebook environment</p>
+            <div style={{
+              width: '100%',
+              background: 'rgba(255, 255, 255, 0.2)',
+              borderRadius: '9999px',
+              height: '0.5rem',
+              marginBottom: '1rem'
+            }}>
+              <div style={{
+                background: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
+                height: '0.5rem',
+                borderRadius: '9999px',
+                width: '60%'
+              }}></div>
             </div>
-            <div className="text-white/60 text-xs">Started 2 minutes ago</div>
+            <div style={{
+              color: 'rgba(255, 255, 255, 0.6)',
+              fontSize: '0.75rem'
+            }}>Started 2 minutes ago</div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-            <div className="flex justify-between items-center mb-4">
-              <span className="font-semibold">Monitoring</span>
-              <span className="bg-green-500 text-white text-xs px-3 py-1 rounded-full">Running</span>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '0.75rem',
+            padding: '1.5rem',
+            border: '1px solid rgba(255, 255, 255, 0.2)'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1rem'
+            }}>
+              <span style={{ fontWeight: '600' }}>Monitoring</span>
+              <span style={{
+                background: '#10b981',
+                color: 'white',
+                fontSize: '0.75rem',
+                padding: '0.25rem 0.75rem',
+                borderRadius: '9999px'
+              }}>Running</span>
             </div>
-            <p className="text-white/80 mb-4 text-sm">Prometheus + Grafana stack</p>
-            <div className="w-full bg-white/20 rounded-full h-2 mb-4">
-              <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full w-full"></div>
+            <p style={{
+              color: 'rgba(255, 255, 255, 0.8)',
+              marginBottom: '1rem',
+              fontSize: '0.875rem'
+            }}>Prometheus + Grafana stack</p>
+            <div style={{
+              width: '100%',
+              background: 'rgba(255, 255, 255, 0.2)',
+              borderRadius: '9999px',
+              height: '0.5rem',
+              marginBottom: '1rem'
+            }}>
+              <div style={{
+                background: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
+                height: '0.5rem',
+                borderRadius: '9999px',
+                width: '100%'
+              }}></div>
             </div>
-            <div className="text-white/60 text-xs">Deployed 8 minutes ago</div>
+            <div style={{
+              color: 'rgba(255, 255, 255, 0.6)',
+              fontSize: '0.75rem'
+            }}>Deployed 8 minutes ago</div>
           </div>
         </section>
       )}

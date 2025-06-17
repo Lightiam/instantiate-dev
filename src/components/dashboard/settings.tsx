@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Eye, EyeOff, Save, Plus, Trash2, Key, Cloud, Shield } from "lucide-react";
+import { Eye, EyeOff, Save, Plus, Trash2, Key, Cloud, Shield, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface EnvironmentVariable {
@@ -16,19 +16,99 @@ interface EnvironmentVariable {
   provider?: string;
 }
 
+interface ProviderStatus {
+  provider: string;
+  status: 'connected' | 'error' | 'not-configured';
+  resourceCount: number;
+  totalCost?: number;
+  lastSync: string;
+  error?: string;
+}
+
 export function Settings() {
   const { toast } = useToast();
   const [showSecrets, setShowSecrets] = useState<{ [key: string]: boolean }>({});
-  const [envVars, setEnvVars] = useState<EnvironmentVariable[]>([
-    { id: "1", key: "AWS_ACCESS_KEY_ID", value: "", isSecret: true, provider: "aws" },
-    { id: "2", key: "AWS_SECRET_ACCESS_KEY", value: "", isSecret: true, provider: "aws" },
-    { id: "3", key: "AWS_DEFAULT_REGION", value: "us-east-1", isSecret: false, provider: "aws" },
-    { id: "4", key: "AZURE_CLIENT_ID", value: "", isSecret: true, provider: "azure" },
-    { id: "5", key: "AZURE_CLIENT_SECRET", value: "", isSecret: true, provider: "azure" },
-    { id: "6", key: "AZURE_TENANT_ID", value: "", isSecret: true, provider: "azure" },
-    { id: "7", key: "GOOGLE_APPLICATION_CREDENTIALS", value: "", isSecret: true, provider: "gcp" },
-    { id: "8", key: "GCP_PROJECT_ID", value: "", isSecret: false, provider: "gcp" },
-  ]);
+  const [envVars, setEnvVars] = useState<EnvironmentVariable[]>([]);
+  const [providerStatuses, setProviderStatuses] = useState<ProviderStatus[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [testingConnection, setTestingConnection] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadEnvironmentVariables();
+    loadProviderStatuses();
+  }, []);
+
+  const loadEnvironmentVariables = async () => {
+    try {
+      const response = await fetch('/api/credentials/env-vars');
+      const data = await response.json();
+      
+      if (data.success) {
+        setEnvVars(data.envVars);
+      } else {
+        toast({
+          title: "Error loading environment variables",
+          description: data.error,
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error loading environment variables",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const loadProviderStatuses = async () => {
+    try {
+      const response = await fetch('/api/credentials/provider-status');
+      const data = await response.json();
+      
+      if (data.success) {
+        setProviderStatuses(data.statuses);
+      }
+    } catch (error: any) {
+      console.error('Error loading provider statuses:', error);
+    }
+  };
+
+  const testConnection = async (provider: string) => {
+    setTestingConnection(provider);
+    try {
+      const response = await fetch('/api/credentials/test-connection', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        toast({
+          title: "Connection successful",
+          description: `Successfully connected to ${provider.toUpperCase()}`,
+        });
+      } else {
+        toast({
+          title: "Connection failed",
+          description: result.error,
+          variant: "destructive",
+        });
+      }
+      
+      await loadProviderStatuses();
+    } catch (error: any) {
+      toast({
+        title: "Connection test failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setTestingConnection(null);
+    }
+  };
 
   const toggleSecretVisibility = (id: string) => {
     setShowSecrets(prev => ({ ...prev, [id]: !prev[id] }));
@@ -54,12 +134,39 @@ export function Settings() {
     setEnvVars(prev => prev.filter(env => env.id !== id));
   };
 
-  const saveSettings = () => {
-    // In a real app, this would save to backend
-    toast({
-      title: "Settings saved",
-      description: "Environment variables have been updated successfully.",
-    });
+  const saveSettings = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/credentials/env-vars', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ envVars })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        toast({
+          title: "Settings saved",
+          description: "Environment variables have been updated successfully.",
+        });
+        await loadProviderStatuses();
+      } else {
+        toast({
+          title: "Error saving settings",
+          description: result.error,
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error saving settings",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getProviderVars = (provider: string) => {
@@ -68,6 +175,44 @@ export function Settings() {
 
   const getCustomVars = () => {
     return envVars.filter(env => !env.provider);
+  };
+
+  const getProviderStatus = (provider: string) => {
+    return providerStatuses.find(status => status.provider === provider);
+  };
+
+  const renderProviderStatusBadge = (provider: string) => {
+    const status = getProviderStatus(provider);
+    if (!status) return null;
+
+    const statusConfig = {
+      connected: { icon: CheckCircle, color: "bg-green-500", text: "Connected" },
+      error: { icon: XCircle, color: "bg-red-500", text: "Error" },
+      'not-configured': { icon: AlertCircle, color: "bg-yellow-500", text: "Not Configured" }
+    };
+
+    const config = statusConfig[status.status];
+    const Icon = config.icon;
+
+    return (
+      <div className="flex items-center space-x-2">
+        <Badge variant="secondary" className="flex items-center space-x-1">
+          <Icon className="w-3 h-3" />
+          <span>{config.text}</span>
+        </Badge>
+        {status.status === 'connected' && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => testConnection(provider)}
+            disabled={testingConnection === provider}
+            className="text-xs"
+          >
+            {testingConnection === provider ? "Testing..." : "Test"}
+          </Button>
+        )}
+      </div>
+    );
   };
 
   const renderEnvVarInput = (envVar: EnvironmentVariable) => (
@@ -147,14 +292,17 @@ export function Settings() {
           {/* AWS Configuration */}
           <Card className="bg-slate-900 border-slate-700">
             <CardHeader>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-                  <Cloud className="w-4 h-4 text-white" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                    <Cloud className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-white">Amazon Web Services</CardTitle>
+                    <CardDescription>Configure AWS credentials for resource provisioning</CardDescription>
+                  </div>
                 </div>
-                <div>
-                  <CardTitle className="text-white">Amazon Web Services</CardTitle>
-                  <CardDescription>Configure AWS credentials for resource provisioning</CardDescription>
-                </div>
+                {renderProviderStatusBadge("aws")}
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -169,14 +317,17 @@ export function Settings() {
           {/* Azure Configuration */}
           <Card className="bg-slate-900 border-slate-700">
             <CardHeader>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                  <Cloud className="w-4 h-4 text-white" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <Cloud className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-white">Microsoft Azure</CardTitle>
+                    <CardDescription>Configure Azure service principal credentials</CardDescription>
+                  </div>
                 </div>
-                <div>
-                  <CardTitle className="text-white">Microsoft Azure</CardTitle>
-                  <CardDescription>Configure Azure service principal credentials</CardDescription>
-                </div>
+                {renderProviderStatusBadge("azure")}
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -191,14 +342,17 @@ export function Settings() {
           {/* GCP Configuration */}
           <Card className="bg-slate-900 border-slate-700">
             <CardHeader>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
-                  <Cloud className="w-4 h-4 text-white" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                    <Cloud className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-white">Google Cloud Platform</CardTitle>
+                    <CardDescription>Configure GCP service account credentials</CardDescription>
+                  </div>
                 </div>
-                <div>
-                  <CardTitle className="text-white">Google Cloud Platform</CardTitle>
-                  <CardDescription>Configure GCP service account credentials</CardDescription>
-                </div>
+                {renderProviderStatusBadge("gcp")}
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -234,9 +388,13 @@ export function Settings() {
       </Tabs>
 
       <div className="flex justify-end">
-        <Button onClick={saveSettings} className="bg-primary hover:bg-primary/90">
+        <Button 
+          onClick={saveSettings} 
+          disabled={loading}
+          className="bg-primary hover:bg-primary/90"
+        >
           <Save className="w-4 h-4 mr-2" />
-          Save Settings
+          {loading ? "Saving..." : "Save Settings"}
         </Button>
       </div>
     </div>
