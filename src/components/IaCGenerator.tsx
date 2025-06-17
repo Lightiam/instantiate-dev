@@ -47,6 +47,15 @@ export function IaCGenerator() {
         })
       })
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Response is not valid JSON')
+      }
+
       const result = await response.json()
       if (result.success) {
         setGeneratedCode({
@@ -57,6 +66,7 @@ export function IaCGenerator() {
         })
       } else {
         console.error('Code generation failed:', result.error)
+        throw new Error(result.error || 'Code generation failed')
       }
     } catch (error) {
       console.error('Failed to generate IaC code:', error)
@@ -87,12 +97,22 @@ export function IaCGenerator() {
         })
       })
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Response is not valid JSON')
+      }
+
       const result = await response.json()
       setDeploymentResult(result)
     } catch (error) {
+      console.error('Deployment failed:', error)
       setDeploymentResult({
         success: false,
-        error: 'Deployment failed. Please check your Azure credentials and try again.'
+        error: `Deployment failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please check your cloud provider credentials and try again.`
       })
     } finally {
       setIsDeploying(false)
