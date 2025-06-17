@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, GitBranch, Clock } from "lucide-react";
+import { Plus, GitBranch, Clock, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 interface Project {
   id: string;
@@ -17,6 +18,43 @@ export function Projects() {
   const { data: projects = [] } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
   });
+  const [deployingProjects, setDeployingProjects] = useState<Set<string>>(new Set());
+
+  const handleDeploy = async (project: Project) => {
+    setDeployingProjects(prev => new Set(prev).add(project.id));
+    
+    try {
+      const response = await fetch('/api/multi-cloud/deploy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: project.name,
+          code: 'nginx:alpine',
+          codeType: 'html',
+          provider: 'azure',
+          region: 'eastus',
+          service: 'container'
+        })
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+        console.log('Deployment successful:', result);
+      } else {
+        console.error('Deployment failed:', result.error);
+      }
+    } catch (error) {
+      console.error('Deployment error:', error);
+    } finally {
+      setDeployingProjects(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(project.id);
+        return newSet;
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -62,8 +100,20 @@ export function Projects() {
                 <Button variant="outline" size="sm" className="flex-1">
                   View
                 </Button>
-                <Button size="sm" className="flex-1">
-                  Deploy
+                <Button 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => handleDeploy(project)}
+                  disabled={deployingProjects.has(project.id)}
+                >
+                  {deployingProjects.has(project.id) ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Deploying...
+                    </>
+                  ) : (
+                    'Deploy'
+                  )}
                 </Button>
               </div>
             </CardContent>
