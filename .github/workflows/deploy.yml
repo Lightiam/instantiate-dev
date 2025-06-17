@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Build and Test
 
 on:
   push:
@@ -7,12 +7,10 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-deploy:
+  build-and-test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pages: write
-      id-token: write
     
     steps:
     - uses: actions/checkout@v3
@@ -31,9 +29,8 @@ jobs:
       env:
         NODE_ENV: production
     
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist
-        cname: instantiate.dev
+    - name: Verify build artifacts
+      run: |
+        echo "Build completed successfully"
+        ls -la dist/
+        echo "Build artifacts verified"
