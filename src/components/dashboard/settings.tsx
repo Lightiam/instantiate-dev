@@ -5,8 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Eye, EyeOff, Save, Plus, Trash2, Key, Cloud, Shield, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, Save, Plus, Trash2, Key, Cloud, Shield, CheckCircle, XCircle, AlertCircle, Settings as SettingsIcon, Globe, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 interface EnvironmentVariable {
   id: string;
@@ -25,6 +27,15 @@ interface ProviderStatus {
   error?: string;
 }
 
+interface DeploymentConfig {
+  mode: 'simulation' | 'real';
+  defaultProvider: 'aws' | 'azure' | 'gcp';
+  defaultRegion: string;
+  autoApprove: boolean;
+  enableTerraform: boolean;
+  resourceTags: Record<string, string>;
+}
+
 export function Settings() {
   const { toast } = useToast();
   const [showSecrets, setShowSecrets] = useState<{ [key: string]: boolean }>({});
@@ -32,6 +43,14 @@ export function Settings() {
   const [providerStatuses, setProviderStatuses] = useState<ProviderStatus[]>([]);
   const [loading, setLoading] = useState(false);
   const [testingConnection, setTestingConnection] = useState<string | null>(null);
+  const [deploymentConfig, setDeploymentConfig] = useState<DeploymentConfig>({
+    mode: 'simulation',
+    defaultProvider: 'aws',
+    defaultRegion: 'us-east-1',
+    autoApprove: false,
+    enableTerraform: true,
+    resourceTags: {}
+  });
 
   useEffect(() => {
     loadEnvironmentVariables();
@@ -283,8 +302,9 @@ export function Settings() {
       </div>
 
       <Tabs defaultValue="providers" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 bg-slate-800">
+        <TabsList className="grid w-full grid-cols-3 bg-slate-800">
           <TabsTrigger value="providers" className="data-[state=active]:bg-slate-700">Cloud Providers</TabsTrigger>
+          <TabsTrigger value="deployment" className="data-[state=active]:bg-slate-700">Deployment Config</TabsTrigger>
           <TabsTrigger value="custom" className="data-[state=active]:bg-slate-700">Custom Variables</TabsTrigger>
         </TabsList>
 
@@ -361,6 +381,204 @@ export function Settings() {
                 <Shield className="w-3 h-3 inline mr-1" />
                 Download service account key JSON from Google Cloud Console and paste the file path or content.
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="deployment" className="space-y-6">
+          <Card className="bg-slate-900 border-slate-700">
+            <CardHeader>
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                  <SettingsIcon className="w-4 h-4 text-black" />
+                </div>
+                <div>
+                  <CardTitle className="text-white">Deployment Mode</CardTitle>
+                  <CardDescription>Configure how deployments are executed</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label className="text-white">Deployment Mode</Label>
+                    <p className="text-sm text-slate-400">
+                      {deploymentConfig.mode === 'simulation' 
+                        ? 'Preview mode - Generate code without deploying real resources'
+                        : 'Real deployment - Actually provision cloud resources'
+                      }
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className={`text-sm ${deploymentConfig.mode === 'simulation' ? 'text-amber-400' : 'text-slate-400'}`}>
+                      Preview
+                    </span>
+                    <Button
+                      variant={deploymentConfig.mode === 'real' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => 
+                        setDeploymentConfig(prev => ({ ...prev, mode: prev.mode === 'real' ? 'simulation' : 'real' }))
+                      }
+                      className="px-3 py-1"
+                    >
+                      {deploymentConfig.mode === 'real' ? 'ON' : 'OFF'}
+                    </Button>
+                    <span className={`text-sm ${deploymentConfig.mode === 'real' ? 'text-green-400' : 'text-slate-400'}`}>
+                      Real
+                    </span>
+                  </div>
+                </div>
+
+                {deploymentConfig.mode === 'real' && (
+                  <div className="p-4 bg-red-900/20 border border-red-700 rounded-lg">
+                    <div className="flex items-center space-x-2 text-red-400">
+                      <AlertCircle className="w-4 h-4" />
+                      <span className="text-sm font-medium">Real Deployment Mode</span>
+                    </div>
+                    <p className="text-xs text-red-300 mt-1">
+                      This will create actual cloud resources and may incur costs. Ensure your credentials are properly configured.
+                    </p>
+                  </div>
+                )}
+
+                {deploymentConfig.mode === 'simulation' && (
+                  <div className="p-4 bg-amber-900/20 border border-amber-700 rounded-lg">
+                    <div className="flex items-center space-x-2 text-amber-400">
+                      <Zap className="w-4 h-4" />
+                      <span className="text-sm font-medium">Preview Mode</span>
+                    </div>
+                    <p className="text-xs text-amber-300 mt-1">
+                      Generate infrastructure code and preview deployments without creating real resources.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-slate-900 border-slate-700">
+            <CardHeader>
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                  <Globe className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-white">Default Deployment Settings</CardTitle>
+                  <CardDescription>Configure default settings for new deployments</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-white">Default Cloud Provider</Label>
+                  <Select 
+                    value={deploymentConfig.defaultProvider} 
+                    onValueChange={(value: 'aws' | 'azure' | 'gcp') => 
+                      setDeploymentConfig(prev => ({ ...prev, defaultProvider: value }))
+                    }
+                  >
+                    <SelectTrigger className="bg-slate-800 border-slate-600">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-600">
+                      <SelectItem value="aws">Amazon Web Services</SelectItem>
+                      <SelectItem value="azure">Microsoft Azure</SelectItem>
+                      <SelectItem value="gcp">Google Cloud Platform</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white">Default Region</Label>
+                  <Select 
+                    value={deploymentConfig.defaultRegion} 
+                    onValueChange={(value) => 
+                      setDeploymentConfig(prev => ({ ...prev, defaultRegion: value }))
+                    }
+                  >
+                    <SelectTrigger className="bg-slate-800 border-slate-600">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-600">
+                      {deploymentConfig.defaultProvider === 'aws' && (
+                        <>
+                          <SelectItem value="us-east-1">US East (N. Virginia)</SelectItem>
+                          <SelectItem value="us-west-2">US West (Oregon)</SelectItem>
+                          <SelectItem value="eu-west-1">Europe (Ireland)</SelectItem>
+                          <SelectItem value="ap-southeast-1">Asia Pacific (Singapore)</SelectItem>
+                        </>
+                      )}
+                      {deploymentConfig.defaultProvider === 'azure' && (
+                        <>
+                          <SelectItem value="eastus">East US</SelectItem>
+                          <SelectItem value="westus2">West US 2</SelectItem>
+                          <SelectItem value="westeurope">West Europe</SelectItem>
+                          <SelectItem value="southeastasia">Southeast Asia</SelectItem>
+                        </>
+                      )}
+                      {deploymentConfig.defaultProvider === 'gcp' && (
+                        <>
+                          <SelectItem value="us-central1">US Central 1</SelectItem>
+                          <SelectItem value="us-west1">US West 1</SelectItem>
+                          <SelectItem value="europe-west1">Europe West 1</SelectItem>
+                          <SelectItem value="asia-southeast1">Asia Southeast 1</SelectItem>
+                        </>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label className="text-white">Enable Terraform</Label>
+                    <p className="text-sm text-slate-400">Use Terraform for infrastructure as code deployments</p>
+                  </div>
+                  <Button
+                    variant={deploymentConfig.enableTerraform ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => 
+                      setDeploymentConfig(prev => ({ ...prev, enableTerraform: !prev.enableTerraform }))
+                    }
+                    className="px-3 py-1"
+                  >
+                    {deploymentConfig.enableTerraform ? 'ON' : 'OFF'}
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label className="text-white">Auto-approve Deployments</Label>
+                    <p className="text-sm text-slate-400">Automatically approve deployment plans without manual confirmation</p>
+                  </div>
+                  <Button
+                    variant={deploymentConfig.autoApprove ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => 
+                      setDeploymentConfig(prev => ({ ...prev, autoApprove: !prev.autoApprove }))
+                    }
+                    disabled={deploymentConfig.mode === 'simulation'}
+                    className="px-3 py-1"
+                  >
+                    {deploymentConfig.autoApprove ? 'ON' : 'OFF'}
+                  </Button>
+                </div>
+              </div>
+
+              {deploymentConfig.autoApprove && deploymentConfig.mode === 'real' && (
+                <div className="p-4 bg-red-900/20 border border-red-700 rounded-lg">
+                  <div className="flex items-center space-x-2 text-red-400">
+                    <AlertCircle className="w-4 h-4" />
+                    <span className="text-sm font-medium">Auto-approve Enabled</span>
+                  </div>
+                  <p className="text-xs text-red-300 mt-1">
+                    Deployments will proceed automatically without manual approval. Use with caution in production.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
