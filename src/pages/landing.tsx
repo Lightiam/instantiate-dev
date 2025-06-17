@@ -120,7 +120,7 @@ export default function LandingPage() {
             <a href="#docs" style={{ color: 'white', textDecoration: 'none' }}>Docs</a>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button style={{
+            <button onClick={() => window.location.href = '/auth'} style={{
               background: 'transparent',
               border: '1px solid rgba(255, 255, 255, 0.3)',
               color: 'white',
@@ -156,7 +156,7 @@ export default function LandingPage() {
           marginBottom: '2rem',
           display: 'inline-block'
         }}>
-          🚀 Self-Service Infrastructure Deployment
+          🚀 Infrastructure as Code Simplified
         </div>
         <h1 style={{
           fontSize: '3rem',
@@ -164,14 +164,14 @@ export default function LandingPage() {
           marginBottom: '1.5rem',
           lineHeight: '1.2'
         }}>
-          Launch Compliant Cloud{" "}
+          Infrastructure as{" "}
           <span style={{
             background: 'linear-gradient(to right, #60a5fa, #a78bfa)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text'
           }}>
-            Environments in Minutes
+            Code Simplified
           </span>
         </h1>
         <p style={{
@@ -182,8 +182,7 @@ export default function LandingPage() {
           margin: '0 auto 2rem auto',
           lineHeight: '1.6'
         }}>
-          Instantiate's "Compose" allows your teams to quickly generate and deploy cloud infrastructure 
-          directly from the UI by selecting modules from a public or private catalog - no coding required.
+          Instanti8.dev transforms complex infrastructure provisioning into simple, declarative code. Define once, deploy everywhere - seamlessly orchestrate resources across AWS, Azure, and GCP with intelligent automation, version control, and collaborative workflows.
         </p>
         <div style={{
           display: 'flex',

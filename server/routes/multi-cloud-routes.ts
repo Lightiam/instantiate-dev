@@ -1,7 +1,7 @@
 
 import { Router } from 'express';
 import { multiCloudManager } from '../cloud-providers/multi-cloud-manager';
-import { groqAIService } from '../groq-ai-service';
+import { openaiService } from '../openai-ai-service';
 import { z } from 'zod';
 
 const router = Router();
@@ -194,7 +194,7 @@ router.post('/generate-code', async (req, res) => {
       console.log(`Target provider: ${provider}`);
     }
     
-    const result = await groqAIService.generateInfrastructureCode(prompt, provider, codeType);
+    const result = await openaiService.generateInfrastructureCode(prompt, provider, codeType);
     
     const response = {
       success: true,

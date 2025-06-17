@@ -3,7 +3,7 @@ import { getAzureService } from '../azure-service';
 import { awsService } from './aws-service';
 import { gcpService } from './gcp-service';
 import { codeGenerator } from '../code-generator';
-import { groqAIService } from '../groq-ai-service';
+import { openaiService } from '../openai-ai-service';
 
 type SupportedProvider = 'azure' | 'aws' | 'gcp' | 'kubernetes';
 
@@ -75,7 +75,7 @@ export class MultiCloudManager {
     try {
       let result;
 
-      const infraCode = await groqAIService.generateInfrastructureCode(
+      const infraCode = await openaiService.generateInfrastructureCode(
         `Deploy ${request.service} named ${request.name} to ${request.provider} in ${request.region}`,
         request.provider === 'kubernetes' ? 'kubernetes' : request.provider,
         'terraform'

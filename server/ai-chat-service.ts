@@ -1,5 +1,5 @@
 
-import { groqAIService } from './groq-ai-service';
+import { openaiService } from './openai-ai-service';
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -34,11 +34,11 @@ interface AIResponse {
 
 export class AIChatService {
   async generateResponse(context: DeploymentContext, chatHistory: ChatMessage[] = []): Promise<AIResponse> {
-    return await groqAIService.generateResponse(context, chatHistory);
+    return await openaiService.generateResponse(context, chatHistory);
   }
 
   async generateInfrastructureCode(prompt: string, provider: 'azure' | 'aws' | 'gcp', codeType: 'terraform' | 'pulumi'): Promise<{ code: string; explanation: string }> {
-    return await groqAIService.generateInfrastructureCode(prompt, provider, codeType);
+    return await openaiService.generateInfrastructureCode(prompt, provider, codeType);
   }
 }
 
