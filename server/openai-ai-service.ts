@@ -7,6 +7,12 @@ interface ChatMessage {
   timestamp?: string;
 }
 
+interface ConversationContext {
+  messages: ChatMessage[];
+  conversationId?: string;
+  lastActivity?: Date;
+}
+
 interface DeploymentContext {
   provider?: 'azure' | 'aws' | 'gcp' | 'kubernetes' | 'docker';
   resourceType?: string;
@@ -36,6 +42,8 @@ interface AIResponse {
 export class OpenAIService {
   private openai: OpenAI | null = null;
   private systemPrompt: string;
+  private conversations: Map<string, ConversationContext> = new Map();
+  private codeExtractionRegex = /^```(?:[^\n]*)\n([\s\S]*?)\n```$/gm;
 
   constructor() {
     this.systemPrompt = `You are an expert cloud infrastructure and DevOps assistant for </> instanti8.dev, a multi-cloud deployment platform. Your role is to help users with:
@@ -49,7 +57,7 @@ export class OpenAIService {
 
 Always provide practical, actionable advice with code examples when relevant. Be concise but thorough.`;
 
-    const apiKey = process.env.OPENAI_API_KEY || process.env.Open_AI_Key;
+    const apiKey = process.env.OPENAI_API_KEY || process.env.Open_ai_key;
     console.log('OpenAI API Key check:', apiKey ? 'Found' : 'Not found');
     console.log('Available env vars:', Object.keys(process.env).filter(k => k.toLowerCase().includes('openai') || k.toLowerCase().includes('open')));
     
@@ -57,8 +65,8 @@ Always provide practical, actionable advice with code examples when relevant. Be
       this.openai = new OpenAI({ apiKey });
       console.log('OpenAI service initialized successfully');
     } else {
-      console.warn('OpenAI API key not found in environment variables');
-      console.warn('Checked: OPENAI_API_KEY, Open_AI_Key');
+      console.error('OpenAI API key not configured');
+      console.error('Available env vars:', Object.keys(process.env).filter(k => k.toLowerCase().includes('openai') || k.toLowerCase().includes('open')));
     }
   }
 
@@ -97,7 +105,7 @@ Always provide practical, actionable advice with code examples when relevant. Be
     }
   }
 
-  async generateInfrastructureCode(prompt: string, provider?: 'azure' | 'aws' | 'gcp' | 'kubernetes', codeType: 'terraform' | 'pulumi' = 'terraform'): Promise<{ code: string; explanation: string; detectedProvider?: string }> {
+  async generateInfrastructureCode(prompt: string, provider?: 'azure' | 'aws' | 'gcp' | 'kubernetes', codeType: 'terraform' | 'pulumi' = 'terraform', conversationId?: string): Promise<{ code: string; explanation: string; detectedProvider?: string }> {
     try {
       const detectedProvider = provider || this.detectCloudProvider(prompt);
       console.log(`Generating ${codeType} code for ${detectedProvider} with prompt: "${prompt}"`);
@@ -108,44 +116,56 @@ Always provide practical, actionable advice with code examples when relevant. Be
         return { ...fallback, detectedProvider };
       }
 
-      const codePrompt = `Generate complete, production-ready ${codeType} code for ${detectedProvider} based on this request: "${prompt}". 
+      const conversation = this.getOrCreateConversation(conversationId);
+      
+      const enhancedPrompt = `Generate sample code for a ${prompt}
 
-IMPORTANT REQUIREMENTS:
-1. Generate ONLY valid ${codeType} code for ${detectedProvider}
-2. Include proper provider configuration and required resources
-3. Use appropriate resource naming conventions for ${detectedProvider}
-4. Include security best practices and proper tagging
-5. Make the code deployable and functional
+Create complete, production-ready ${codeType} infrastructure code for ${detectedProvider} cloud provider.
 
-Please provide ONLY the ${codeType} code without any additional formatting or explanations. The code should be ready to save to a .tf file and use immediately.`;
+REQUIREMENTS:
+- Generate ONLY valid ${codeType} code for ${detectedProvider}
+- Include proper provider configuration and required resources
+- Use appropriate resource naming conventions for ${detectedProvider}
+- Include security best practices and proper tagging
+- Make the code deployable and functional
+- Respond with the code in a markdown code block
+
+Example format:
+\`\`\`${codeType}
+# Your ${codeType} code here
+\`\`\`
+
+Generate the infrastructure code now:`;
+
+      conversation.messages.push({
+        role: 'user',
+        content: enhancedPrompt,
+        timestamp: new Date().toISOString()
+      });
 
       console.log('Calling OpenAI for code generation...');
       const completion = await this.openai.chat.completions.create({
         messages: [
-          { role: 'system', content: 'You are an expert Infrastructure as Code generator. Generate only valid, production-ready code.' },
-          { role: 'user', content: codePrompt }
+          { role: 'system', content: 'You are an expert Infrastructure as Code generator. Generate only valid, production-ready code in markdown code blocks.' },
+          ...conversation.messages.slice(-5) // Keep last 5 messages for context like aiac
         ],
         model: 'gpt-4o-mini',
-        temperature: 0.3,
+        temperature: 0.2, // Lower temperature like aiac for more consistent code generation
         max_tokens: 2000,
       });
 
       const response = completion.choices[0]?.message?.content || '';
       console.log('OpenAI response received, length:', response.length);
       
-      // Clean up the response to get just the code
-      let cleanCode = response.trim();
+      conversation.messages.push({
+        role: 'assistant',
+        content: response,
+        timestamp: new Date().toISOString()
+      });
       
-      // Remove markdown code blocks if present
-      if (cleanCode.includes('```')) {
-        const codeMatch = cleanCode.match(/```(?:terraform|hcl)?\n?([\s\S]*?)```/);
-        if (codeMatch) {
-          cleanCode = codeMatch[1].trim();
-        }
-      }
+      const extractedCode = this.extractCodeFromResponse(response);
       
-      // If the response is too short or doesn't contain terraform syntax, use fallback
-      if (cleanCode.length < 50 || (!cleanCode.includes('terraform') && !cleanCode.includes('resource') && !cleanCode.includes('provider'))) {
+      if (!extractedCode || extractedCode.length < 50) {
         console.log('OpenAI response insufficient, using fallback');
         const fallback = this.getFallbackCode(prompt, detectedProvider, codeType);
         return { ...fallback, detectedProvider };
@@ -155,7 +175,7 @@ Please provide ONLY the ${codeType} code without any additional formatting or ex
       
       console.log('Successfully generated infrastructure code');
       return { 
-        code: cleanCode, 
+        code: extractedCode, 
         explanation, 
         detectedProvider 
       };
@@ -197,38 +217,48 @@ Please provide ONLY the ${codeType} code without any additional formatting or ex
   private detectCloudProvider(prompt: string): string {
     const lowerPrompt = prompt.toLowerCase();
     
-    if (lowerPrompt.includes('kubernetes') || lowerPrompt.includes('k8s') || 
-        lowerPrompt.includes('kubectl') || lowerPrompt.includes('helm') ||
-        lowerPrompt.includes('pod') || lowerPrompt.includes('deployment') ||
-        lowerPrompt.includes('service mesh') || lowerPrompt.includes('ingress')) {
-      return 'kubernetes';
+    const providerPatterns = {
+      kubernetes: [
+        'kubernetes', 'k8s', 'gke', 'eks', 'aks', 'cluster', 'pod', 'deployment', 'service mesh',
+        'ingress', 'helm', 'kubectl', 'container orchestration', 'namespace', 'configmap'
+      ],
+      aws: [
+        'aws', 'amazon', 's3', 'ec2', 'lambda', 'rds', 'vpc', 'cloudformation', 'iam',
+        'elastic', 'dynamo', 'sqs', 'sns', 'cloudwatch', 'route53', 'elb', 'alb', 'ecs', 'fargate'
+      ],
+      gcp: [
+        'gcp', 'google cloud', 'gce', 'cloud storage', 'compute engine', 'cloud sql',
+        'cloud functions', 'bigquery', 'cloud run', 'firebase', 'app engine', 'gke', 'firestore'
+      ],
+      azure: [
+        'azure', 'microsoft', 'blob', 'cosmos', 'app service', 'sql database',
+        'resource group', 'virtual machine', 'storage account', 'function app', 'key vault', 'aks'
+      ]
+    };
+    
+    const scores = { kubernetes: 0, aws: 0, gcp: 0, azure: 0 };
+    
+    for (const [provider, keywords] of Object.entries(providerPatterns)) {
+      for (const keyword of keywords) {
+        if (lowerPrompt.includes(keyword)) {
+          scores[provider as keyof typeof scores] += 1;
+          if (['aws', 'azure', 'gcp', 'kubernetes'].includes(keyword)) {
+            scores[provider as keyof typeof scores] += 2;
+          }
+        }
+      }
     }
     
-    if (lowerPrompt.includes('aws') || lowerPrompt.includes('amazon') ||
-        lowerPrompt.includes('ec2') || lowerPrompt.includes('s3') ||
-        lowerPrompt.includes('lambda') || lowerPrompt.includes('rds') ||
-        lowerPrompt.includes('vpc') || lowerPrompt.includes('iam') ||
-        lowerPrompt.includes('cloudformation') || lowerPrompt.includes('ecs') ||
-        lowerPrompt.includes('eks') || lowerPrompt.includes('fargate')) {
-      return 'aws';
+    const maxScore = Math.max(...Object.values(scores));
+    if (maxScore > 0) {
+      const detectedProvider = Object.entries(scores).find(([_, score]) => score === maxScore)?.[0];
+      if (detectedProvider) {
+        console.log(`Detected cloud provider: ${detectedProvider} (score: ${maxScore})`);
+        return detectedProvider;
+      }
     }
     
-    if (lowerPrompt.includes('gcp') || lowerPrompt.includes('google cloud') ||
-        lowerPrompt.includes('compute engine') || lowerPrompt.includes('cloud storage') ||
-        lowerPrompt.includes('cloud functions') || lowerPrompt.includes('cloud run') ||
-        lowerPrompt.includes('gke') || lowerPrompt.includes('bigquery') ||
-        lowerPrompt.includes('firestore') || lowerPrompt.includes('cloud sql')) {
-      return 'gcp';
-    }
-    
-    if (lowerPrompt.includes('azure') || lowerPrompt.includes('microsoft') ||
-        lowerPrompt.includes('resource group') || lowerPrompt.includes('app service') ||
-        lowerPrompt.includes('cosmos db') || lowerPrompt.includes('key vault') ||
-        lowerPrompt.includes('aks') || lowerPrompt.includes('container instance') ||
-        lowerPrompt.includes('storage account') || lowerPrompt.includes('function app')) {
-      return 'azure';
-    }
-    
+    console.log('No specific provider detected, defaulting to Azure');
     return 'azure';
   }
 
@@ -297,6 +327,42 @@ Please provide ONLY the ${codeType} code without any additional formatting or ex
       code: fallbackCode,
       explanation: `Generated ${codeType} template for ${provider} based on: "${prompt}". This is a basic template - configure your OpenAI API key for enhanced code generation with specific resource configurations.`
     };
+  }
+
+  private getOrCreateConversation(conversationId?: string): ConversationContext {
+    const id = conversationId || 'default';
+    
+    if (!this.conversations.has(id)) {
+      this.conversations.set(id, {
+        messages: [],
+        conversationId: id,
+        lastActivity: new Date()
+      });
+    }
+    
+    const conversation = this.conversations.get(id)!;
+    conversation.lastActivity = new Date();
+    return conversation;
+  }
+
+  private extractCodeFromResponse(response: string): string | null {
+    this.codeExtractionRegex.lastIndex = 0;
+    const match = this.codeExtractionRegex.exec(response);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+    
+    const simpleMatch = response.match(/```(?:terraform|hcl|yaml)?\n?([\s\S]*?)```/);
+    if (simpleMatch && simpleMatch[1]) {
+      return simpleMatch[1].trim();
+    }
+    
+    const anyCodeMatch = response.match(/```\n?([\s\S]*?)```/);
+    if (anyCodeMatch && anyCodeMatch[1]) {
+      return anyCodeMatch[1].trim();
+    }
+    
+    return null;
   }
 
   private generateFallbackTerraform(prompt: string, provider: string, codeType: string): string {
