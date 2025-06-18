@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { multiCloudManager } from '../cloud-providers/multi-cloud-manager';
 import { openaiService } from '../openai-ai-service';
@@ -177,9 +176,12 @@ router.get('/health', async (req, res) => {
 
 router.post('/generate-code', async (req, res) => {
   try {
+    console.log('Code generation request received:', req.body);
+    
     const validationResult = codeGenerationRequestSchema.safeParse(req.body);
     
     if (!validationResult.success) {
+      console.error('Validation failed:', validationResult.error.errors);
       return res.status(400).json({
         success: false,
         error: 'Invalid request data',
@@ -192,6 +194,16 @@ router.post('/generate-code', async (req, res) => {
     console.log(`Generating ${codeType} code for prompt: "${prompt}"`);
     if (provider) {
       console.log(`Target provider: ${provider}`);
+    }
+
+    // Check if OpenAI API key is available
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('OpenAI API key not configured');
+      return res.status(500).json({
+        success: false,
+        error: 'OpenAI API key not configured. Please set OPENAI_API_KEY environment variable.',
+        message: 'Code generation requires OpenAI API key configuration'
+      });
     }
     
     const result = await openaiService.generateInfrastructureCode(prompt, provider, codeType);
@@ -207,13 +219,14 @@ router.post('/generate-code', async (req, res) => {
     };
     
     console.log(`Code generation successful for ${result.detectedProvider}`);
+    console.log('Generated code length:', result.code.length);
     res.json(response);
   } catch (error: any) {
     console.error('Code generation error:', error);
     res.status(500).json({
       success: false,
       error: error.message,
-      message: 'Code generation failed'
+      message: 'Code generation failed - please check your OpenAI API key and try again'
     });
   }
 });
@@ -235,7 +248,7 @@ router.post('/azure/deploy-verified', async (req, res) => {
       code: deploymentSpec.image || 'nginx:alpine',
       codeType: 'html' as const,
       environmentVariables: deploymentSpec.environmentVariables || {},
-      resourceGroup: deploymentSpec.resourceGroup || 'instantiate-rg-west',
+      resourceGroup: deploymentSpec.resourceGroup || 'instanti8-rg-west',
       cpu: deploymentSpec.cpu || 0.5,
       memory: deploymentSpec.memory || 1.0,
       ports: deploymentSpec.ports || [80]
