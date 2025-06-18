@@ -9,8 +9,8 @@ const router = Router();
 const deploymentRequestSchema = z.object({
   name: z.string().min(1).max(100),
   code: z.string().min(1),
-  codeType: z.enum(['javascript', 'python', 'html']),
-  provider: z.enum(['aws', 'gcp', 'azure', 'alibaba', 'ibm', 'oracle', 'digitalocean', 'linode', 'huawei', 'tencent', 'netlify']),
+  codeType: z.enum(['terraform', 'pulumi', 'javascript', 'python', 'html']),
+  provider: z.enum(['aws', 'gcp', 'azure', 'kubernetes', 'alibaba', 'ibm', 'oracle', 'digitalocean', 'linode', 'huawei', 'tencent', 'netlify']),
   region: z.string().min(1),
   service: z.string().min(1),
   environmentVariables: z.record(z.string()).optional()
@@ -25,30 +25,57 @@ const codeGenerationRequestSchema = z.object({
 
 router.post('/deploy', async (req, res) => {
   try {
+    console.log('Deployment request received:', req.body);
+    
     const validationResult = deploymentRequestSchema.safeParse(req.body);
     
     if (!validationResult.success) {
+      console.error('Deployment validation failed:', validationResult.error.errors);
       return res.status(400).json({
         success: false,
-        error: 'Invalid request data',
-        details: validationResult.error.errors
+        error: 'Invalid deployment request data',
+        details: validationResult.error.errors,
+        message: 'Please check your deployment configuration and try again'
       });
     }
 
-    // Type assertion to ensure compatibility with UnifiedDeploymentRequest
-    const request = validationResult.data as any;
-    const result = await multiCloudManager.deployToProvider(request);
+    const request = validationResult.data;
+    console.log(`Initiating deployment: ${request.name} to ${request.provider.toUpperCase()}`);
+    console.log(`Service: ${request.service}, Region: ${request.region}, Code Type: ${request.codeType}`);
     
-    res.json({
+    if (['terraform', 'pulumi'].includes(request.codeType)) {
+      if (!request.code.includes('resource') && !request.code.includes('provider')) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid infrastructure code',
+          message: 'Infrastructure code must contain valid resource definitions and provider configuration'
+        });
+      }
+    }
+    
+    // Type assertion to ensure compatibility with UnifiedDeploymentRequest
+    const result = await multiCloudManager.deployToProvider(request as any);
+    
+    const response = {
       success: true,
       deployment: result,
+      deploymentId: result.deploymentId,
+      provider: request.provider,
+      service: request.service,
+      region: request.region,
+      status: 'deployed',
+      timestamp: new Date().toISOString(),
       message: `Successfully deployed ${request.name} to ${request.provider.toUpperCase()}`
-    });
+    };
+    
+    console.log(`Deployment successful: ${result.deploymentId}`);
+    res.json(response);
   } catch (error: any) {
     console.error('Multi-cloud deployment error:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
+      message: 'Deployment failed - please check your cloud provider credentials and configuration'
     });
   }
 });
@@ -198,7 +225,7 @@ router.post('/generate-code', async (req, res) => {
     }
 
     // Check if OpenAI API key is available in multiple possible env vars
-    const openaiKey = process.env.OPENAI_API_KEY || process.env.Open_AI_Key;
+    const openaiKey = process.env.OPENAI_API_KEY || process.env.Open_ai_key;
     if (!openaiKey) {
       console.error('OpenAI API key not configured');
       console.error('Available env vars:', Object.keys(process.env).filter(k => k.toLowerCase().includes('openai') || k.toLowerCase().includes('open')));
