@@ -1,3 +1,4 @@
+
 import { Router } from 'express';
 import { multiCloudManager } from '../cloud-providers/multi-cloud-manager';
 import { openaiService } from '../openai-ai-service';
@@ -196,16 +197,19 @@ router.post('/generate-code', async (req, res) => {
       console.log(`Target provider: ${provider}`);
     }
 
-    // Check if OpenAI API key is available
-    if (!process.env.OPENAI_API_KEY) {
+    // Check if OpenAI API key is available in multiple possible env vars
+    const openaiKey = process.env.OPENAI_API_KEY || process.env.Open_AI_Key;
+    if (!openaiKey) {
       console.error('OpenAI API key not configured');
+      console.error('Available env vars:', Object.keys(process.env).filter(k => k.toLowerCase().includes('openai') || k.toLowerCase().includes('open')));
       return res.status(500).json({
         success: false,
-        error: 'OpenAI API key not configured. Please set OPENAI_API_KEY environment variable.',
+        error: 'OpenAI API key not configured. Please set OPENAI_API_KEY or Open_AI_Key environment variable.',
         message: 'Code generation requires OpenAI API key configuration'
       });
     }
     
+    console.log('OpenAI API key found, proceeding with generation...');
     const result = await openaiService.generateInfrastructureCode(prompt, provider, codeType);
     
     const response = {

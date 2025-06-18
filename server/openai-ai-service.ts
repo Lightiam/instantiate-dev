@@ -49,18 +49,23 @@ export class OpenAIService {
 
 Always provide practical, actionable advice with code examples when relevant. Be concise but thorough.`;
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.OPENAI_API_KEY || process.env.Open_AI_Key;
+    console.log('OpenAI API Key check:', apiKey ? 'Found' : 'Not found');
+    console.log('Available env vars:', Object.keys(process.env).filter(k => k.toLowerCase().includes('openai') || k.toLowerCase().includes('open')));
+    
     if (apiKey) {
       this.openai = new OpenAI({ apiKey });
       console.log('OpenAI service initialized successfully');
     } else {
       console.warn('OpenAI API key not found in environment variables');
+      console.warn('Checked: OPENAI_API_KEY, Open_AI_Key');
     }
   }
 
   async generateResponse(context: DeploymentContext, chatHistory: ChatMessage[] = []): Promise<AIResponse> {
     try {
       if (!this.openai) {
+        console.error('OpenAI client not initialized - API key missing');
         return this.getFallbackResponse(context);
       }
 
@@ -70,6 +75,7 @@ Always provide practical, actionable advice with code examples when relevant. Be
         { role: 'user' as const, content: this.buildContextualPrompt(context) }
       ];
 
+      console.log('Calling OpenAI with messages:', messages.length);
       const completion = await this.openai.chat.completions.create({
         messages,
         model: 'gpt-4o-mini',
@@ -78,9 +84,15 @@ Always provide practical, actionable advice with code examples when relevant. Be
       });
 
       const response = completion.choices[0]?.message?.content || '';
+      console.log('OpenAI response received, length:', response.length);
       return this.parseAIResponse(response, context);
     } catch (error: any) {
       console.error('OpenAI Service Error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        status: error.status,
+        type: error.type
+      });
       return this.getFallbackResponse(context);
     }
   }
@@ -107,6 +119,7 @@ IMPORTANT REQUIREMENTS:
 
 Please provide ONLY the ${codeType} code without any additional formatting or explanations. The code should be ready to save to a .tf file and use immediately.`;
 
+      console.log('Calling OpenAI for code generation...');
       const completion = await this.openai.chat.completions.create({
         messages: [
           { role: 'system', content: 'You are an expert Infrastructure as Code generator. Generate only valid, production-ready code.' },
@@ -148,6 +161,11 @@ Please provide ONLY the ${codeType} code without any additional formatting or ex
       };
     } catch (error: any) {
       console.error('Infrastructure Code Generation Error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        status: error.status,
+        type: error.type
+      });
       const detectedProvider = provider || this.detectCloudProvider(prompt);
       const fallback = this.getFallbackCode(prompt, detectedProvider, codeType);
       return { ...fallback, detectedProvider };
