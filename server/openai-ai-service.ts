@@ -1,4 +1,3 @@
-
 import OpenAI from 'openai';
 
 interface ChatMessage {
@@ -57,16 +56,36 @@ export class OpenAIService {
 
 Always provide practical, actionable advice with code examples when relevant. Be concise but thorough.`;
 
-    const apiKey = process.env.OPENAI_API_KEY || process.env.Open_ai_key;
-    console.log('OpenAI API Key check:', apiKey ? 'Found' : 'Not found');
-    console.log('Available env vars:', Object.keys(process.env).filter(k => k.toLowerCase().includes('openai') || k.toLowerCase().includes('open')));
+    this.initializeOpenAI();
+  }
+
+  private initializeOpenAI() {
+    // Try multiple possible environment variable names
+    const apiKey = process.env.OPENAI_API_KEY || 
+                   process.env.Open_AI_Key || 
+                   process.env.OPEN_AI_API_KEY ||
+                   process.env.openai_api_key;
     
-    if (apiKey) {
-      this.openai = new OpenAI({ apiKey });
-      console.log('OpenAI service initialized successfully');
+    console.log('OpenAI API Key check:', apiKey ? 'Found' : 'Not found');
+    console.log('Available env vars with "openai" or "ai":', 
+      Object.keys(process.env).filter(k => 
+        k.toLowerCase().includes('openai') || 
+        k.toLowerCase().includes('open_ai') ||
+        k.toLowerCase().includes('ai_key')
+      )
+    );
+    
+    if (apiKey && apiKey.trim().length > 0) {
+      try {
+        this.openai = new OpenAI({ apiKey: apiKey.trim() });
+        console.log('OpenAI service initialized successfully');
+      } catch (error) {
+        console.error('Failed to initialize OpenAI service:', error);
+        this.openai = null;
+      }
     } else {
-      console.error('OpenAI API key not configured');
-      console.error('Available env vars:', Object.keys(process.env).filter(k => k.toLowerCase().includes('openai') || k.toLowerCase().includes('open')));
+      console.error('OpenAI API key not found in environment variables');
+      this.openai = null;
     }
   }
 
@@ -118,9 +137,7 @@ Always provide practical, actionable advice with code examples when relevant. Be
 
       const conversation = this.getOrCreateConversation(conversationId);
       
-      const enhancedPrompt = `Generate sample code for a ${prompt}
-
-Create complete, production-ready ${codeType} infrastructure code for ${detectedProvider} cloud provider.
+      const enhancedPrompt = `Generate production-ready ${codeType} infrastructure code for ${detectedProvider} cloud provider based on this request: "${prompt}"
 
 REQUIREMENTS:
 - Generate ONLY valid ${codeType} code for ${detectedProvider}
@@ -128,9 +145,10 @@ REQUIREMENTS:
 - Use appropriate resource naming conventions for ${detectedProvider}
 - Include security best practices and proper tagging
 - Make the code deployable and functional
-- Respond with the code in a markdown code block
+- Focus on the specific request: ${prompt}
 
-Example format:
+Respond with the code in a markdown code block:
+
 \`\`\`${codeType}
 # Your ${codeType} code here
 \`\`\`
@@ -147,10 +165,10 @@ Generate the infrastructure code now:`;
       const completion = await this.openai.chat.completions.create({
         messages: [
           { role: 'system', content: 'You are an expert Infrastructure as Code generator. Generate only valid, production-ready code in markdown code blocks.' },
-          ...conversation.messages.slice(-5) // Keep last 5 messages for context like aiac
+          ...conversation.messages.slice(-3) // Keep last 3 messages for context
         ],
         model: 'gpt-4o-mini',
-        temperature: 0.2, // Lower temperature like aiac for more consistent code generation
+        temperature: 0.2, // Lower temperature for more consistent code generation
         max_tokens: 2000,
       });
 
@@ -232,7 +250,7 @@ Generate the infrastructure code now:`;
       ],
       azure: [
         'azure', 'microsoft', 'blob', 'cosmos', 'app service', 'sql database',
-        'resource group', 'virtual machine', 'storage account', 'function app', 'key vault', 'aks'
+        'resource group', 'virtual machine', 'storage account', 'function app', 'key vault', 'aks', 'container instance'
       ]
     };
     
@@ -311,9 +329,9 @@ Generate the infrastructure code now:`;
 
   private getFallbackResponse(context: DeploymentContext): AIResponse {
     return {
-      message: `I can help you with ${context.provider || 'cloud'} infrastructure deployment. Please ensure your OpenAI API key is configured in the environment variables for enhanced AI responses. For now, I can provide basic guidance based on your query: "${context.userQuery}"`,
+      message: `I can help you with ${context.provider || 'cloud'} infrastructure deployment. The OpenAI API key needs to be properly configured for enhanced AI responses. For now, I can provide basic guidance based on your query: "${context.userQuery}"`,
       suggestions: [
-        'Configure cloud provider credentials',
+        'Configure OpenAI API key in environment variables',
         'Review infrastructure requirements',
         'Check deployment logs for errors',
         'Verify resource quotas and limits'
@@ -325,7 +343,7 @@ Generate the infrastructure code now:`;
     const fallbackCode = this.generateFallbackTerraform(prompt, provider, codeType);
     return {
       code: fallbackCode,
-      explanation: `Generated ${codeType} template for ${provider} based on: "${prompt}". This is a basic template - configure your OpenAI API key for enhanced code generation with specific resource configurations.`
+      explanation: `Generated ${codeType} template for ${provider} based on: "${prompt}". Configure OpenAI API key for enhanced code generation with specific resource configurations.`
     };
   }
 
@@ -369,9 +387,75 @@ Generate the infrastructure code now:`;
     const resourceName = prompt.toLowerCase().includes('database') ? 'database' :
                         prompt.toLowerCase().includes('storage') ? 'storage' :
                         prompt.toLowerCase().includes('compute') || prompt.toLowerCase().includes('vm') ? 'compute' :
-                        prompt.toLowerCase().includes('network') ? 'network' : 'infrastructure';
+                        prompt.toLowerCase().includes('network') ? 'network' : 
+                        prompt.toLowerCase().includes('container') ? 'container' : 'infrastructure';
 
     if (provider === 'azure') {
+      if (prompt.toLowerCase().includes('container')) {
+        return `# ${codeType} configuration for Azure Container Instances
+# Generated from: ${prompt}
+
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~>3.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {}
+}
+
+resource "azurerm_resource_group" "container_rg" {
+  name     = "instanti8-container-rg"
+  location = "East US"
+
+  tags = {
+    Environment = "Development"
+    CreatedBy   = "instanti8.dev"
+    Project     = "Container"
+    Purpose     = "Container deployment"
+  }
+}
+
+resource "azurerm_container_group" "main" {
+  name                = "instanti8-container-group"
+  location            = azurerm_resource_group.container_rg.location
+  resource_group_name = azurerm_resource_group.container_rg.name
+  ip_address_type     = "Public"
+  dns_name_label      = "instanti8-container-app"
+  os_type             = "Linux"
+
+  container {
+    name   = "main-container"
+    image  = "nginx:alpine"
+    cpu    = "0.5"
+    memory = "1.5"
+
+    ports {
+      port     = 80
+      protocol = "TCP"
+    }
+  }
+
+  tags = {
+    Environment = "Development"
+    CreatedBy   = "instanti8.dev"
+    Project     = "Container"
+  }
+}
+
+output "container_ip_address" {
+  value = azurerm_container_group.main.ip_address
+}
+
+output "container_fqdn" {
+  value = azurerm_container_group.main.fqdn
+}`;
+      }
+
       return `# ${codeType} configuration for Azure
 # Generated from: ${prompt}
 
