@@ -139,6 +139,11 @@ export function ChatUI() {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Response is not valid JSON')
+      }
+
       const result = await response.json()
       
       if (result.success) {
@@ -210,6 +215,11 @@ export function ChatUI() {
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Response is not valid JSON')
       }
 
       const result = await response.json()
