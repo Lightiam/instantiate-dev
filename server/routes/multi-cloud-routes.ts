@@ -1,3 +1,4 @@
+
 import { Router } from 'express';
 import { multiCloudManager } from '../cloud-providers/multi-cloud-manager';
 import { openaiService } from '../openai-ai-service';
@@ -81,12 +82,17 @@ router.post('/deploy', async (req, res) => {
 
 router.post('/generate-code', async (req, res) => {
   try {
-    console.log('Code generation request received:', req.body);
+    console.log('🎯 Code generation request received:', {
+      hasPrompt: !!req.body.prompt,
+      provider: req.body.provider,
+      codeType: req.body.codeType,
+      timestamp: new Date().toISOString()
+    });
     
     const validationResult = codeGenerationRequestSchema.safeParse(req.body);
     
     if (!validationResult.success) {
-      console.error('Validation failed:', validationResult.error.errors);
+      console.error('❌ Validation failed:', validationResult.error.errors);
       return res.status(400).json({
         success: false,
         error: 'Invalid request data',
@@ -96,9 +102,9 @@ router.post('/generate-code', async (req, res) => {
 
     const { prompt, provider, codeType, resourceType } = validationResult.data;
     
-    console.log(`Generating ${codeType} code for prompt: "${prompt}"`);
+    console.log(`🚀 Generating ${codeType} code for prompt: "${prompt}"`);
     if (provider) {
-      console.log(`Target provider: ${provider}`);
+      console.log(`🎯 Target provider: ${provider}`);
     }
 
     // Check if OpenAI API key is available in multiple possible env vars
@@ -107,18 +113,23 @@ router.post('/generate-code', async (req, res) => {
                       process.env.OPEN_AI_API_KEY ||
                       process.env.openai_api_key;
     
-    if (!openaiKey || openaiKey.trim().length === 0) {
-      console.error('OpenAI API key not configured or empty');
-      console.error('Available env vars:', Object.keys(process.env).filter(k => 
+    console.log('🔑 API Key Status:', {
+      found: !!openaiKey,
+      length: openaiKey ? openaiKey.length : 0,
+      availableEnvVars: Object.keys(process.env).filter(k => 
         k.toLowerCase().includes('openai') || 
         k.toLowerCase().includes('open_ai') ||
         k.toLowerCase().includes('ai_key')
-      ));
+      )
+    });
+    
+    if (!openaiKey || openaiKey.trim().length === 0) {
+      console.error('❌ OpenAI API key not configured or empty');
       
       return res.status(500).json({
         success: false,
         error: 'OpenAI API key not configured. Please set OPENAI_API_KEY, Open_AI_Key, or similar environment variable.',
-        message: 'Code generation requires OpenAI API key configuration. Please check your environment variables.',
+        message: 'Code generation requires OpenAI API key configuration. Please check your Supabase Edge Function secrets.',
         availableEnvVars: Object.keys(process.env).filter(k => 
           k.toLowerCase().includes('openai') || 
           k.toLowerCase().includes('open_ai') ||
@@ -127,7 +138,7 @@ router.post('/generate-code', async (req, res) => {
       });
     }
     
-    console.log('OpenAI API key found, proceeding with generation...');
+    console.log('✅ OpenAI API key found, proceeding with generation...');
     
     try {
       const result = await openaiService.generateInfrastructureCode(prompt, provider, codeType);
@@ -139,27 +150,35 @@ router.post('/generate-code', async (req, res) => {
         detectedProvider: result.detectedProvider,
         resourceType: resourceType || 'infrastructure',
         prompt: prompt,
-        codeType: codeType
+        codeType: codeType,
+        timestamp: new Date().toISOString()
       };
       
-      console.log(`Code generation successful for ${result.detectedProvider}`);
-      console.log('Generated code length:', result.code.length);
+      console.log(`🎉 Code generation successful for ${result.detectedProvider}`);
+      console.log(`📊 Generated code length: ${result.code.length} characters`);
       res.json(response);
     } catch (aiError: any) {
-      console.error('OpenAI service error:', aiError);
+      console.error('💥 OpenAI service error:', aiError);
+      console.error('Error details:', {
+        message: aiError.message,
+        status: aiError.status,
+        type: aiError.type,
+        code: aiError.code
+      });
       
       return res.status(500).json({
         success: false,
         error: `OpenAI API Error: ${aiError.message}`,
-        message: 'Failed to generate code using OpenAI. Please check your API key and try again.',
+        message: 'Failed to generate code using OpenAI. The API key may be invalid or you may have exceeded rate limits.',
         details: {
           type: aiError.type || 'unknown',
-          status: aiError.status || 'unknown'
+          status: aiError.status || 'unknown',
+          code: aiError.code || 'unknown'
         }
       });
     }
   } catch (error: any) {
-    console.error('Code generation error:', error);
+    console.error('💥 Code generation error:', error);
     res.status(500).json({
       success: false,
       error: error.message,
