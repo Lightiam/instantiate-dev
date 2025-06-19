@@ -1,13 +1,11 @@
+
 import * as React from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { ChatInput } from "@/components/ChatInput"
-import { ChatMessages } from "@/components/ChatMessages"
 import { ConversationStarter } from "@/components/ConversationStarter"
 import { EnvironmentConfig } from "@/components/EnvironmentConfig"
-import { Code, Zap, Download, Play, CheckCircle, AlertCircle, Bot, User } from "lucide-react"
+import { CodeDisplay } from "@/components/CodeDisplay"
+import { DeploymentStatus } from "@/components/DeploymentStatus"
+import { ChatInterface } from "@/components/ChatInterface"
 
 interface GeneratedCode {
   terraform: string
@@ -240,144 +238,25 @@ export function ChatUI() {
 
         {/* Code Display Area */}
         {generatedCode && (
-          <Card className="bg-slate-900 border-slate-700 mb-6">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between text-white">
-                <span>Generated Infrastructure Code</span>
-                <div className="flex space-x-2">
-                  {generatedCode.detectedProvider && (
-                    <Badge variant="secondary" className="mr-2">
-                      {generatedCode.detectedProvider.toUpperCase()}
-                    </Badge>
-                  )}
-                  <Button variant="outline" size="sm" onClick={downloadCode}>
-                    <Download className="h-4 w-4 mr-1" />
-                    Download
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    onClick={deployCode}
-                    disabled={isDeploying}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    {isDeploying ? (
-                      <>
-                        <Zap className="h-4 w-4 mr-1 animate-spin" />
-                        Deploying...
-                      </>
-                    ) : (
-                      <>
-                        <Play className="h-4 w-4 mr-1" />
-                        Deploy to {generatedCode.detectedProvider?.toUpperCase() || 'Cloud'}
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </CardTitle>
-              <CardDescription className="text-slate-400">{generatedCode.description}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <pre className="bg-slate-950 p-4 rounded-md overflow-x-auto text-sm border border-slate-700">
-                <code className="text-slate-200">{generatedCode.terraform}</code>
-              </pre>
-            </CardContent>
-          </Card>
+          <CodeDisplay
+            generatedCode={generatedCode}
+            isDeploying={isDeploying}
+            onDeploy={deployCode}
+            onDownload={downloadCode}
+          />
         )}
 
         {/* Deployment Result */}
         {deploymentResult && (
-          <Card className="bg-slate-900 border-slate-700 mb-6">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-white">
-                {deploymentResult.success ? (
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                ) : (
-                  <AlertCircle className="h-5 w-5 text-red-500" />
-                )}
-                <span>Deployment Status</span>
-                <Badge variant={deploymentResult.success ? "default" : "destructive"}>
-                  {deploymentResult.success ? "Success" : "Failed"}
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {deploymentResult.success ? (
-                <div className="space-y-2">
-                  <p className="text-green-600">Deployment completed successfully!</p>
-                  {deploymentResult.deploymentId && (
-                    <p className="text-sm text-muted-foreground">
-                      Deployment ID: {deploymentResult.deploymentId}
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <div>
-                  <p className="text-red-600">Deployment failed</p>
-                  {deploymentResult.error && (
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Error: {deploymentResult.error}
-                    </p>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <DeploymentStatus deploymentResult={deploymentResult} />
         )}
 
         {/* Chat Interface */}
-        <Card className="bg-slate-900 border-slate-700 h-[500px] flex flex-col">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between text-white">
-              <span>Infrastructure Assistant</span>
-              <Badge variant="secondary">
-                {isGenerating ? "Generating..." : "Ready"}
-              </Badge>
-            </CardTitle>
-            <CardDescription className="text-slate-400">
-              Describe your infrastructure needs and I'll generate the code for you
-            </CardDescription>
-          </CardHeader>
-          
-          <CardContent className="flex-1 flex flex-col p-0">
-            {/* Messages Area */}
-            <div className="flex-1 space-y-4 mb-4 overflow-y-auto p-4">
-              {messages.length === 0 ? (
-                <div className="flex flex-col items-center justify-center text-center h-full">
-                  <Code className="h-16 w-16 text-slate-400 mb-4" />
-                  <h3 className="text-lg font-semibold text-slate-300 mb-2">Continue the Conversation</h3>
-                  <p className="text-slate-500 mb-6 max-w-md">
-                    Ask follow-up questions or request modifications to your infrastructure.
-                  </p>
-                </div>
-              ) : (
-                messages.map((message) => (
-                  <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`flex items-start space-x-2 max-w-[80%] ${message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                      <div className={`p-2 rounded-full ${message.type === 'user' ? 'bg-blue-600' : 'bg-slate-700'}`}>
-                        {message.type === 'user' ? (
-                          <User className="h-4 w-4 text-white" />
-                        ) : (
-                          <Bot className="h-4 w-4 text-white" />
-                        )}
-                      </div>
-                      <div className={`p-3 rounded-lg ${message.type === 'user' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-200'}`}>
-                        <p className="text-sm">{message.content}</p>
-                        {message.timestamp && (
-                          <p className="text-xs opacity-70 mt-1">{message.timestamp}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-            
-            {/* Input Area */}
-            <div className="p-4 border-t border-slate-700">
-              <ChatInput onSendMessage={handleSendMessage} isLoading={isGenerating} />
-            </div>
-          </CardContent>
-        </Card>
+        <ChatInterface
+          messages={messages}
+          isGenerating={isGenerating}
+          onSendMessage={handleSendMessage}
+        />
         
         <EnvironmentConfig
           isOpen={showEnvConfig}
