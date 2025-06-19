@@ -1,4 +1,3 @@
-
 import OpenAI from 'openai';
 
 interface ChatMessage {
@@ -44,36 +43,78 @@ export class OpenAIService {
   private systemPrompt: string;
   private conversations: Map<string, ConversationContext> = new Map();
   private codeExtractionRegex = /^```(?:[^\n]*)\n([\s\S]*?)\n```$/gm;
+  private isInitialized = false;
+  private initializationError: string | null = null;
 
   constructor() {
     this.systemPrompt = `You are an expert cloud infrastructure and DevOps assistant for </> instanti8.dev, a multi-cloud deployment platform. Your role is to help users with:
 
 1. Infrastructure planning and architecture recommendations
 2. Troubleshooting deployment issues across Azure, AWS, GCP and other cloud providers
-3. Generating Infrastructure as Code (Terraform, Pulumi, Docker)
+3. Generating Infrastructure as Code (Terraform, Pulumi, Docker) 
 4. Optimizing cloud costs and performance
 5. Security best practices and compliance
 6. Real-time deployment assistance and error resolution
 
 Always provide practical, actionable advice with code examples when relevant. Be concise but thorough.`;
 
-    const apiKey = process.env.OPENAI_API_KEY || process.env.Open_ai_key;
-    console.log('OpenAI API Key check:', apiKey ? 'Found' : 'Not found');
-    console.log('Available env vars:', Object.keys(process.env).filter(k => k.toLowerCase().includes('openai') || k.toLowerCase().includes('open')));
-    
-    if (apiKey) {
-      this.openai = new OpenAI({ apiKey });
-      console.log('OpenAI service initialized successfully');
-    } else {
-      console.error('OpenAI API key not configured');
-      console.error('Available env vars:', Object.keys(process.env).filter(k => k.toLowerCase().includes('openai') || k.toLowerCase().includes('open')));
+    this.initializeOpenAI();
+  }
+
+  private initializeOpenAI() {
+    try {
+      // Try multiple possible environment variable names for OpenAI API key
+      const apiKey = process.env.OPENAI_API_KEY || 
+                     process.env.Open_AI_Key || 
+                     process.env.OPEN_AI_API_KEY ||
+                     process.env.openai_api_key;
+      
+      console.log('🔧 OpenAI Service Initialization:');
+      console.log('- Available env vars:', Object.keys(process.env).filter(k => 
+        k.toLowerCase().includes('openai') || 
+        k.toLowerCase().includes('open_ai') ||
+        k.toLowerCase().includes('ai_key')
+      ));
+      console.log('- API Key found:', !!apiKey);
+      console.log('- Key length:', apiKey ? apiKey.length : 0);
+      
+      if (!apiKey || apiKey.trim().length === 0) {
+        this.initializationError = 'OpenAI API key not found in environment variables. Expected: OPENAI_API_KEY, Open_AI_Key, OPEN_AI_API_KEY, or openai_api_key';
+        console.error('❌', this.initializationError);
+        this.openai = null;
+        this.isInitialized = false;
+        return;
+      }
+
+      // Validate API key format
+      if (!apiKey.startsWith('sk-') || apiKey.length < 20) {
+        this.initializationError = 'Invalid OpenAI API key format. API keys should start with "sk-" and be longer than 20 characters.';
+        console.error('❌', this.initializationError);
+        this.openai = null;
+        this.isInitialized = false;
+        return;
+      }
+
+      this.openai = new OpenAI({ 
+        apiKey: apiKey.trim(),
+        timeout: 60000 // 60 second timeout
+      });
+      
+      this.isInitialized = true;
+      this.initializationError = null;
+      console.log('✅ OpenAI service initialized successfully');
+    } catch (error: any) {
+      this.initializationError = `Failed to initialize OpenAI service: ${error.message}`;
+      console.error('❌', this.initializationError);
+      this.openai = null;
+      this.isInitialized = false;
     }
   }
 
   async generateResponse(context: DeploymentContext, chatHistory: ChatMessage[] = []): Promise<AIResponse> {
     try {
-      if (!this.openai) {
-        console.error('OpenAI client not initialized - API key missing');
+      if (!this.isInitialized || !this.openai) {
+        console.error('❌ OpenAI service not initialized:', this.initializationError);
         return this.getFallbackResponse(context);
       }
 
@@ -83,7 +124,7 @@ Always provide practical, actionable advice with code examples when relevant. Be
         { role: 'user' as const, content: this.buildContextualPrompt(context) }
       ];
 
-      console.log('Calling OpenAI with messages:', messages.length);
+      console.log('📡 Calling OpenAI chat completion API...');
       const completion = await this.openai.chat.completions.create({
         messages,
         model: 'gpt-4o-mini',
@@ -92,14 +133,15 @@ Always provide practical, actionable advice with code examples when relevant. Be
       });
 
       const response = completion.choices[0]?.message?.content || '';
-      console.log('OpenAI response received, length:', response.length);
+      console.log('✅ OpenAI chat response received, length:', response.length);
       return this.parseAIResponse(response, context);
     } catch (error: any) {
-      console.error('OpenAI Service Error:', error);
+      console.error('💥 OpenAI chat completion error:', error);
       console.error('Error details:', {
         message: error.message,
         status: error.status,
-        type: error.type
+        type: error.type,
+        code: error.code
       });
       return this.getFallbackResponse(context);
     }
@@ -107,20 +149,27 @@ Always provide practical, actionable advice with code examples when relevant. Be
 
   async generateInfrastructureCode(prompt: string, provider?: 'azure' | 'aws' | 'gcp' | 'kubernetes', codeType: 'terraform' | 'pulumi' = 'terraform', conversationId?: string): Promise<{ code: string; explanation: string; detectedProvider?: string }> {
     try {
-      const detectedProvider = provider || this.detectCloudProvider(prompt);
-      console.log(`Generating ${codeType} code for ${detectedProvider} with prompt: "${prompt}"`);
+      console.log(`🚀 Starting infrastructure code generation...`);
+      console.log(`📝 Prompt: "${prompt}"`);
+      console.log(`🎯 Provider: ${provider || 'auto-detect'}`);
+      console.log(`🔧 Code type: ${codeType}`);
+      console.log(`🔑 OpenAI initialized: ${this.isInitialized}`);
+      console.log(`❌ Init error: ${this.initializationError || 'none'}`);
       
-      if (!this.openai) {
-        console.log('OpenAI not available, using fallback code generation');
+      const detectedProvider = provider || this.detectCloudProvider(prompt);
+      console.log(`🎯 Final provider: ${detectedProvider}`);
+      
+      if (!this.isInitialized || !this.openai) {
+        console.log('⚠️ OpenAI not available, using fallback code generation');
         const fallback = this.getFallbackCode(prompt, detectedProvider, codeType);
         return { ...fallback, detectedProvider };
       }
 
       const conversation = this.getOrCreateConversation(conversationId);
       
-      const enhancedPrompt = `Generate sample code for a ${prompt}
+      const enhancedPrompt = `Generate production-ready ${codeType} infrastructure code for ${detectedProvider} cloud provider.
 
-Create complete, production-ready ${codeType} infrastructure code for ${detectedProvider} cloud provider.
+REQUEST: "${prompt}"
 
 REQUIREMENTS:
 - Generate ONLY valid ${codeType} code for ${detectedProvider}
@@ -128,9 +177,10 @@ REQUIREMENTS:
 - Use appropriate resource naming conventions for ${detectedProvider}
 - Include security best practices and proper tagging
 - Make the code deployable and functional
-- Respond with the code in a markdown code block
+- Focus specifically on: ${prompt}
 
-Example format:
+Return ONLY the code in a markdown code block:
+
 \`\`\`${codeType}
 # Your ${codeType} code here
 \`\`\`
@@ -143,19 +193,19 @@ Generate the infrastructure code now:`;
         timestamp: new Date().toISOString()
       });
 
-      console.log('Calling OpenAI for code generation...');
+      console.log('📡 Calling OpenAI API for code generation...');
       const completion = await this.openai.chat.completions.create({
         messages: [
-          { role: 'system', content: 'You are an expert Infrastructure as Code generator. Generate only valid, production-ready code in markdown code blocks.' },
-          ...conversation.messages.slice(-5) // Keep last 5 messages for context like aiac
+          { role: 'system', content: 'You are an expert Infrastructure as Code generator. Generate only valid, production-ready code in markdown code blocks. Be specific and accurate.' },
+          ...conversation.messages.slice(-3) // Keep last 3 messages for context
         ],
         model: 'gpt-4o-mini',
-        temperature: 0.2, // Lower temperature like aiac for more consistent code generation
-        max_tokens: 2000,
+        temperature: 0.1, // Very low temperature for consistent code generation
+        max_tokens: 2500,
       });
 
       const response = completion.choices[0]?.message?.content || '';
-      console.log('OpenAI response received, length:', response.length);
+      console.log('✅ OpenAI code generation response received, length:', response.length);
       
       conversation.messages.push({
         role: 'assistant',
@@ -164,28 +214,32 @@ Generate the infrastructure code now:`;
       });
       
       const extractedCode = this.extractCodeFromResponse(response);
+      console.log('📄 Extracted code length:', extractedCode?.length || 0);
       
       if (!extractedCode || extractedCode.length < 50) {
-        console.log('OpenAI response insufficient, using fallback');
+        console.log('⚠️ OpenAI response insufficient, using fallback');
         const fallback = this.getFallbackCode(prompt, detectedProvider, codeType);
         return { ...fallback, detectedProvider };
       }
 
-      const explanation = `Generated ${codeType} code for ${detectedProvider} to ${prompt}. This code includes proper provider configuration, resource definitions, and follows best practices for security and naming conventions.`;
+      const explanation = `Generated ${codeType} infrastructure code for ${detectedProvider} to fulfill your request: "${prompt}". This code includes proper provider configuration, resource definitions, and follows best practices for security and naming conventions.`;
       
-      console.log('Successfully generated infrastructure code');
+      console.log('🎉 Successfully generated infrastructure code');
       return { 
         code: extractedCode, 
         explanation, 
         detectedProvider 
       };
     } catch (error: any) {
-      console.error('Infrastructure Code Generation Error:', error);
+      console.error('💥 Infrastructure Code Generation Error:', error);
       console.error('Error details:', {
         message: error.message,
         status: error.status,
-        type: error.type
+        type: error.type,
+        code: error.code,
+        response: error.response?.data
       });
+      
       const detectedProvider = provider || this.detectCloudProvider(prompt);
       const fallback = this.getFallbackCode(prompt, detectedProvider, codeType);
       return { ...fallback, detectedProvider };
@@ -231,8 +285,8 @@ Generate the infrastructure code now:`;
         'cloud functions', 'bigquery', 'cloud run', 'firebase', 'app engine', 'gke', 'firestore'
       ],
       azure: [
-        'azure', 'microsoft', 'blob', 'cosmos', 'app service', 'sql database',
-        'resource group', 'virtual machine', 'storage account', 'function app', 'key vault', 'aks'
+        'azure', 'microsoft', 'blob', 'cosmos', 'app service', 'sql database', 'vnet', 'nsg',
+        'resource group', 'virtual machine', 'storage account', 'function app', 'key vault', 'aks', 'container instance'
       ]
     };
     
@@ -253,23 +307,13 @@ Generate the infrastructure code now:`;
     if (maxScore > 0) {
       const detectedProvider = Object.entries(scores).find(([_, score]) => score === maxScore)?.[0];
       if (detectedProvider) {
-        console.log(`Detected cloud provider: ${detectedProvider} (score: ${maxScore})`);
+        console.log(`🎯 Detected cloud provider: ${detectedProvider} (score: ${maxScore})`);
         return detectedProvider;
       }
     }
     
-    console.log('No specific provider detected, defaulting to Azure');
+    console.log('🎯 No specific provider detected, defaulting to Azure');
     return 'azure';
-  }
-
-  private parseCodeResponse(response: string, prompt: string, provider: string, codeType: string): { code: string; explanation: string } {
-    const codeMatch = response.match(/CODE:\s*([\s\S]*?)\s*EXPLANATION:/);
-    const explanationMatch = response.match(/EXPLANATION:\s*([\s\S]*?)$/);
-    
-    const code = codeMatch?.[1]?.trim() || this.generateFallbackTerraform(prompt, provider, codeType);
-    const explanation = explanationMatch?.[1]?.trim() || `Generated ${codeType} code for ${provider} based on: ${prompt}`;
-    
-    return { code, explanation };
   }
 
   private parseAIResponse(response: string, context: DeploymentContext): AIResponse {
@@ -310,22 +354,24 @@ Generate the infrastructure code now:`;
   }
 
   private getFallbackResponse(context: DeploymentContext): AIResponse {
+    const errorMsg = this.initializationError || 'OpenAI service unavailable';
     return {
-      message: `I can help you with ${context.provider || 'cloud'} infrastructure deployment. Please ensure your OpenAI API key is configured in the environment variables for enhanced AI responses. For now, I can provide basic guidance based on your query: "${context.userQuery}"`,
+      message: `I can help you with ${context.provider || 'cloud'} infrastructure deployment. However, there's an issue with the OpenAI configuration: ${errorMsg}. Please check your API key configuration in Supabase Edge Function Secrets.`,
       suggestions: [
-        'Configure cloud provider credentials',
+        'Configure OpenAI API key in Supabase Edge Function Secrets',
+        'Verify API key format (should start with sk-)',
         'Review infrastructure requirements',
-        'Check deployment logs for errors',
-        'Verify resource quotas and limits'
+        'Check deployment logs for errors'
       ]
     };
   }
 
   private getFallbackCode(prompt: string, provider: string, codeType: string): { code: string; explanation: string } {
     const fallbackCode = this.generateFallbackTerraform(prompt, provider, codeType);
+    const errorMsg = this.initializationError || 'OpenAI service unavailable';
     return {
       code: fallbackCode,
-      explanation: `Generated ${codeType} template for ${provider} based on: "${prompt}". This is a basic template - configure your OpenAI API key for enhanced code generation with specific resource configurations.`
+      explanation: `Generated ${codeType} template for ${provider} based on: "${prompt}". Note: ${errorMsg}. Configure OpenAI API key in Supabase for enhanced code generation with specific resource configurations.`
     };
   }
 
@@ -346,20 +392,18 @@ Generate the infrastructure code now:`;
   }
 
   private extractCodeFromResponse(response: string): string | null {
-    this.codeExtractionRegex.lastIndex = 0;
-    const match = this.codeExtractionRegex.exec(response);
-    if (match && match[1]) {
-      return match[1].trim();
-    }
-    
-    const simpleMatch = response.match(/```(?:terraform|hcl|yaml)?\n?([\s\S]*?)```/);
-    if (simpleMatch && simpleMatch[1]) {
-      return simpleMatch[1].trim();
-    }
-    
-    const anyCodeMatch = response.match(/```\n?([\s\S]*?)```/);
-    if (anyCodeMatch && anyCodeMatch[1]) {
-      return anyCodeMatch[1].trim();
+    // Try multiple regex patterns to extract code
+    const patterns = [
+      /```(?:terraform|hcl)\n([\s\S]*?)```/,
+      /```(?:[^\n]*)\n([\s\S]*?)```/,
+      /```\n?([\s\S]*?)```/
+    ];
+
+    for (const pattern of patterns) {
+      const match = response.match(pattern);
+      if (match && match[1] && match[1].trim().length > 20) {
+        return match[1].trim();
+      }
     }
     
     return null;
@@ -369,9 +413,286 @@ Generate the infrastructure code now:`;
     const resourceName = prompt.toLowerCase().includes('database') ? 'database' :
                         prompt.toLowerCase().includes('storage') ? 'storage' :
                         prompt.toLowerCase().includes('compute') || prompt.toLowerCase().includes('vm') ? 'compute' :
-                        prompt.toLowerCase().includes('network') ? 'network' : 'infrastructure';
+                        prompt.toLowerCase().includes('network') || prompt.toLowerCase().includes('vnet') || prompt.toLowerCase().includes('vpc') ? 'network' : 
+                        prompt.toLowerCase().includes('container') ? 'container' : 'infrastructure';
 
     if (provider === 'azure') {
+      if (prompt.toLowerCase().includes('vnet') || prompt.toLowerCase().includes('network') || prompt.toLowerCase().includes('subnet')) {
+        return `# ${codeType} configuration for Azure Virtual Network
+# Generated from: ${prompt}
+
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~>3.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {}
+}
+
+# Resource Group
+resource "azurerm_resource_group" "main" {
+  name     = "instanti8-network-rg"
+  location = "East US"
+
+  tags = {
+    Environment = "Development"
+    CreatedBy   = "instanti8.dev"
+    Project     = "Network Infrastructure"
+  }
+}
+
+# Virtual Network
+resource "azurerm_virtual_network" "main" {
+  name                = "instanti8-vnet"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  tags = {
+    Environment = "Development"
+    CreatedBy   = "instanti8.dev"
+  }
+}
+
+# Public Subnet
+resource "azurerm_subnet" "public" {
+  name                 = "public-subnet"
+  resource_group_name  = azurerm_resource_group.main.name
+  virtual_network_name = azurerm_virtual_network.main.name
+  address_prefixes     = ["10.0.1.0/24"]
+}
+
+# Private Subnet
+resource "azurerm_subnet" "private" {
+  name                 = "private-subnet"
+  resource_group_name  = azurerm_resource_group.main.name
+  virtual_network_name = azurerm_virtual_network.main.name
+  address_prefixes     = ["10.0.2.0/24"]
+}
+
+# Network Security Group for Public Subnet
+resource "azurerm_network_security_group" "public" {
+  name                = "public-nsg"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  security_rule {
+    name                       = "HTTP"
+    priority                   = 1001
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "HTTPS"
+    priority                   = 1002
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  tags = {
+    Environment = "Development"
+    CreatedBy   = "instanti8.dev"
+  }
+}
+
+# Network Security Group for Private Subnet
+resource "azurerm_network_security_group" "private" {
+  name                = "private-nsg"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  security_rule {
+    name                       = "AllowVnetInBound"
+    priority                   = 1001
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "VirtualNetwork"
+    destination_address_prefix = "*"
+  }
+
+  tags = {
+    Environment = "Development"
+    CreatedBy   = "instanti8.dev"
+  }
+}
+
+# Associate NSG to Public Subnet
+resource "azurerm_subnet_network_security_group_association" "public" {
+  subnet_id                 = azurerm_subnet.public.id
+  network_security_group_id = azurerm_network_security_group.public.id
+}
+
+# Associate NSG to Private Subnet
+resource "azurerm_subnet_network_security_group_association" "private" {
+  subnet_id                 = azurerm_subnet.private.id
+  network_security_group_id = azurerm_network_security_group.private.id
+}
+
+# Public IP for Load Balancer
+resource "azurerm_public_ip" "lb" {
+  name                = "instanti8-lb-pip"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+
+  tags = {
+    Environment = "Development"
+    CreatedBy   = "instanti8.dev"
+  }
+}
+
+# Load Balancer
+resource "azurerm_lb" "main" {
+  name                = "instanti8-lb"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  sku                 = "Standard"
+
+  frontend_ip_configuration {
+    name                 = "PublicIPAddress"
+    public_ip_address_id = azurerm_public_ip.lb.id
+  }
+
+  tags = {
+    Environment = "Development"
+    CreatedBy   = "instanti8.dev"
+  }
+}
+
+# Load Balancer Backend Pool
+resource "azurerm_lb_backend_address_pool" "main" {
+  loadbalancer_id = azurerm_lb.main.id
+  name            = "BackEndAddressPool"
+}
+
+# Load Balancer Probe
+resource "azurerm_lb_probe" "main" {
+  loadbalancer_id = azurerm_lb.main.id
+  name            = "http-probe"
+  port            = 80
+  protocol        = "Http"
+  request_path    = "/"
+}
+
+# Load Balancer Rule
+resource "azurerm_lb_rule" "main" {
+  loadbalancer_id                = azurerm_lb.main.id
+  name                           = "LBRule"
+  protocol                       = "Tcp"
+  frontend_port                  = 80
+  backend_port                   = 80
+  frontend_ip_configuration_name = "PublicIPAddress"
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.main.id]
+  probe_id                       = azurerm_lb_probe.main.id
+}
+
+# Outputs
+output "virtual_network_id" {
+  value       = azurerm_virtual_network.main.id
+  description = "ID of the virtual network"
+}
+
+output "public_subnet_id" {
+  value       = azurerm_subnet.public.id
+  description = "ID of the public subnet"
+}
+
+output "private_subnet_id" {
+  value       = azurerm_subnet.private.id
+  description = "ID of the private subnet"
+}
+
+output "load_balancer_public_ip" {
+  value       = azurerm_public_ip.lb.ip_address
+  description = "Public IP address of the load balancer"
+}`;
+      }
+
+      if (prompt.toLowerCase().includes('container')) {
+        return `# ${codeType} configuration for Azure Container Instances
+# Generated from: ${prompt}
+
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~>3.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {}
+}
+
+resource "azurerm_resource_group" "container_rg" {
+  name     = "instanti8-container-rg"
+  location = "East US"
+
+  tags = {
+    Environment = "Development"
+    CreatedBy   = "instanti8.dev"
+    Project     = "Container"
+    Purpose     = "Container deployment"
+  }
+}
+
+resource "azurerm_container_group" "main" {
+  name                = "instanti8-container-group"
+  location            = azurerm_resource_group.container_rg.location
+  resource_group_name = azurerm_resource_group.container_rg.name
+  ip_address_type     = "Public"
+  dns_name_label      = "instanti8-container-app"
+  os_type             = "Linux"
+
+  container {
+    name   = "main-container"
+    image  = "nginx:alpine"
+    cpu    = "0.5"
+    memory = "1.5"
+
+    ports {
+      port     = 80
+      protocol = "TCP"
+    }
+  }
+
+  tags = {
+    Environment = "Development"
+    CreatedBy   = "instanti8.dev"
+    Project     = "Container"
+  }
+}
+
+output "container_ip_address" {
+  value = azurerm_container_group.main.ip_address
+}
+
+output "container_fqdn" {
+  value = azurerm_container_group.main.fqdn
+}`;
+      }
+
       return `# ${codeType} configuration for Azure
 # Generated from: ${prompt}
 

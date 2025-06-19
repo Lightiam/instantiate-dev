@@ -1,8 +1,9 @@
+
 import * as React from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Settings, Code, Zap, Download, Play, CheckCircle, AlertCircle, Bot, User } from "lucide-react"
 
 interface ConversationTemplate {
@@ -110,6 +111,7 @@ export function ChatUI() {
   const handleSendMessage = async (message: string) => {
     if (!message.trim()) return
 
+
     const userMessage: Message = {
       id: Date.now(),
       type: "user",
@@ -183,6 +185,7 @@ export function ChatUI() {
     }
   }
 
+
   const deployCode = async () => {
     if (!generatedCode) return
 
@@ -254,6 +257,8 @@ export function ChatUI() {
     a.click()
     URL.revokeObjectURL(url)
   }
+
+
 
   return (
     <div className="min-h-screen bg-slate-900 text-white">
