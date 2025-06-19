@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { ChatInput } from "@/components/ChatInput"
 import { ChatMessages } from "@/components/ChatMessages"
+import { ConversationStarter } from "@/components/ConversationStarter"
+import { EnvironmentConfig } from "@/components/EnvironmentConfig"
 import { Code, Zap, Download, Play, CheckCircle, AlertCircle, Bot, User } from "lucide-react"
 
 interface GeneratedCode {
@@ -35,8 +37,13 @@ export function ChatUI() {
   const [isGenerating, setIsGenerating] = React.useState(false)
   const [isDeploying, setIsDeploying] = React.useState(false)
   const [deploymentResult, setDeploymentResult] = React.useState<DeploymentResult | null>(null)
+  const [showStarter, setShowStarter] = React.useState(true)
+  const [showEnvConfig, setShowEnvConfig] = React.useState(false)
+  const [input, setInput] = React.useState('')
 
   const handleSendMessage = async (message: string) => {
+    setShowStarter(false)
+    
     const userMessage: Message = {
       id: Date.now(),
       type: "user",
@@ -74,7 +81,7 @@ export function ChatUI() {
         }
         
         setGeneratedCode(codeData)
-        setDeploymentResult(null) // Reset deployment result when new code is generated
+        setDeploymentResult(null)
         
         const botResponse: Message = {
           id: Date.now() + 1,
@@ -100,6 +107,18 @@ export function ChatUI() {
     } finally {
       setIsGenerating(false)
     }
+  }
+
+  const handleTemplateSelect = (prompt: string) => {
+    setInput(prompt)
+  }
+
+  const handleBackClick = () => {
+    setShowStarter(true)
+    setMessages([])
+    setGeneratedCode(null)
+    setDeploymentResult(null)
+    setInput('')
   }
 
   const deployCode = async () => {
@@ -174,12 +193,49 @@ export function ChatUI() {
     URL.revokeObjectURL(url)
   }
 
+  if (showStarter) {
+    return (
+      <>
+        <ConversationStarter
+          onTemplateSelect={handleTemplateSelect}
+          onSendMessage={handleSendMessage}
+          input={input}
+          setInput={setInput}
+          onBackClick={() => window.location.href = '/dashboard'}
+          onEnvironmentClick={() => setShowEnvConfig(true)}
+        />
+        <EnvironmentConfig
+          isOpen={showEnvConfig}
+          onClose={() => setShowEnvConfig(false)}
+        />
+      </>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-white mb-2">Infrastructure Chat</h1>
-          <p className="text-slate-400">Generate and deploy infrastructure code through natural conversation</p>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">Infrastructure Chat</h1>
+            <p className="text-slate-400">Generate and deploy infrastructure code through natural conversation</p>
+          </div>
+          <div className="flex space-x-2">
+            <Button 
+              variant="outline" 
+              onClick={handleBackClick}
+              className="border-slate-600 hover:bg-slate-800"
+            >
+              New Chat
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => setShowEnvConfig(true)}
+              className="border-slate-600 hover:bg-slate-800"
+            >
+              Environment
+            </Button>
+          </div>
         </div>
 
         {/* Code Display Area */}
@@ -288,15 +344,10 @@ export function ChatUI() {
               {messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center text-center h-full">
                   <Code className="h-16 w-16 text-slate-400 mb-4" />
-                  <h3 className="text-lg font-semibold text-slate-300 mb-2">Ready to Generate Infrastructure</h3>
+                  <h3 className="text-lg font-semibold text-slate-300 mb-2">Continue the Conversation</h3>
                   <p className="text-slate-500 mb-6 max-w-md">
-                    Describe what you want to deploy and I'll generate the infrastructure code for you.
+                    Ask follow-up questions or request modifications to your infrastructure.
                   </p>
-                  <div className="text-sm text-slate-400 space-y-1">
-                    <p>Try: "Create an S3 bucket with versioning"</p>
-                    <p>Or: "Deploy a Kubernetes cluster on GCP"</p>
-                    <p>Or: "Set up Azure storage with containers"</p>
-                  </div>
                 </div>
               ) : (
                 messages.map((message) => (
@@ -327,6 +378,11 @@ export function ChatUI() {
             </div>
           </CardContent>
         </Card>
+        
+        <EnvironmentConfig
+          isOpen={showEnvConfig}
+          onClose={() => setShowEnvConfig(false)}
+        />
       </div>
     </div>
   )
