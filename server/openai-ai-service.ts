@@ -63,23 +63,36 @@ Always provide practical, actionable advice with code examples when relevant. Be
 
   private initializeOpenAI() {
     try {
-      // Try multiple possible environment variable names for OpenAI API key
-      const apiKey = process.env.OPENAI_API_KEY || 
-                     process.env.Open_AI_Key || 
-                     process.env.OPEN_AI_API_KEY ||
-                     process.env.openai_api_key;
+      console.log('🔧 OpenAI Service Initialization starting...');
       
-      console.log('🔧 OpenAI Service Initialization:');
-      console.log('- Available env vars:', Object.keys(process.env).filter(k => 
+      // Try multiple possible environment variable names for OpenAI API key
+      const possibleApiKeys = [
+        { name: 'OPENAI_API_KEY', value: process.env.OPENAI_API_KEY },
+        { name: 'Open_AI_Key', value: process.env.Open_AI_Key },
+        { name: 'OPEN_AI_API_KEY', value: process.env.OPEN_AI_API_KEY },
+        { name: 'openai_api_key', value: process.env.openai_api_key },
+        { name: 'OPEN_AI_KEY', value: process.env.OPEN_AI_KEY },
+        { name: 'OpenAI_API_Key', value: process.env.OpenAI_API_Key }
+      ];
+      
+      const envKeys = Object.keys(process.env);
+      console.log('🔍 Environment analysis:');
+      console.log('- Total env vars:', envKeys.length);
+      console.log('- OpenAI-related vars:', envKeys.filter(k => 
         k.toLowerCase().includes('openai') || 
         k.toLowerCase().includes('open_ai') ||
         k.toLowerCase().includes('ai_key')
       ));
-      console.log('- API Key found:', !!apiKey);
-      console.log('- Key length:', apiKey ? apiKey.length : 0);
+      
+      console.log('🔑 Checking possible API key names:');
+      possibleApiKeys.forEach(({ name, value }) => {
+        console.log(`- ${name}: ${value ? 'found' : 'not found'} ${value ? `(length: ${value.length})` : ''}`);
+      });
+      
+      const apiKey = possibleApiKeys.find(({ value }) => value && value.trim().length > 0)?.value;
       
       if (!apiKey || apiKey.trim().length === 0) {
-        this.initializationError = 'OpenAI API key not found in environment variables. Expected: OPENAI_API_KEY, Open_AI_Key, OPEN_AI_API_KEY, or openai_api_key';
+        this.initializationError = 'OpenAI API key not found in environment variables. Expected one of: OPENAI_API_KEY, Open_AI_Key, OPEN_AI_API_KEY, openai_api_key, OPEN_AI_KEY, or OpenAI_API_Key';
         console.error('❌', this.initializationError);
         this.openai = null;
         this.isInitialized = false;
@@ -87,27 +100,56 @@ Always provide practical, actionable advice with code examples when relevant. Be
       }
 
       // Validate API key format
-      if (!apiKey.startsWith('sk-') || apiKey.length < 20) {
-        this.initializationError = 'Invalid OpenAI API key format. API keys should start with "sk-" and be longer than 20 characters.';
+      const trimmedKey = apiKey.trim();
+      if (!trimmedKey.startsWith('sk-') || trimmedKey.length < 20) {
+        this.initializationError = `Invalid OpenAI API key format. API keys should start with "sk-" and be longer than 20 characters. Found key: ${trimmedKey.substring(0, 7)}...${trimmedKey.substring(trimmedKey.length - 4)} (length: ${trimmedKey.length})`;
         console.error('❌', this.initializationError);
         this.openai = null;
         this.isInitialized = false;
         return;
       }
 
+      console.log('✅ Valid API key found, initializing OpenAI client...');
       this.openai = new OpenAI({ 
-        apiKey: apiKey.trim(),
+        apiKey: trimmedKey,
         timeout: 60000 // 60 second timeout
       });
       
       this.isInitialized = true;
       this.initializationError = null;
       console.log('✅ OpenAI service initialized successfully');
+      
+      // Test the connection
+      this.testConnection();
     } catch (error: any) {
       this.initializationError = `Failed to initialize OpenAI service: ${error.message}`;
-      console.error('❌', this.initializationError);
+      console.error('❌', this.initializationError, error);
       this.openai = null;
       this.isInitialized = false;
+    }
+  }
+
+  private async testConnection() {
+    try {
+      console.log('🧪 Testing OpenAI connection...');
+      if (!this.openai) {
+        throw new Error('OpenAI client not initialized');
+      }
+      
+      const testResponse = await this.openai.chat.completions.create({
+        messages: [{ role: 'user', content: 'Hello' }],
+        model: 'gpt-4o-mini',
+        max_tokens: 5,
+        temperature: 0
+      });
+      
+      console.log('✅ OpenAI connection test successful');
+      return true;
+    } catch (error: any) {
+      console.error('❌ OpenAI connection test failed:', error.message);
+      this.initializationError = `OpenAI connection test failed: ${error.message}`;
+      this.isInitialized = false;
+      return false;
     }
   }
 
@@ -149,12 +191,15 @@ Always provide practical, actionable advice with code examples when relevant. Be
 
   async generateInfrastructureCode(prompt: string, provider?: 'azure' | 'aws' | 'gcp' | 'kubernetes', codeType: 'terraform' | 'pulumi' = 'terraform', conversationId?: string): Promise<{ code: string; explanation: string; detectedProvider?: string }> {
     try {
-      console.log(`🚀 Starting infrastructure code generation...`);
+      console.log(`🚀 Infrastructure code generation starting...`);
       console.log(`📝 Prompt: "${prompt}"`);
       console.log(`🎯 Provider: ${provider || 'auto-detect'}`);
       console.log(`🔧 Code type: ${codeType}`);
-      console.log(`🔑 OpenAI initialized: ${this.isInitialized}`);
-      console.log(`❌ Init error: ${this.initializationError || 'none'}`);
+      console.log(`🔑 Service initialized: ${this.isInitialized}`);
+      
+      if (this.initializationError) {
+        console.log(`❌ Initialization error: ${this.initializationError}`);
+      }
       
       const detectedProvider = provider || this.detectCloudProvider(prompt);
       console.log(`🎯 Final provider: ${detectedProvider}`);
@@ -207,6 +252,10 @@ Generate the infrastructure code now:`;
       const response = completion.choices[0]?.message?.content || '';
       console.log('✅ OpenAI code generation response received, length:', response.length);
       
+      if (!response || response.length < 50) {
+        throw new Error('OpenAI returned empty or very short response');
+      }
+      
       conversation.messages.push({
         role: 'assistant',
         content: response,
@@ -214,7 +263,12 @@ Generate the infrastructure code now:`;
       });
       
       const extractedCode = this.extractCodeFromResponse(response);
-      console.log('📄 Extracted code length:', extractedCode?.length || 0);
+      console.log('📄 Extracted code analysis:', {
+        found: !!extractedCode,
+        length: extractedCode?.length || 0,
+        hasResources: extractedCode?.includes('resource') || false,
+        hasProvider: extractedCode?.includes('provider') || false
+      });
       
       if (!extractedCode || extractedCode.length < 50) {
         console.log('⚠️ OpenAI response insufficient, using fallback');
@@ -232,12 +286,14 @@ Generate the infrastructure code now:`;
       };
     } catch (error: any) {
       console.error('💥 Infrastructure Code Generation Error:', error);
-      console.error('Error details:', {
+      console.error('Detailed error info:', {
+        name: error.name,
         message: error.message,
         status: error.status,
         type: error.type,
         code: error.code,
-        response: error.response?.data
+        response: error.response?.data,
+        stack: error.stack?.substring(0, 500)
       });
       
       const detectedProvider = provider || this.detectCloudProvider(prompt);
@@ -367,49 +423,6 @@ Generate the infrastructure code now:`;
   }
 
   private getFallbackCode(prompt: string, provider: string, codeType: string): { code: string; explanation: string } {
-    const fallbackCode = this.generateFallbackTerraform(prompt, provider, codeType);
-    const errorMsg = this.initializationError || 'OpenAI service unavailable';
-    return {
-      code: fallbackCode,
-      explanation: `Generated ${codeType} template for ${provider} based on: "${prompt}". Note: ${errorMsg}. Configure OpenAI API key in Supabase for enhanced code generation with specific resource configurations.`
-    };
-  }
-
-  private getOrCreateConversation(conversationId?: string): ConversationContext {
-    const id = conversationId || 'default';
-    
-    if (!this.conversations.has(id)) {
-      this.conversations.set(id, {
-        messages: [],
-        conversationId: id,
-        lastActivity: new Date()
-      });
-    }
-    
-    const conversation = this.conversations.get(id)!;
-    conversation.lastActivity = new Date();
-    return conversation;
-  }
-
-  private extractCodeFromResponse(response: string): string | null {
-    // Try multiple regex patterns to extract code
-    const patterns = [
-      /```(?:terraform|hcl)\n([\s\S]*?)```/,
-      /```(?:[^\n]*)\n([\s\S]*?)```/,
-      /```\n?([\s\S]*?)```/
-    ];
-
-    for (const pattern of patterns) {
-      const match = response.match(pattern);
-      if (match && match[1] && match[1].trim().length > 20) {
-        return match[1].trim();
-      }
-    }
-    
-    return null;
-  }
-
-  private generateFallbackTerraform(prompt: string, provider: string, codeType: string): string {
     const resourceName = prompt.toLowerCase().includes('database') ? 'database' :
                         prompt.toLowerCase().includes('storage') ? 'storage' :
                         prompt.toLowerCase().includes('compute') || prompt.toLowerCase().includes('vm') ? 'compute' :
