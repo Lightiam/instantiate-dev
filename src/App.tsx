@@ -3,6 +3,7 @@ import { Route, Switch } from "wouter";
 import Landing from "@/pages/landing";
 import { Auth } from "@/pages/auth";
 import Dashboard from "@/pages/dashboard";
+import { ChatUI } from "@/pages/chat-ui";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Header } from "@/components/layout/header";
 import { NotFound } from "@/pages/not-found";
@@ -27,6 +28,11 @@ function App() {
         <Route path="/iac-workspace">
           <AuthGuard>
             <div>IaC Workspace (Protected)</div>
+          </AuthGuard>
+        </Route>
+        <Route path="/chat-ui">
+          <AuthGuard>
+            <ChatUI />
           </AuthGuard>
         </Route>
         <Route component={NotFound} />

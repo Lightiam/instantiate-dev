@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { multiCloudManager } from '../cloud-providers/multi-cloud-manager';
 import { openaiService } from '../openai-ai-service';
@@ -9,8 +8,8 @@ const router = Router();
 const deploymentRequestSchema = z.object({
   name: z.string().min(1).max(100),
   code: z.string().min(1),
-  codeType: z.enum(['javascript', 'python', 'html']),
-  provider: z.enum(['aws', 'gcp', 'azure', 'alibaba', 'ibm', 'oracle', 'digitalocean', 'linode', 'huawei', 'tencent', 'netlify']),
+  codeType: z.enum(['terraform', 'pulumi', 'javascript', 'python', 'html']),
+  provider: z.enum(['aws', 'gcp', 'azure', 'kubernetes', 'alibaba', 'ibm', 'oracle', 'digitalocean', 'linode', 'huawei', 'tencent', 'netlify']),
   region: z.string().min(1),
   service: z.string().min(1),
   environmentVariables: z.record(z.string()).optional()
@@ -25,30 +24,197 @@ const codeGenerationRequestSchema = z.object({
 
 router.post('/deploy', async (req, res) => {
   try {
+    console.log('Deployment request received:', req.body);
+    
     const validationResult = deploymentRequestSchema.safeParse(req.body);
     
     if (!validationResult.success) {
+      console.error('Deployment validation failed:', validationResult.error.errors);
       return res.status(400).json({
         success: false,
-        error: 'Invalid request data',
-        details: validationResult.error.errors
+        error: 'Invalid deployment request data',
+        details: validationResult.error.errors,
+        message: 'Please check your deployment configuration and try again'
       });
     }
 
-    // Type assertion to ensure compatibility with UnifiedDeploymentRequest
-    const request = validationResult.data as any;
-    const result = await multiCloudManager.deployToProvider(request);
+    const request = validationResult.data;
+    console.log(`Initiating deployment: ${request.name} to ${request.provider.toUpperCase()}`);
+    console.log(`Service: ${request.service}, Region: ${request.region}, Code Type: ${request.codeType}`);
     
-    res.json({
+    if (['terraform', 'pulumi'].includes(request.codeType)) {
+      if (!request.code.includes('resource') && !request.code.includes('provider')) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid infrastructure code',
+          message: 'Infrastructure code must contain valid resource definitions and provider configuration'
+        });
+      }
+    }
+    
+    // Type assertion to ensure compatibility with UnifiedDeploymentRequest
+    const result = await multiCloudManager.deployToProvider(request as any);
+    
+    const response = {
       success: true,
       deployment: result,
+      deploymentId: result.deploymentId,
+      provider: request.provider,
+      service: request.service,
+      region: request.region,
+      status: 'deployed',
+      timestamp: new Date().toISOString(),
       message: `Successfully deployed ${request.name} to ${request.provider.toUpperCase()}`
-    });
+    };
+    
+    console.log(`Deployment successful: ${result.deploymentId}`);
+    res.json(response);
   } catch (error: any) {
     console.error('Multi-cloud deployment error:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
+      message: 'Deployment failed - please check your cloud provider credentials and configuration'
+    });
+  }
+});
+
+router.post('/generate-code', async (req, res) => {
+  try {
+    console.log('🎯 Code generation request received:', {
+      hasPrompt: !!req.body.prompt,
+      promptLength: req.body.prompt?.length || 0,
+      provider: req.body.provider,
+      codeType: req.body.codeType,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Validate request
+    const validationResult = codeGenerationRequestSchema.safeParse(req.body);
+    
+    if (!validationResult.success) {
+      console.error('❌ Request validation failed:', validationResult.error.errors);
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid request data',
+        details: validationResult.error.errors,
+        message: 'Please check your request parameters and try again'
+      });
+    }
+
+    const { prompt, provider, codeType, resourceType } = validationResult.data;
+    
+    console.log(`🚀 Processing code generation request:`);
+    console.log(`- Prompt: "${prompt}"`);
+    console.log(`- Provider: ${provider || 'auto-detect'}`);
+    console.log(`- Code Type: ${codeType}`);
+    console.log(`- Resource Type: ${resourceType || 'not specified'}`);
+    
+    // Check OpenAI API key availability
+    const possibleKeys = [
+      process.env.OPENAI_API_KEY,
+      process.env.Open_AI_Key,
+      process.env.OPEN_AI_API_KEY,
+      process.env.openai_api_key
+    ];
+    
+    const openaiKey = possibleKeys.find(key => key && key.trim().length > 0);
+    
+    console.log('🔑 API Key Status:', {
+      found: !!openaiKey,
+      keyLength: openaiKey ? openaiKey.length : 0,
+      startsWithSk: openaiKey ? openaiKey.startsWith('sk-') : false,
+      availableEnvVars: Object.keys(process.env).filter(k => 
+        k.toLowerCase().includes('openai') || 
+        k.toLowerCase().includes('open_ai') ||
+        k.toLowerCase().includes('ai_key')
+      )
+    });
+    
+    if (!openaiKey || openaiKey.trim().length === 0) {
+      console.error('❌ No OpenAI API key found');
+      return res.status(500).json({
+        success: false,
+        error: 'OpenAI API key not configured',
+        message: 'Please configure your OpenAI API key in Supabase Edge Function Secrets. Use one of these names: OPENAI_API_KEY, Open_AI_Key, OPEN_AI_API_KEY, or openai_api_key',
+        availableEnvVars: Object.keys(process.env).filter(k => 
+          k.toLowerCase().includes('openai') || 
+          k.toLowerCase().includes('open_ai') ||
+          k.toLowerCase().includes('ai_key')
+        )
+      });
+    }
+
+    if (!openaiKey.startsWith('sk-') || openaiKey.length < 20) {
+      console.error('❌ Invalid OpenAI API key format');
+      return res.status(500).json({
+        success: false,
+        error: 'Invalid OpenAI API key format',
+        message: 'OpenAI API keys should start with "sk-" and be longer than 20 characters. Please check your API key configuration.',
+        keyLength: openaiKey.length,
+        startsWithSk: openaiKey.startsWith('sk-')
+      });
+    }
+    
+    console.log('✅ OpenAI API key validated, proceeding with generation...');
+    
+    try {
+      // Call OpenAI service
+      const result = await openaiService.generateInfrastructureCode(prompt, provider, codeType);
+      
+      console.log('🎉 Code generation completed:', {
+        codeLength: result.code.length,
+        detectedProvider: result.detectedProvider,
+        hasExplanation: !!result.explanation
+      });
+      
+      const response = {
+        success: true,
+        terraform: result.code,
+        description: result.explanation,
+        detectedProvider: result.detectedProvider,
+        resourceType: resourceType || 'infrastructure',
+        prompt: prompt,
+        codeType: codeType,
+        timestamp: new Date().toISOString()
+      };
+      
+      console.log(`✅ Sending successful response for ${result.detectedProvider}`);
+      res.json(response);
+      
+    } catch (aiError: any) {
+      console.error('💥 OpenAI service error:', aiError);
+      console.error('AI Error details:', {
+        message: aiError.message,
+        status: aiError.status,
+        type: aiError.type,
+        code: aiError.code,
+        stack: aiError.stack?.substring(0, 500)
+      });
+      
+      return res.status(500).json({
+        success: false,
+        error: `AI Code Generation Error: ${aiError.message}`,
+        message: 'Failed to generate infrastructure code using OpenAI. This could be due to API rate limits, invalid API key, or service issues.',
+        details: {
+          type: aiError.type || 'unknown',
+          status: aiError.status || 'unknown',
+          code: aiError.code || 'unknown'
+        }
+      });
+    }
+  } catch (error: any) {
+    console.error('💥 Code generation route error:', error);
+    console.error('Route Error details:', {
+      message: error.message,
+      stack: error.stack?.substring(0, 500)
+    });
+    
+    res.status(500).json({
+      success: false,
+      error: `Server Error: ${error.message}`,
+      message: 'An unexpected error occurred during code generation. Please try again or check the server configuration.',
+      timestamp: new Date().toISOString()
     });
   }
 });
@@ -171,66 +337,6 @@ router.get('/health', async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message
-    });
-  }
-});
-
-router.post('/generate-code', async (req, res) => {
-  try {
-    console.log('Code generation request received:', req.body);
-    
-    const validationResult = codeGenerationRequestSchema.safeParse(req.body);
-    
-    if (!validationResult.success) {
-      console.error('Validation failed:', validationResult.error.errors);
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid request data',
-        details: validationResult.error.errors
-      });
-    }
-
-    const { prompt, provider, codeType, resourceType } = validationResult.data;
-    
-    console.log(`Generating ${codeType} code for prompt: "${prompt}"`);
-    if (provider) {
-      console.log(`Target provider: ${provider}`);
-    }
-
-    // Check if OpenAI API key is available in multiple possible env vars
-    const openaiKey = process.env.OPENAI_API_KEY || process.env.Open_AI_Key;
-    if (!openaiKey) {
-      console.error('OpenAI API key not configured');
-      console.error('Available env vars:', Object.keys(process.env).filter(k => k.toLowerCase().includes('openai') || k.toLowerCase().includes('open')));
-      return res.status(500).json({
-        success: false,
-        error: 'OpenAI API key not configured. Please set OPENAI_API_KEY or Open_AI_Key environment variable.',
-        message: 'Code generation requires OpenAI API key configuration'
-      });
-    }
-    
-    console.log('OpenAI API key found, proceeding with generation...');
-    const result = await openaiService.generateInfrastructureCode(prompt, provider, codeType);
-    
-    const response = {
-      success: true,
-      terraform: result.code,
-      description: result.explanation,
-      detectedProvider: result.detectedProvider,
-      resourceType: resourceType || 'infrastructure',
-      prompt: prompt,
-      codeType: codeType
-    };
-    
-    console.log(`Code generation successful for ${result.detectedProvider}`);
-    console.log('Generated code length:', result.code.length);
-    res.json(response);
-  } catch (error: any) {
-    console.error('Code generation error:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message,
-      message: 'Code generation failed - please check your OpenAI API key and try again'
     });
   }
 });
