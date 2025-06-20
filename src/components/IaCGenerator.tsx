@@ -47,6 +47,15 @@ export function IaCGenerator() {
         })
       })
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Response is not valid JSON')
+      }
+
       const result = await response.json()
       if (result.success) {
         setGeneratedCode({
@@ -57,6 +66,7 @@ export function IaCGenerator() {
         })
       } else {
         console.error('Code generation failed:', result.error)
+        throw new Error(result.error || 'Code generation failed')
       }
     } catch (error) {
       console.error('Failed to generate IaC code:', error)
@@ -72,25 +82,37 @@ export function IaCGenerator() {
     setDeploymentResult(null)
     
     try {
-      const response = await fetch('/api/azure/deploy', {
+      const response = await fetch('/api/multi-cloud/deploy', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+          name: `${generatedCode.resourceType}-deployment`,
           code: generatedCode.terraform,
           codeType: 'terraform',
-          provider: 'azure',
-          resourceType: generatedCode.resourceType
+          provider: generatedCode.detectedProvider || 'azure',
+          region: 'eastus',
+          service: generatedCode.resourceType
         })
       })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Response is not valid JSON')
+      }
 
       const result = await response.json()
       setDeploymentResult(result)
     } catch (error) {
+      console.error('Deployment failed:', error)
       setDeploymentResult({
         success: false,
-        error: 'Deployment failed. Please check your Azure credentials and try again.'
+        error: `Deployment failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please check your cloud provider credentials and try again.`
       })
     } finally {
       setIsDeploying(false)
@@ -112,13 +134,17 @@ export function IaCGenerator() {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-white mb-2">Multi-Cloud Infrastructure</h2>
+        <p className="text-slate-400">Generate and deploy Infrastructure as Code across AWS, Azure, GCP, and Kubernetes</p>
+      </div>
+      <Card className="bg-slate-900 border-slate-700">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
+          <CardTitle className="flex items-center space-x-2 text-white">
             <Code className="h-5 w-5" />
             <span>IaC Code Generator</span>
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-slate-400">
             Generate Infrastructure as Code for AWS, Azure, GCP, and Kubernetes based on your requirements
           </CardDescription>
         </CardHeader>
@@ -174,9 +200,9 @@ export function IaCGenerator() {
       </Card>
 
       {generatedCode && (
-        <Card>
+        <Card className="bg-slate-900 border-slate-700">
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
+            <CardTitle className="flex items-center justify-between text-white">
               <span>Generated Terraform Code</span>
               <div className="flex space-x-2">
                 {generatedCode.detectedProvider && (
@@ -207,20 +233,20 @@ export function IaCGenerator() {
                 </Button>
               </div>
             </CardTitle>
-            <CardDescription>{generatedCode.description}</CardDescription>
+            <CardDescription className="text-slate-400">{generatedCode.description}</CardDescription>
           </CardHeader>
           <CardContent>
-            <pre className="bg-slate-50 p-4 rounded-md overflow-x-auto text-sm">
-              <code>{generatedCode.terraform}</code>
+            <pre className="bg-slate-950 p-4 rounded-md overflow-x-auto text-sm border border-slate-700">
+              <code className="text-slate-200">{generatedCode.terraform}</code>
             </pre>
           </CardContent>
         </Card>
       )}
 
       {deploymentResult && (
-        <Card>
+        <Card className="bg-slate-900 border-slate-700">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
+            <CardTitle className="flex items-center space-x-2 text-white">
               {deploymentResult.success ? (
                 <CheckCircle className="h-5 w-5 text-green-500" />
               ) : (

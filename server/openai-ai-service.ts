@@ -1,3 +1,4 @@
+
 import OpenAI from 'openai';
 
 interface ChatMessage {
@@ -37,7 +38,7 @@ export class OpenAIService {
   private systemPrompt: string;
 
   constructor() {
-    this.systemPrompt = `You are an expert cloud infrastructure and DevOps assistant for Instantiate.dev (</> instanti8.dev), a multi-cloud deployment platform. Your role is to help users with:
+    this.systemPrompt = `You are an expert cloud infrastructure and DevOps assistant for </> instanti8.dev, a multi-cloud deployment platform. Your role is to help users with:
 
 1. Infrastructure planning and architecture recommendations
 2. Troubleshooting deployment issues across Azure, AWS, GCP and other cloud providers
@@ -48,15 +49,23 @@ export class OpenAIService {
 
 Always provide practical, actionable advice with code examples when relevant. Be concise but thorough.`;
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.OPENAI_API_KEY || process.env.Open_AI_Key;
+    console.log('OpenAI API Key check:', apiKey ? 'Found' : 'Not found');
+    console.log('Available env vars:', Object.keys(process.env).filter(k => k.toLowerCase().includes('openai') || k.toLowerCase().includes('open')));
+    
     if (apiKey) {
       this.openai = new OpenAI({ apiKey });
+      console.log('OpenAI service initialized successfully');
+    } else {
+      console.warn('OpenAI API key not found in environment variables');
+      console.warn('Checked: OPENAI_API_KEY, Open_AI_Key');
     }
   }
 
   async generateResponse(context: DeploymentContext, chatHistory: ChatMessage[] = []): Promise<AIResponse> {
     try {
       if (!this.openai) {
+        console.error('OpenAI client not initialized - API key missing');
         return this.getFallbackResponse(context);
       }
 
@@ -66,17 +75,24 @@ Always provide practical, actionable advice with code examples when relevant. Be
         { role: 'user' as const, content: this.buildContextualPrompt(context) }
       ];
 
+      console.log('Calling OpenAI with messages:', messages.length);
       const completion = await this.openai.chat.completions.create({
         messages,
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini',
         temperature: 0.7,
         max_tokens: 1000,
       });
 
       const response = completion.choices[0]?.message?.content || '';
+      console.log('OpenAI response received, length:', response.length);
       return this.parseAIResponse(response, context);
     } catch (error: any) {
       console.error('OpenAI Service Error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        status: error.status,
+        type: error.type
+      });
       return this.getFallbackResponse(context);
     }
   }
@@ -84,45 +100,72 @@ Always provide practical, actionable advice with code examples when relevant. Be
   async generateInfrastructureCode(prompt: string, provider?: 'azure' | 'aws' | 'gcp' | 'kubernetes', codeType: 'terraform' | 'pulumi' = 'terraform'): Promise<{ code: string; explanation: string; detectedProvider?: string }> {
     try {
       const detectedProvider = provider || this.detectCloudProvider(prompt);
+      console.log(`Generating ${codeType} code for ${detectedProvider} with prompt: "${prompt}"`);
       
       if (!this.openai) {
+        console.log('OpenAI not available, using fallback code generation');
         const fallback = this.getFallbackCode(prompt, detectedProvider, codeType);
         return { ...fallback, detectedProvider };
       }
 
-      const codePrompt = `Generate ${codeType} code for ${detectedProvider} based on this request: "${prompt}". 
+      const codePrompt = `Generate complete, production-ready ${codeType} code for ${detectedProvider} based on this request: "${prompt}". 
 
-      IMPORTANT: Analyze the prompt carefully and ensure the generated code matches the requested cloud provider and services.
-      
-      Provide:
-      1. Complete, production-ready code specific to ${detectedProvider}
-      2. Proper resource naming conventions for ${detectedProvider}
-      3. Best security practices for ${detectedProvider}
-      4. Cost optimization considerations
-      5. Appropriate resource types and configurations for the detected services
-      
-      Format your response as:
-      CODE:
-      [your ${detectedProvider}-specific code here]
-      
-      EXPLANATION:
-      [detailed explanation of the generated infrastructure and why it matches the request]`;
+IMPORTANT REQUIREMENTS:
+1. Generate ONLY valid ${codeType} code for ${detectedProvider}
+2. Include proper provider configuration and required resources
+3. Use appropriate resource naming conventions for ${detectedProvider}
+4. Include security best practices and proper tagging
+5. Make the code deployable and functional
 
+Please provide ONLY the ${codeType} code without any additional formatting or explanations. The code should be ready to save to a .tf file and use immediately.`;
+
+      console.log('Calling OpenAI for code generation...');
       const completion = await this.openai.chat.completions.create({
         messages: [
-          { role: 'system', content: this.systemPrompt },
+          { role: 'system', content: 'You are an expert Infrastructure as Code generator. Generate only valid, production-ready code.' },
           { role: 'user', content: codePrompt }
         ],
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini',
         temperature: 0.3,
-        max_tokens: 1500,
+        max_tokens: 2000,
       });
 
       const response = completion.choices[0]?.message?.content || '';
-      const result = this.parseCodeResponse(response, prompt, detectedProvider, codeType);
-      return { ...result, detectedProvider };
+      console.log('OpenAI response received, length:', response.length);
+      
+      // Clean up the response to get just the code
+      let cleanCode = response.trim();
+      
+      // Remove markdown code blocks if present
+      if (cleanCode.includes('```')) {
+        const codeMatch = cleanCode.match(/```(?:terraform|hcl)?\n?([\s\S]*?)```/);
+        if (codeMatch) {
+          cleanCode = codeMatch[1].trim();
+        }
+      }
+      
+      // If the response is too short or doesn't contain terraform syntax, use fallback
+      if (cleanCode.length < 50 || (!cleanCode.includes('terraform') && !cleanCode.includes('resource') && !cleanCode.includes('provider'))) {
+        console.log('OpenAI response insufficient, using fallback');
+        const fallback = this.getFallbackCode(prompt, detectedProvider, codeType);
+        return { ...fallback, detectedProvider };
+      }
+
+      const explanation = `Generated ${codeType} code for ${detectedProvider} to ${prompt}. This code includes proper provider configuration, resource definitions, and follows best practices for security and naming conventions.`;
+      
+      console.log('Successfully generated infrastructure code');
+      return { 
+        code: cleanCode, 
+        explanation, 
+        detectedProvider 
+      };
     } catch (error: any) {
       console.error('Infrastructure Code Generation Error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        status: error.status,
+        type: error.type
+      });
       const detectedProvider = provider || this.detectCloudProvider(prompt);
       const fallback = this.getFallbackCode(prompt, detectedProvider, codeType);
       return { ...fallback, detectedProvider };
@@ -238,7 +281,7 @@ Always provide practical, actionable advice with code examples when relevant. Be
 
   private getFallbackResponse(context: DeploymentContext): AIResponse {
     return {
-      message: `I can help you with ${context.provider || 'cloud'} infrastructure deployment. Please configure your OpenAI API key in the environment variables for enhanced AI responses. For now, I can provide basic guidance based on your query: "${context.userQuery}"`,
+      message: `I can help you with ${context.provider || 'cloud'} infrastructure deployment. Please ensure your OpenAI API key is configured in the environment variables for enhanced AI responses. For now, I can provide basic guidance based on your query: "${context.userQuery}"`,
       suggestions: [
         'Configure cloud provider credentials',
         'Review infrastructure requirements',
@@ -249,13 +292,19 @@ Always provide practical, actionable advice with code examples when relevant. Be
   }
 
   private getFallbackCode(prompt: string, provider: string, codeType: string): { code: string; explanation: string } {
+    const fallbackCode = this.generateFallbackTerraform(prompt, provider, codeType);
     return {
-      code: this.generateFallbackTerraform(prompt, provider, codeType),
-      explanation: `Generated basic ${codeType} template for ${provider}. Configure OpenAI API key for enhanced code generation.`
+      code: fallbackCode,
+      explanation: `Generated ${codeType} template for ${provider} based on: "${prompt}". This is a basic template - configure your OpenAI API key for enhanced code generation with specific resource configurations.`
     };
   }
 
   private generateFallbackTerraform(prompt: string, provider: string, codeType: string): string {
+    const resourceName = prompt.toLowerCase().includes('database') ? 'database' :
+                        prompt.toLowerCase().includes('storage') ? 'storage' :
+                        prompt.toLowerCase().includes('compute') || prompt.toLowerCase().includes('vm') ? 'compute' :
+                        prompt.toLowerCase().includes('network') ? 'network' : 'infrastructure';
+
     if (provider === 'azure') {
       return `# ${codeType} configuration for Azure
 # Generated from: ${prompt}
@@ -274,15 +323,19 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "main" {
-  name     = "instantiate-rg"
+  name     = "instanti8-${resourceName}-rg"
   location = "East US"
 
   tags = {
     Environment = "Development"
-    CreatedBy   = "Instantiate"
-    Project     = "Infrastructure"
+    CreatedBy   = "instanti8.dev"
+    Project     = "${resourceName}"
+    Purpose     = "Infrastructure deployment"
   }
-}`;
+}
+
+# Additional resources based on your requirements
+# Configure specific resources for your ${resourceName} needs`;
     }
     
     if (provider === 'aws') {
@@ -308,11 +361,23 @@ resource "aws_vpc" "main" {
   enable_dns_support   = true
 
   tags = {
-    Name        = "instantiate-vpc"
+    Name        = "instanti8-${resourceName}-vpc"
     Environment = "Development"
-    CreatedBy   = "Instantiate"
+    CreatedBy   = "instanti8.dev"
+    Project     = "${resourceName}"
   }
-}`;
+}
+
+resource "aws_subnet" "main" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.1.0/24"
+
+  tags = {
+    Name = "instanti8-${resourceName}-subnet"
+  }
+}
+
+# Additional AWS resources for your ${resourceName} requirements`;
     }
     
     if (provider === 'gcp') {
@@ -339,9 +404,24 @@ variable "project_id" {
 }
 
 resource "google_compute_network" "main" {
-  name                    = "instantiate-network"
+  name                    = "instanti8-${resourceName}-network"
   auto_create_subnetworks = false
-}`;
+
+  labels = {
+    environment = "development"
+    created-by  = "instanti8-dev"
+    project     = "${resourceName}"
+  }
+}
+
+resource "google_compute_subnetwork" "main" {
+  name          = "instanti8-${resourceName}-subnet"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.main.id
+}
+
+# Additional GCP resources for your ${resourceName} needs`;
     }
     
     if (provider === 'kubernetes') {
@@ -351,39 +431,56 @@ resource "google_compute_network" "main" {
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: instantiate-app
+  name: instanti8-${resourceName}-app
   labels:
-    app: instantiate-app
+    app: instanti8-${resourceName}-app
+    created-by: instanti8.dev
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: instantiate-app
+      app: instanti8-${resourceName}-app
   template:
     metadata:
       labels:
-        app: instantiate-app
+        app: instanti8-${resourceName}-app
     spec:
       containers:
-      - name: app
+      - name: ${resourceName}-container
         image: nginx:alpine
         ports:
         - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: instantiate-service
+  name: instanti8-${resourceName}-service
+  labels:
+    created-by: instanti8.dev
 spec:
   selector:
-    app: instantiate-app
+    app: instanti8-${resourceName}-app
   ports:
   - port: 80
     targetPort: 80
-  type: LoadBalancer`;
+    protocol: TCP
+  type: LoadBalancer
+
+# Additional Kubernetes resources for your ${resourceName} application`;
     }
     
-    return `# ${codeType} code for ${provider}\n# Generated from prompt: ${prompt}\n\n# Configure your ${provider} resources here`;
+    return `# ${codeType} code for ${provider}
+# Generated from prompt: ${prompt}
+# Configure your ${provider} resources for ${resourceName} here
+
+# This is a basic template - configure OpenAI API key for detailed resource generation`;
   }
 }
 

@@ -3,7 +3,7 @@ import type { Express } from "express";
 import { multiCloudRoutes } from "./routes/multi-cloud-routes";
 import authRoutes from "./routes/auth-routes";
 import { credentialsRoutes } from "./routes/credentials-routes";
-import { aiChatService } from "./ai-chat-service";
+import { openaiService } from "./openai-ai-service";
 
 export function registerRoutes(app: Express): void {
   app.use("/api/auth", authRoutes);
@@ -14,7 +14,7 @@ export function registerRoutes(app: Express): void {
   // Credentials management routes
   app.use("/api/credentials", credentialsRoutes);
 
-  // AI Chat routes
+  // AI Chat routes using OpenAI service
   app.post("/api/ai/chat", async (req, res) => {
     try {
       const { message, provider, resourceType, chatHistory } = req.body;
@@ -25,7 +25,7 @@ export function registerRoutes(app: Express): void {
         resourceType
       };
       
-      const response = await aiChatService.generateResponse(context, chatHistory || []);
+      const response = await openaiService.generateResponse(context, chatHistory || []);
       res.json(response);
     } catch (error: any) {
       console.error('AI Chat error:', error);
@@ -40,7 +40,7 @@ export function registerRoutes(app: Express): void {
     try {
       const { prompt, provider, codeType } = req.body;
       
-      const result = await aiChatService.generateInfrastructureCode(
+      const result = await openaiService.generateInfrastructureCode(
         prompt,
         provider || 'azure',
         codeType || 'terraform'
@@ -65,7 +65,7 @@ export function registerRoutes(app: Express): void {
     try {
       const { prompt, resourceType } = req.body;
       
-      const result = await aiChatService.generateInfrastructureCode(
+      const result = await openaiService.generateInfrastructureCode(
         prompt,
         'azure',
         'terraform'

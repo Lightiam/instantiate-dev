@@ -5,6 +5,7 @@ import { Projects } from "@/components/dashboard/projects";
 import { Monitoring } from "@/components/dashboard/monitoring";
 import { Deployments } from "@/components/dashboard/deployments";
 import { Settings } from "@/components/dashboard/settings";
+import { IaCGenerator } from "@/components/IaCGenerator";
 
 export default function DashboardPage() {
   const [currentSection, setCurrentSection] = useState("overview");
@@ -15,6 +16,8 @@ export default function DashboardPage() {
         return <Overview />;
       case "projects":
         return <Projects />;
+      case "multi-cloud":
+        return <IaCGenerator />;
       case "monitoring":
         return <Monitoring />;
       case "deployments":

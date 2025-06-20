@@ -37,15 +37,31 @@ export function ChatWorkspace() {
     setIsDeploying(true)
 
     try {
-      const deploymentResult = await processDeploymentRequest(message)
+      // Use OpenAI for chat responses
+      const response = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: message,
+          provider: 'azure',
+          resourceType: 'infrastructure'
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to get AI response')
+      }
+
+      const aiResponse = await response.json()
       
       const botResponse: Message = {
         id: Date.now() + 1,
         type: "bot",
-        content: deploymentResult.message,
+        content: aiResponse.message,
         timestamp: new Date().toLocaleTimeString(),
-        deploymentId: deploymentResult.deploymentId,
-        status: deploymentResult.status
+        status: "success"
       }
       
       setMessages(prev => [...prev, botResponse])
@@ -53,7 +69,7 @@ export function ChatWorkspace() {
       const errorResponse: Message = {
         id: Date.now() + 1,
         type: "bot",
-        content: `Deployment failed: ${error.message}`,
+        content: `I encountered an issue processing your request: ${error.message}. Please try again.`,
         timestamp: new Date().toLocaleTimeString(),
         status: "error"
       }
@@ -61,51 +77,6 @@ export function ChatWorkspace() {
       setMessages(prev => [...prev, errorResponse])
     } finally {
       setIsDeploying(false)
-    }
-  }
-
-  const processDeploymentRequest = async (message: string): Promise<{
-    message: string
-    deploymentId?: string
-    status: "pending" | "deploying" | "success" | "error"
-  }> => {
-    const lowerMessage = message.toLowerCase()
-    
-    if (lowerMessage.includes('deploy') || lowerMessage.includes('create')) {
-      const deploymentId = `dep_${Date.now()}`
-      
-      if (lowerMessage.includes('azure')) {
-        return await deployToAzure(deploymentId, message)
-      } else {
-        return {
-          message: "I can help you deploy to Azure. Please specify 'deploy to Azure' or try the IaC Generator tab for more options.",
-          status: "pending"
-        }
-      }
-    }
-    
-    return {
-      message: "I can help you with cloud deployments. Try asking me to 'deploy to Azure' or use the IaC Generator tab for Infrastructure as Code generation.",
-      status: "pending"
-    }
-  }
-
-  const deployToAzure = async (deploymentId: string, request: string) => {
-    try {
-      const result = await cloudProviders.azure.deploy({
-        name: `instantiate-${Date.now()}`,
-        resourceGroup: 'instantiate-rg',
-        location: 'eastus',
-        type: 'container'
-      })
-      
-      return {
-        message: `Azure deployment initiated successfully. Resource Group: instantiate-rg, Location: eastus`,
-        deploymentId,
-        status: "deploying" as const
-      }
-    } catch (error: any) {
-      throw new Error(`Azure deployment failed: ${error.message}`)
     }
   }
 
@@ -147,10 +118,10 @@ export function ChatWorkspace() {
               <Card className="h-[600px] flex flex-col">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    <span>Instantiate AI Assistant</span>
+                    <span>Instantiate AI Assistant (OpenAI)</span>
                     <Badge variant="secondary">Ready</Badge>
                   </CardTitle>
-                  <CardDescription>Deploy infrastructure to Azure, AWS, GCP and more</CardDescription>
+                  <CardDescription>Deploy infrastructure to Azure, AWS, GCP and more using OpenAI</CardDescription>
                 </CardHeader>
                 
                 <CardContent className="flex-1 flex flex-col p-0">
