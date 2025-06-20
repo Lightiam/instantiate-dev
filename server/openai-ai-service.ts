@@ -1,3 +1,4 @@
+
 import OpenAI from 'openai';
 
 interface ChatMessage {
@@ -151,6 +152,38 @@ Always provide practical, actionable advice with code examples when relevant. Be
       this.isInitialized = false;
       return false;
     }
+  }
+
+  private getOrCreateConversation(conversationId?: string): ConversationContext {
+    if (!conversationId) {
+      conversationId = `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+    
+    if (!this.conversations.has(conversationId)) {
+      this.conversations.set(conversationId, {
+        messages: [],
+        conversationId,
+        lastActivity: new Date()
+      });
+    }
+    
+    const conversation = this.conversations.get(conversationId)!;
+    conversation.lastActivity = new Date();
+    return conversation;
+  }
+
+  private extractCodeFromResponse(response: string): string {
+    // Try to extract code from markdown code blocks
+    const codeBlockRegex = /```(?:\w+)?\n([\s\S]*?)\n```/g;
+    const matches = [...response.matchAll(codeBlockRegex)];
+    
+    if (matches.length > 0) {
+      // Return the first (and usually largest) code block
+      return matches[0][1].trim();
+    }
+    
+    // If no code blocks found, return the response as-is
+    return response.trim();
   }
 
   async generateResponse(context: DeploymentContext, chatHistory: ChatMessage[] = []): Promise<AIResponse> {
@@ -431,7 +464,8 @@ Generate the infrastructure code now:`;
 
     if (provider === 'azure') {
       if (prompt.toLowerCase().includes('vnet') || prompt.toLowerCase().includes('network') || prompt.toLowerCase().includes('subnet')) {
-        return `# ${codeType} configuration for Azure Virtual Network
+        return {
+          code: `# ${codeType} configuration for Azure Virtual Network
 # Generated from: ${prompt}
 
 terraform {
@@ -638,11 +672,14 @@ output "private_subnet_id" {
 output "load_balancer_public_ip" {
   value       = azurerm_public_ip.lb.ip_address
   description = "Public IP address of the load balancer"
-}`;
+}`,
+          explanation: `Generated Azure Virtual Network infrastructure with public and private subnets, network security groups, and load balancer configuration.`
+        };
       }
 
       if (prompt.toLowerCase().includes('container')) {
-        return `# ${codeType} configuration for Azure Container Instances
+        return {
+          code: `# ${codeType} configuration for Azure Container Instances
 # Generated from: ${prompt}
 
 terraform {
@@ -703,10 +740,13 @@ output "container_ip_address" {
 
 output "container_fqdn" {
   value = azurerm_container_group.main.fqdn
-}`;
+}`,
+          explanation: `Generated Azure Container Instance configuration with public IP and DNS label.`
+        };
       }
 
-      return `# ${codeType} configuration for Azure
+      return {
+        code: `# ${codeType} configuration for Azure
 # Generated from: ${prompt}
 
 terraform {
@@ -735,11 +775,14 @@ resource "azurerm_resource_group" "main" {
 }
 
 # Additional resources based on your requirements
-# Configure specific resources for your ${resourceName} needs`;
+# Configure specific resources for your ${resourceName} needs`,
+        explanation: `Generated basic Azure resource group configuration for ${resourceName} deployment.`
+      };
     }
     
     if (provider === 'aws') {
-      return `# ${codeType} configuration for AWS
+      return {
+        code: `# ${codeType} configuration for AWS
 # Generated from: ${prompt}
 
 terraform {
@@ -777,11 +820,14 @@ resource "aws_subnet" "main" {
   }
 }
 
-# Additional AWS resources for your ${resourceName} requirements`;
+# Additional AWS resources for your ${resourceName} requirements`,
+        explanation: `Generated AWS VPC configuration with subnet for ${resourceName} deployment.`
+      };
     }
     
     if (provider === 'gcp') {
-      return `# ${codeType} configuration for GCP
+      return {
+        code: `# ${codeType} configuration for GCP
 # Generated from: ${prompt}
 
 terraform {
@@ -821,11 +867,14 @@ resource "google_compute_subnetwork" "main" {
   network       = google_compute_network.main.id
 }
 
-# Additional GCP resources for your ${resourceName} needs`;
+# Additional GCP resources for your ${resourceName} needs`,
+        explanation: `Generated GCP network configuration with subnetwork for ${resourceName} deployment.`
+      };
     }
     
     if (provider === 'kubernetes') {
-      return `# ${codeType} configuration for Kubernetes
+      return {
+        code: `# ${codeType} configuration for Kubernetes
 # Generated from: ${prompt}
 
 apiVersion: apps/v1
@@ -873,14 +922,19 @@ spec:
     protocol: TCP
   type: LoadBalancer
 
-# Additional Kubernetes resources for your ${resourceName} application`;
+# Additional Kubernetes resources for your ${resourceName} application`,
+        explanation: `Generated Kubernetes deployment and service configuration for ${resourceName} application.`
+      };
     }
     
-    return `# ${codeType} code for ${provider}
+    return {
+      code: `# ${codeType} code for ${provider}
 # Generated from prompt: ${prompt}
 # Configure your ${provider} resources for ${resourceName} here
 
-# This is a basic template - configure OpenAI API key for detailed resource generation`;
+# This is a basic template - configure OpenAI API key for detailed resource generation`,
+      explanation: `Generated basic template for ${provider} ${resourceName} deployment. Configure OpenAI API key for detailed resource generation.`
+    };
   }
 }
 
