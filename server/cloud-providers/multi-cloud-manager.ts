@@ -28,14 +28,16 @@ interface CloudResource {
   type: string;
   provider: SupportedProvider;
   region: string;
-  status: string;
+  status: 'pending' | 'deploying' | 'deployed' | 'failed' | 'active';
   cost?: number;
   url?: string;
-  createdAt: string;
+  createdAt: Date;
+  updatedAt?: Date;
   lastChecked: string;
   deploymentId?: string;
   ipAddress?: string;
   serviceUrl?: string;
+  metadata?: Record<string, any>;
 }
 
 interface ProviderStatus {
@@ -64,6 +66,7 @@ export class MultiCloudManager {
 
   private resourceCache = new Map<SupportedProvider, CloudResource[]>();
   private lastSyncTime = new Map<SupportedProvider, Date>();
+  private deploymentResources = new Map<string, CloudResource>();
 
   async deployToProvider(request: UnifiedDeploymentRequest): Promise<any> {
     const supportedProviders: SupportedProvider[] = ['azure', 'aws', 'gcp', 'kubernetes'];
@@ -72,7 +75,30 @@ export class MultiCloudManager {
       throw new Error(`Unsupported cloud provider: ${request.provider}`);
     }
 
+    const resourceId = `${request.provider}-${request.name}-${Date.now()}`;
+    const pendingResource: CloudResource = {
+      id: resourceId,
+      name: request.name,
+      type: request.service,
+      provider: request.provider,
+      region: request.region,
+      status: 'pending',
+      createdAt: new Date(),
+      lastChecked: new Date().toISOString(),
+      metadata: {
+        originalRequest: request,
+        deploymentStarted: new Date()
+      }
+    };
+
+    this.deploymentResources.set(resourceId, pendingResource);
+    console.log(`Created pending deployment resource: ${resourceId}`);
+
     try {
+      const deployingResource = { ...pendingResource, status: 'deploying' as const, updatedAt: new Date() };
+      this.deploymentResources.set(resourceId, deployingResource);
+      console.log(`Updated deployment status to deploying: ${resourceId}`);
+
       let result;
 
       const infraCode = await openaiService.generateInfrastructureCode(
@@ -100,15 +126,66 @@ export class MultiCloudManager {
           throw new Error(`Provider ${request.provider} not implemented`);
       }
 
+      if (result && result.success) {
+        const deployedResource: CloudResource = {
+          ...deployingResource,
+          status: 'deployed',
+          updatedAt: new Date(),
+          deploymentId: result.deploymentId,
+          serviceUrl: result.serviceUrl,
+          ipAddress: result.ipAddress,
+          url: result.serviceUrl || result.url,
+          metadata: {
+            ...deployingResource.metadata,
+            deploymentCompleted: new Date(),
+            deploymentResult: result,
+            generatedCode: infraCode.code,
+            codeExplanation: infraCode.explanation
+          }
+        };
+
+        this.deploymentResources.set(resourceId, deployedResource);
+        console.log(`Successfully deployed ${request.name} to ${request.provider} (${resourceId})`);
+
+        return {
+          ...result,
+          provider: request.provider,
+          deploymentType: 'unified',
+          generatedCode: infraCode.code,
+          codeExplanation: infraCode.explanation,
+          resourceId: resourceId,
+          resource: deployedResource
+        };
+      } else {
+        throw new Error(result?.error || 'Deployment failed with unknown error');
+      }
+
+    } catch (error: any) {
+      console.error(`Deployment failed for ${request.provider}:${request.service}:`, error.message);
+
+      const failedResource: CloudResource = {
+        ...pendingResource,
+        status: 'failed',
+        updatedAt: new Date(),
+        metadata: {
+          ...pendingResource.metadata,
+          error: error.message,
+          errorStack: error.stack,
+          deploymentFailed: new Date()
+        }
+      };
+
+      this.deploymentResources.set(resourceId, failedResource);
+      console.log(`Deployment failed for resource: ${resourceId}`);
+
       return {
-        ...result,
+        success: false,
+        error: error.message,
         provider: request.provider,
         deploymentType: 'unified',
-        generatedCode: infraCode.code,
-        codeExplanation: infraCode.explanation
+        resourceId: resourceId,
+        resource: failedResource
       };
-    } catch (error: any) {
-      throw new Error(`${request.provider.toUpperCase()} deployment failed: ${error.message}`);
     }
   }
 
@@ -213,26 +290,33 @@ export class MultiCloudManager {
       codeType: 'terraform'
     });
 
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    console.log(`Preparing Kubernetes deployment for ${request.name}`);
+    
+    const deploymentId = `k8s-${Date.now()}`;
+    const resources = [{
+      name: request.name,
+      type: 'Deployment',
+      namespace: 'default',
+      status: 'ready_for_deployment'
+    }, {
+      name: `${request.name}-service`,
+      type: 'Service',
+      namespace: 'default',
+      status: 'ready_for_deployment'
+    }];
+
+    console.log(`Generated Kubernetes manifests for deployment ${deploymentId}`);
 
     return {
       success: true,
-      deploymentId: `k8s-${Date.now()}`,
+      deploymentId: deploymentId,
       name: request.name,
       namespace: 'default',
       service: request.service,
       region: request.region,
       generatedManifests: kubernetesCode.code,
       codeExplanation: kubernetesCode.description,
-      resources: [{
-        name: request.name,
-        type: 'Deployment',
-        namespace: 'default'
-      }, {
-        name: `${request.name}-service`,
-        type: 'Service',
-        namespace: 'default'
-      }]
+      resources: resources
     };
   }
 
